@@ -112,8 +112,37 @@ test('clone', (_t) => {
     notDeepEqual(b, b3);
 });
 
+test('getPgn', (_t) => {
+    const b = Board.default();
+    b._moves = ['e4', 'e5', 'Nc3', 'Qf6', 'f3', 'Bc5'];
+    equal(b.getPgn(), '1. e4 e5 2. Nc3 Qf6 3. f3 Bc5');
+});
+
+test('getPgn odd num of moves', (_t) => {
+    const b = Board.default();
+    b._moves = ['e4', 'e5', 'Nc3', 'Qf6', 'f3'];
+    equal(b.getPgn(), '1. e4 e5 2. Nc3 Qf6 3. f3');
+});
+
 test('applyMove', (_t) => {
     _t.todo();
-})
+    const b = Board.default();
+    const b2 = b.applyMove('b2b4');
+    //equal(b2._params.next, 'b'); // TODO
+    //equal(b2._params.enPassantPos, 'b3'); // TODO
+    deepEqual(b2._params.castling.split('').sort(), 'KQkq'.split(''));
+    //b2._params.halfMoveClock
+    //b2._params.fullMoveNumber
+    deepEqual(b2._moves, ['b2b4']);
+    /*equal(b2.toString(),
+`r n b q k b n r
+p p p p p p p p
+               
+               
+  P            
+               
+P   P P P P P P
+R N B Q K B N R`);*/
+});
 
 // log(b.toString())

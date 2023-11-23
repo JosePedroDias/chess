@@ -26,10 +26,9 @@ export function validMoves(board) {
 }
 
 // TODO use AbortController
-export function electNextMove(b) {
+export function electNextMove(board) {
     return new Promise((resolve, reject) => {
-        //TODO
-        const b2 = b.clone();
-        resolve(b2);
+        const move = (board._params.next === 'w') ? 'b2b3' : 'b7b6';
+        resolve(move);
     });
 }

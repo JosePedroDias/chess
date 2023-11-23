@@ -14,6 +14,7 @@ https://chessx.sourceforge.io/
 https://www.chess.com/play/computer
 
 https://www.chess.com/terms/fen-chess
+https://lichess.org/editor/r2qkb1r/ppp2ppp/3pb3/3np1N1/1n2P3/2N5/PPP1BPPP/R1BQK2R_b_KQkq_-_0_2?color=white
 
 https://www.chess.com/terms/chess-piece-value
 https://chess-bot.com/online_calculator/next_best_move.html

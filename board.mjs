@@ -24,6 +24,8 @@ export class Board {
         fullMoveNumber: 1, // ?
     }
 
+    _moves = [];
+
     static empty() {
         const b = new Board();
         b._cells.fill(EMPTY);
@@ -95,6 +97,17 @@ export class Board {
         };
     }
 
+    getPgn() {
+        // 2... Nf4 3. Nxe6 d5 4. Bxf4 
+        return Array.from(this._moves.entries())
+        .map(([num, move]) => {
+            if (num % 2 === 0) {
+                return `${num/2 + 1}. ${move}`;
+            };
+            return move;
+        }).join(' ');
+    }
+
     get(pos) {
         return this._cells[ POSITIONS_TO_INDICES.get(pos) ];
     }
@@ -107,6 +120,7 @@ export class Board {
         const b = new Board();
         b._cells = Array.from(this._cells);
         b._params = structuredClone(this._params);
+        b._moves = Array.from(this._moves);
         return b;
     }
 
@@ -131,7 +145,9 @@ export class Board {
 
     applyMove(move) {
         // TODO returns a new board
-        return this.clone();
+        const b = this.clone();
+        b._moves.push(move);
+        return b;
     }
 }
 

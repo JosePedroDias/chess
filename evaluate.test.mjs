@@ -4,6 +4,7 @@ import { equal } from 'node:assert/strict';
 //import { log } from './utils.mjs';
 import { Board } from './board.mjs';
 import { material, validMoves, electNextMove } from './evaluate.mjs';
+import { deepEqual } from 'node:assert';
 
 test('material empty', (_t) => {
     const b = Board.empty();
@@ -28,10 +29,15 @@ test('material winning', (_t) => {
 
 test('valid moves', (_t) => {
     _t.todo();
+    const b = Board.default();
+    deepEqual(validMoves(b), []);
 });
 
-test('elect new move', (_t) => {
+test('elect new move', async (_t) => {
     _t.todo();
+    const b = Board.default();
+    const move = await electNextMove(b);
+    equal(move, 'b2b3');
 });
 
 // log(b.toString())
