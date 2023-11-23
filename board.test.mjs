@@ -112,4 +112,8 @@ test('clone', (_t) => {
     notDeepEqual(b, b3);
 });
 
+test('applyMove', (_t) => {
+    _t.todo();
+})
+
 // log(b.toString())

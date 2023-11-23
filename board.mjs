@@ -128,6 +128,11 @@ export class Board {
         }
         return lines.join('\n');
     }
+
+    applyMove(move) {
+        // TODO returns a new board
+        return this.clone();
+    }
 }
 
 export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

@@ -19,3 +19,17 @@ export function material(board, isWhite) {
     });
     return mat;
 }
+
+export function validMoves(board) {
+    //TODO
+    return [];
+}
+
+// TODO use AbortController
+export function electNextMove(b) {
+    return new Promise((resolve, reject) => {
+        //TODO
+        const b2 = b.clone();
+        resolve(b2);
+    });
+}
