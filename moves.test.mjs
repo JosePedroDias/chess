@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { equal, deepEqual } from 'node:assert/strict';
+import { equal } from 'node:assert/strict';
 
 //import { log } from './utils.mjs';
 import { Board } from './board.mjs';

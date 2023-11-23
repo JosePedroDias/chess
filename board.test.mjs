@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { equal, deepEqual } from 'node:assert/strict';
+import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
 //import { log } from './utils.mjs';
 import { Board } from './board.mjs';
@@ -71,6 +71,45 @@ a4 b4 c4 d4 e4 f4 g4 h4
 a3 b3 c3 d3 e3 f3 g3 h3
 a2 b2 c2 d2 e2 f2 g2 h2
 a1 b1 c1 d1 e1 f1 g1 h1`);
+});
+
+test('getFen', (_t) => {
+    const b = new Board();
+    b.setFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 3 6`);
+    equal(b.getFen(), `r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 3 6`);
+});
+
+test('set', (_t) => {
+    const b = new Board();
+    b.set('b2', 'K');
+    equal(b.toString(),
+`               
+               
+               
+               
+               
+               
+  K            
+               `);
+});
+
+test('get', (_t) => {
+    const b = new Board();
+    b.set('b3', 'Q');
+    equal(b.get('b3'), 'Q');
+    equal(b.get('b4'), ' ');
+});
+
+test('clone', (_t) => {
+    const b = new Board();
+    const b2 = b.clone();
+    const b3 = b.clone();
+    deepEqual(b, b2);
+    deepEqual(b, b3);
+    b2.set('a1', 'R');
+    notDeepEqual(b, b2);
+    b3._params.next = 'b';
+    notDeepEqual(b, b3);
 });
 
 // log(b.toString())
