@@ -1,62 +1,12 @@
-const POSITIONS_TO_INDICES = new Map();
-const INDICES_TO_POSITIONS = new Map();
+export const POSITIONS_TO_INDICES = new Map();
+export const INDICES_TO_POSITIONS = new Map();
+
+export const WHITE_PIECES = ['K', 'Q', 'R', 'B', 'N', 'P'];
 
 const EMPTY = ` `;
 
-function indexFromXY([x, y]) {
-    if (x < 0 || x > 7 || y < 0 || y > 7) return;
-    return x + y * 8;
-}
-
-function xyFromIndex(index) {
-    const y = Math.floor(index / 8);
-    const x = index - 8 * y;
-    return [x, y];
-}
-
-function xysToValidPositions(xys) {
-    //console.log(xys);
-    return xys
-    .map(indexFromXY)
-    .filter((v) => v !== undefined)
-    .map((idx) => INDICES_TO_POSITIONS.get(idx));
-}
-
-export function kingMoves(pos) {
-    const index = POSITIONS_TO_INDICES.get(pos);
-    //console.log(index);
-    const [x, y] = xyFromIndex(index);
-    //console.log([x, y]);
-    return xysToValidPositions([
-        [x-1, y-1],
-        [x,   y-1],
-        [x+1, y-1],
-        [x-1, y],
-        [x+1, y],
-        [x-1, y+1],
-        [x,   y+1],
-        [x+1, y+1],
-    ]);
-}
-
-export function queenMoves(pos, isWhite) {
-
-}
-
-export function rookMoves(pos, isWhite) {
-
-}
-
-export function bishopMoves(pos, isWhite) {
-
-}
-
-export function knightMoves(pos, isWhite) {
-
-}
-
-export function pawnMoves(pos, isWhite) {
-
+export function isWhitePiece(piece) {
+    return WHITE_PIECES.includes(piece);
 }
 
 export class Board {
@@ -120,8 +70,9 @@ export class Board {
     }
 }
 
-const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
+export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+export const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
 for (let [yi, y] of RANKS.entries()) {
     for (let [xi, x] of FILES.entries()) {
         const position = `${x}${y}`;

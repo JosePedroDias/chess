@@ -9,6 +9,8 @@ https://www.chess.com/play/computer
 
 https://www.chess.com/terms/fen-chess
 
+https://www.chess.com/terms/chess-piece-value
+
 
 chess interfaces
 - UCI
