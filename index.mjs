@@ -11,7 +11,7 @@ const b = new Board();
 //b.setFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1`);
 
 //console.log(material(b, true));
-
+/*
 b.fill('.');
 const pos = 'c6';
 //b.set(pos, 'k'); const moves = kingMoves(pos);
@@ -21,5 +21,6 @@ b.set(pos, 'q'); const moves = queenMoves(pos);
 //b.set(pos, 'n'); const moves = knightMoves(pos);
 //b.set(pos, 'p'); const moves = pawnMoves(pos, false);
 for (const mv of moves) b.set(mv, '*');
+*/
 
-console.log( b.toString() );
+console.log( b.toString().replace(/\n/gm, '|\n') + '|' );
