@@ -1,4 +1,12 @@
-import { POSITIONS_TO_INDICES, INDICES_TO_POSITIONS } from './board.mjs';
+import { POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE } from './board.mjs';
+import {
+    KING_W, KING_B,
+    QUEEN_W, QUEEN_B,
+    ROOK_W, ROOK_B,
+    BISHOP_W, BISHOP_B,
+    KNIGHT_W, KNIGHT_B,
+    PAWN_W, PAWN_B,
+} from './pieces.mjs';
 
 function posToXY(pos) {
     const index = POSITIONS_TO_INDICES.get(pos);
@@ -96,4 +104,27 @@ export function pawnMoves(pos, isWhite) {
     }
 
     return xysToValidPositions(moves);
+}
+
+export function getMoves(side, piece, pos) {
+    switch (piece) {
+        case KING_W:
+        case KING_B:
+            return kingMoves(pos);
+        case QUEEN_W:
+        case QUEEN_B:
+            return queenMoves(pos);
+        case ROOK_W:
+        case ROOK_B:
+            return rookMoves(pos);
+        case BISHOP_W:
+        case BISHOP_B:
+            return bishopMoves(pos);
+        case KNIGHT_W:
+        case KNIGHT_B:
+            return knightMoves(pos);
+        case PAWN_W:
+        case PAWN_B:
+            return pawnMoves(pos, side === WHITE);
+    }
 }

@@ -1,4 +1,6 @@
-import { WHITE, isWhitePiece } from './board.mjs';
+import { WHITE } from './board.mjs';
+import { getMoves } from './moves.mjs';
+import { isWhitePiece } from "./pieces.mjs";
 
 const values = {
     'q': 9,
@@ -21,8 +23,17 @@ export function material(board, isWhite) {
 }
 
 export function validMoves(board) {
-    //TODO
-    return [];
+    const side = board._params.next;
+    const moves = [];
+    board.iteratePiecesOfSide(side, (pos, piece) => {
+        console.log(`pos: ${pos}, piece: ${piece}`);
+        const pieceMoves = getMoves(side, piece, pos);
+        console.log(pieceMoves);
+        // TODO: rook, queen, bishop must move
+        //console.log(pos, piece);
+        // TODO
+    });
+    return moves;
 }
 
 // TODO use AbortController
