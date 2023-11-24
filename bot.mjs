@@ -30,8 +30,6 @@ rl.on('line', (line) => {
     const words = line.split(' ');
     const [command, ...args] = words;
 
-    //console.error(command, args);
-
     if (command === 'uci') {
         out(`id name naivebot 0.0.1`);
         out(`id author José Pedro Dias`);
@@ -51,13 +49,17 @@ rl.on('line', (line) => {
             out(`bestmove ${move}`);
         });
     } else if (command === 'position') {
+        let otherArgs;
         if (args[0] === 'startpos') {
             b = Board.default();
+            otherArgs = args.slice(1);
         } else {
-            b = Board.fromFen(args[0]);
+            const fen = args.slice(0, 6).join(' ');
+            b = Board.fromFen(fen);
+            otherArgs = args.slice(6);
         }
-        if (args[1] && args[1] === 'moves') {
-            const [_, __, ...moves] = args;
+        if (otherArgs[0] && otherArgs[0] === 'moves') {
+            const moves = otherArgs.slice(1);
             for (let mv of moves) b = b.applyMove(mv);
         }
         out(b.toPrettyString({ details: true }));
