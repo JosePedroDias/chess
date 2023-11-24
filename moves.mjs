@@ -34,7 +34,7 @@ function xysToValidPositions(xys) {
 // TODO: plus castling
 export function kingMoves(pos) {
     const [x, y] = posToXY(pos);
-    return xysToValidPositions([
+    return [
         [x-1, y-1],
         [x,   y-1],
         [x+1, y-1],
@@ -43,42 +43,51 @@ export function kingMoves(pos) {
         [x-1, y+1],
         [x,   y+1],
         [x+1, y+1],
-    ]);
+    ].map((pos) => xysToValidPositions([pos]));
 }
 
 export function queenMoves(pos) {
     const [x, y] = posToXY(pos);
     const moves = [];
     const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
-    for (let [dx, dy] of dirs)
+    for (let [dx, dy] of dirs) {
+        const dirMoves = [];
         for (let r = 1; r < 8; ++r)
-            moves.push([x + r*dx, y + r*dy]);
-    return xysToValidPositions(moves);
+            dirMoves.push([x + r*dx, y + r*dy]);
+        moves.push(xysToValidPositions(dirMoves));
+    }
+    return moves;
 }
 
 export function rookMoves(pos) {
     const [x, y] = posToXY(pos);
     const moves = [];
     const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-    for (let [dx, dy] of dirs)
+    for (let [dx, dy] of dirs) {
+        const dirMoves = [];
         for (let r = 1; r < 8; ++r)
-            moves.push([x + r*dx, y + r*dy]);
-    return xysToValidPositions(moves);
+            dirMoves.push([x + r*dx, y + r*dy]);
+        moves.push(xysToValidPositions(dirMoves));
+    }
+    return moves;
 }
 
 export function bishopMoves(pos) {
     const [x, y] = posToXY(pos);
     const moves = [];
     const dirs = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
-    for (let [dx, dy] of dirs)
+    for (let [dx, dy] of dirs) {
+        const dirMoves = [];
         for (let r = 1; r < 8; ++r)
-            moves.push([x + r*dx, y + r*dy]);
-    return xysToValidPositions(moves);
+            dirMoves.push([x + r*dx, y + r*dy]);
+        moves.push(xysToValidPositions(dirMoves));
+    }
+    return moves;
 }
 
 export function knightMoves(pos) {
     const [x, y] = posToXY(pos);
-    return xysToValidPositions([
+    return [
         [x-1, y-2],
         [x-2, y-1],
         [x+1, y-2],
@@ -87,7 +96,7 @@ export function knightMoves(pos) {
         [x-2, y+1],
         [x+1, y+2],
         [x+2, y+1],
-    ]);
+    ].map((pos) => xysToValidPositions([pos]));
 }
 
 // TODO: plus en passant kinda. it's a capture...
@@ -103,7 +112,7 @@ export function pawnMoves(pos, isWhite) {
         moves.push([x, y+dy*2])
     }
 
-    return xysToValidPositions(moves);
+    return moves.map((pos) => xysToValidPositions([pos]));;
 }
 
 export function getMoves(side, piece, pos) {

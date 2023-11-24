@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
-import { log } from './utils.mjs';
+import { log } from './testUtils.mjs';
 import { Board, WHITE, BLACK } from './board.mjs';
 
 test('empty board', (_t) => {
