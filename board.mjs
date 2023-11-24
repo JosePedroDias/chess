@@ -1,9 +1,12 @@
+import { LIGHT, DARK } from "./unicode_pieces.mjs";
+
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
 
 export const WHITE_PIECES = ['K', 'Q', 'R', 'B', 'N', 'P'];
 
 const EMPTY = ` `;
+const NL = '\n';
 
 export function isWhitePiece(piece) {
     return WHITE_PIECES.includes(piece);
@@ -138,9 +141,36 @@ export class Board {
                 const i = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
                 line.push( this._cells[i] );
             }
-            lines.push(line.join(' '))
+            lines.push(line.join(EMPTY))
         }
-        return lines.join('\n');
+        return lines.join(NL);
+    }
+
+    // TODO colors
+    toPrettyString({ fromBlacks, isLight, details } = { fromBlacks: false, isLight: false, details: false }) {
+        const pieces = isLight ? LIGHT : DARK;
+        const lines = [];
+        for (let yi = 0; yi < 8; ++yi) {
+            const line = [];
+            line.push(RANKS[fromBlacks ? 7 - yi : yi]);
+            for (let xi = 0; xi < 8; ++xi) {
+                const i = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
+                const p = this._cells[i];
+                line.push(pieces[p] || p);
+            }
+            lines.push(line.join(EMPTY))
+        }
+        lines.push(EMPTY + EMPTY + (fromBlacks ? FILES.toReversed() : FILES).join(EMPTY));
+
+        if (details) {
+            lines.push(`next: ${this._params.next === 'w' ? 'white' : 'black' }`);
+            lines.push(`en passant: ${this._params.enPassantPos }`);
+            lines.push(`castling: ${this._params.castling }`);
+            lines.push(`clock: ${this._params.halfMoveClock }  move nr: ${this._params.fullMoveNumber}`);
+            lines.push();
+        }
+
+        return lines.join(NL);
     }
 
     applyMove(move) {

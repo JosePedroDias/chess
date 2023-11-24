@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
-//import { log } from './utils.mjs';
+import { log } from './utils.mjs';
 import { Board } from './board.mjs';
 
 test('empty board', (_t) => {
@@ -16,7 +16,7 @@ test('empty board', (_t) => {
                
                `);
     equal(b._params.next, 'w');
-    deepEqual(b._params.castling.split('').sort(), 'KQkq'.split(''));
+    deepEqual(b._params.castling.split('').toSorted(), 'KQkq'.split(''));
     equal(b._params.enPassantPos, '-');
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
@@ -34,7 +34,7 @@ p p p p p p p p
 P P P P P P P P
 R N B Q K B N R`);
     equal(b._params.next, 'w');
-    deepEqual(b._params.castling.split('').sort(), 'KQkq'.split(''));
+    deepEqual(b._params.castling.split('').toSorted(), 'KQkq'.split(''));
     equal(b._params.enPassantPos, '-');
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
@@ -53,7 +53,7 @@ n         n
 P   P   K      
 q           b  `);
     equal(b._params.next, 'b');
-    deepEqual(b._params.castling.split('').sort(), 'Kq'.split(''));
+    deepEqual(b._params.castling.split('').toSorted(), 'Kq'.split(''));
     equal(b._params.enPassantPos, 'h2');
     equal(b._params.halfMoveClock, 3);
     equal(b._params.fullMoveNumber, 6);
@@ -130,7 +130,7 @@ test('applyMove', (_t) => {
     const b2 = b.applyMove('b2b4');
     //equal(b2._params.next, 'b'); // TODO
     //equal(b2._params.enPassantPos, 'b3'); // TODO
-    deepEqual(b2._params.castling.split('').sort(), 'KQkq'.split(''));
+    deepEqual(b2._params.castling.split('').toSorted(), 'KQkq'.split(''));
     //b2._params.halfMoveClock
     //b2._params.fullMoveNumber
     deepEqual(b2._moves, ['b2b4']);
@@ -143,6 +143,38 @@ p p p p p p p p
                
 P   P P P P P P
 R N B Q K B N R`);*/
+});
+
+test('toPrettyString simplest', (_t) => {
+    const b = Board.default();
+    equal(b.toPrettyString({}),
+`8 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
+7 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
+6                
+5                
+4                
+3                
+2 ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎
+1 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
+  a b c d e f g h`);
+});
+
+test('toPrettyString fromBlacks + details', (_t) => {
+    const b = Board.default();
+    equal(b.toPrettyString({ fromBlacks: true, details: true }),
+`1 ♜ ♞ ♝ ♚ ♛ ♝ ♞ ♜
+2 ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎
+3                
+4                
+5                
+6                
+7 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
+8 ♖ ♘ ♗ ♔ ♕ ♗ ♘ ♖
+  h g f e d c b a
+next: white
+en passant: -
+castling: KQkq
+clock: 0  move nr: 1`);
 });
 
 // log(b.toString())
