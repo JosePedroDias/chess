@@ -2,7 +2,7 @@ import test from 'node:test';
 import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
 import { log } from './utils.mjs';
-import { Board } from './board.mjs';
+import { Board, WHITE, BLACK } from './board.mjs';
 
 test('empty board', (_t) => {
     const b = Board.empty();
@@ -15,7 +15,7 @@ test('empty board', (_t) => {
                
                
                `);
-    equal(b._params.next, 'w');
+    equal(b._params.next, WHITE);
     deepEqual(b._params.castling.split('').toSorted(), 'KQkq'.split(''));
     equal(b._params.enPassantPos, '-');
     equal(b._params.halfMoveClock, 0);
@@ -33,7 +33,7 @@ p p p p p p p p
                
 P P P P P P P P
 R N B Q K B N R`);
-    equal(b._params.next, 'w');
+    equal(b._params.next, WHITE);
     deepEqual(b._params.castling.split('').toSorted(), 'KQkq'.split(''));
     equal(b._params.enPassantPos, '-');
     equal(b._params.halfMoveClock, 0);
@@ -52,7 +52,7 @@ n         n
       P        
 P   P   K      
 q           b  `);
-    equal(b._params.next, 'b');
+    equal(b._params.next, BLACK);
     deepEqual(b._params.castling.split('').toSorted(), 'Kq'.split(''));
     equal(b._params.enPassantPos, 'h2');
     equal(b._params.halfMoveClock, 3);
@@ -108,7 +108,7 @@ test('clone', (_t) => {
     deepEqual(b, b3);
     b2.set('a1', 'R');
     notDeepEqual(b, b2);
-    b3._params.next = 'b';
+    b3._params.next = BLACK;
     notDeepEqual(b, b3);
 });
 
@@ -128,7 +128,7 @@ test('applyMove', (_t) => {
     _t.todo();
     const b = Board.default();
     const b2 = b.applyMove('b2b4');
-    //equal(b2._params.next, 'b'); // TODO
+    //equal(b2._params.next, BLACK); // TODO
     //equal(b2._params.enPassantPos, 'b3'); // TODO
     deepEqual(b2._params.castling.split('').toSorted(), 'KQkq'.split(''));
     //b2._params.halfMoveClock

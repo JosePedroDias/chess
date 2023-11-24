@@ -1,4 +1,4 @@
-import { isWhitePiece } from './board.mjs';
+import { WHITE, isWhitePiece } from './board.mjs';
 
 const values = {
     'q': 9,
@@ -28,7 +28,7 @@ export function validMoves(board) {
 // TODO use AbortController
 export function electNextMove(board) {
     return new Promise((resolve, reject) => {
-        const move = (board._params.next === 'w') ? 'b2b3' : 'b7b6';
+        const move = (board._params.next === WHITE) ? 'b2b3' : 'b7b6';
         resolve(move);
     });
 }

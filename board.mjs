@@ -3,24 +3,62 @@ import { LIGHT, DARK } from "./unicode_pieces.mjs";
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
 
-export const WHITE_PIECES = ['K', 'Q', 'R', 'B', 'N', 'P'];
+export const WHITE = 'white';
+export const BLACK = 'black';
+
+export const KING_W = 'K';
+export const KING_B = 'k';
+export const QUEEN_W = 'Q';
+export const QUEEN_B = 'q';
+export const ROOK_W = 'R';
+export const ROOK_B = 'r';
+export const BISHOP_W = 'B';
+export const BISHOP_B = 'b';
+export const KNIGHT_W = 'N';
+export const KNIGHT_B = 'n';
+export const PAWN_W = 'P';
+export const PAWN_B = 'p';
+
+export const WHITE_PIECES = [KING_W, QUEEN_W, ROOK_W, BISHOP_W, KNIGHT_W, PAWN_W];
+export const BLACK_PIECES = [KING_B, QUEEN_B, ROOK_B, BISHOP_B, KNIGHT_B, PAWN_B];
+
+export const KINGS = [KING_W, KING_B];
+export const QUEENS = [QUEEN_W, QUEEN_B];
+export const ROOKS = [ROOK_W, ROOK_B];
+export const BISHOPS = [BISHOP_W, BISHOP_B];
+export const KNIGHTS = [KNIGHT_W, KNIGHT_B];
+export const PAWNS = [PAWN_W, PAWN_B];
+
+export const PIECES = [...WHITE_PIECES, ...BLACK_PIECES];
 
 const EMPTY = ` `;
 const NL = '\n';
+
+export function isPiece(piece) {
+    return PIECES.includes(piece);
+}
 
 export function isWhitePiece(piece) {
     return WHITE_PIECES.includes(piece);
 }
 
-export function isPiece(piece) {
-    return WHITE_PIECES.includes(piece.toUpperCase());
+export function isBlackPiece(piece) {
+    return BLACK_PIECES.includes(piece);
+}
+
+export function isPieceOfSide(piece, side) {
+    return side === WHITE ? isWhitePiece(piece) : isBlackPiece(piece);
+}
+
+export function otherSide(side) {
+    return side === WHITE ? BLACK : WHITE;
 }
 
 export class Board {
     _cells = new Array(64).fill(EMPTY);
 
     _params = {
-        next: 'w', // next to move. (w)hite or (b)lack
+        next: WHITE, // next to move
         castling: 'QKqk', // whether white can castle queen and king-side (caps), same for black (lowers). otherwise -
         enPassantPos: '-', // if the last move was a pawn move 2 cells forward, the intermediate position should be set here, otherwise - is returned
         halfMoveClock: 0, // ?
@@ -70,7 +108,7 @@ export class Board {
             ranks.push(rank.join(''));
         }
         const p = this._params;
-        return `${ranks.join('/')} ${p.next} ${p.castling} ${p.enPassantPos} ${p.halfMoveClock} ${p.fullMoveNumber}`;
+        return `${ranks.join('/')} ${p.next === WHITE ? 'w' : 'b'} ${p.castling} ${p.enPassantPos} ${p.halfMoveClock} ${p.fullMoveNumber}`;
     }
 
     setFen(fen) {
@@ -92,7 +130,7 @@ export class Board {
             }
         }
         this._params = {
-            next,
+            next: next === 'w' ? WHITE : BLACK,
             castling,
             enPassantPos,
             halfMoveClock: parseInt(halfMoveClock, 10),
@@ -163,7 +201,7 @@ export class Board {
         lines.push(EMPTY + EMPTY + (fromBlacks ? FILES.toReversed() : FILES).join(EMPTY));
 
         if (details) {
-            lines.push(`next: ${this._params.next === 'w' ? 'white' : 'black' }`);
+            lines.push(`next: ${this._params.next}`);
             lines.push(`en passant: ${this._params.enPassantPos }`);
             lines.push(`castling: ${this._params.castling }`);
             lines.push(`clock: ${this._params.halfMoveClock }  move nr: ${this._params.fullMoveNumber}`);
