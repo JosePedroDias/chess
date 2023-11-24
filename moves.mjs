@@ -1,4 +1,4 @@
-import { POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE } from './board.mjs';
+import { Board, POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE } from './board.mjs';
 import {
     KING_W, KING_B,
     QUEEN_W, QUEEN_B,
@@ -136,4 +136,12 @@ export function getMoves(side, piece, pos) {
         case PAWN_B:
             return pawnMoves(pos, side === WHITE);
     }
+}
+
+export function illustrateMoves(moves, piece, pos, possibleMove = '*', nonMove = '.') {
+    const b = Board.empty();
+    b.fill(nonMove);
+    b.set(pos, piece);
+    for (const mv of moves) b.set(mv, possibleMove);
+    return b;
 }

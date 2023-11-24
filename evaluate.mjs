@@ -26,9 +26,9 @@ export function validMoves(board) {
     const side = board._params.next;
     const moves = [];
     board.iteratePiecesOfSide(side, (pos, piece) => {
-        console.log(`pos: ${pos}, piece: ${piece}`);
+        //console.log(`pos: ${pos}, piece: ${piece}`);
         const pieceMoves = getMoves(side, piece, pos);
-        console.log(pieceMoves);
+        //console.log(pieceMoves);
         // TODO: rook, queen, bishop must move
         //console.log(pos, piece);
         // TODO

@@ -3,16 +3,14 @@ import { equal } from 'node:assert/strict';
 
 //import { log } from './testUtils.mjs';
 import { flatten1Level } from './utils.mjs';
-import { Board } from './board.mjs';
-import { bishopMoves, kingMoves, knightMoves, pawnMoves, queenMoves, rookMoves } from './moves.mjs';
+import { KING_W, QUEEN_W, ROOK_W, BISHOP_W, KNIGHT_W, PAWN_B, PAWN_W } from './pieces.mjs';
+import { bishopMoves, kingMoves, knightMoves, pawnMoves, queenMoves, rookMoves, illustrateMoves } from './moves.mjs';
 
 test('king moves', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'c6';
-    b.set(pos, 'K');
+    const piece = KING_W;
     const moves = flatten1Level(kingMoves(pos));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . * * * . . . .
@@ -25,12 +23,10 @@ test('king moves', (_t) => {
 });
 
 test('queen moves', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'e5';
-    b.set(pos, 'Q');
+    const piece = QUEEN_W;
     const moves = flatten1Level(queenMoves(pos));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. * . . * . . *
 . . * . * . * .
@@ -43,12 +39,10 @@ test('queen moves', (_t) => {
 });
 
 test('rook moves', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'b2';
-    b.set(pos, 'R');
+    const piece = ROOK_W;
     const moves = flatten1Level(rookMoves(pos));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. * . . . . . .
 . * . . . . . .
@@ -61,12 +55,10 @@ test('rook moves', (_t) => {
 });
 
 test('bishop moves', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'c4';
-    b.set(pos, 'B');
+    const piece = BISHOP_W;
     const moves = flatten1Level(bishopMoves(pos));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . * .
 . . . . . * . .
@@ -79,12 +71,10 @@ test('bishop moves', (_t) => {
 });
 
 test('knight moves', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'd5';
-    b.set(pos, 'N');
+    const piece = KNIGHT_W;
     const moves = flatten1Level(knightMoves(pos));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . * . * . . .
@@ -97,12 +87,10 @@ test('knight moves', (_t) => {
 });
 
 test('pawn moves double white', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'b2';
-    b.set(pos, 'P');
+    const piece = PAWN_W;
     const moves = flatten1Level(pawnMoves(pos, true));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . . .
@@ -115,12 +103,10 @@ test('pawn moves double white', (_t) => {
 });
 
 test('pawn moves regular white', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'b3';
-    b.set(pos, 'P');
+    const piece = PAWN_W;
     const moves = flatten1Level(pawnMoves(pos, true));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . . .
@@ -133,12 +119,10 @@ test('pawn moves regular white', (_t) => {
 });
 
 test('pawn moves double black', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'g7';
-    b.set(pos, 'p');
+    const piece = PAWN_B;
     const moves = flatten1Level(pawnMoves(pos, false));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . p .
@@ -151,12 +135,10 @@ test('pawn moves double black', (_t) => {
 });
 
 test('pawn moves regular black', (_t) => {
-    const b = Board.empty();
-    b.fill('.');
     const pos = 'g6';
-    b.set(pos, 'p');
+    const piece = PAWN_B;
     const moves = flatten1Level(pawnMoves(pos, false));
-    for (const mv of moves) b.set(mv, '*');
+    const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . . .
