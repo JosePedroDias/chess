@@ -1,6 +1,6 @@
-import { WHITE } from './board.mjs';
+import { WHITE, EMPTY } from './board.mjs';
 import { getMoves } from './moves.mjs';
-import { isWhitePiece } from "./pieces.mjs";
+import { isBlackPiece, isWhitePiece } from "./pieces.mjs";
 
 const values = {
     'q': 9,
@@ -24,14 +24,25 @@ export function material(board, isWhite) {
 
 export function validMoves(board) {
     const side = board._params.next;
+    const isOk = side === WHITE ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
     const moves = [];
     board.iteratePiecesOfSide(side, (pos, piece) => {
         //console.log(`pos: ${pos}, piece: ${piece}`);
-        const pieceMoves = getMoves(side, piece, pos);
-        //console.log(pieceMoves);
-        // TODO: rook, queen, bishop must move
-        //console.log(pos, piece);
-        // TODO
+        const pieceMoves = getMoves(board, piece, pos);
+        for (let directionArr of pieceMoves) {
+            dirLoop: for (let pos2 of directionArr) {
+                const piece2 = board.get(pos2);
+                if (isOk(piece2)) {
+                    moves.push({
+                        from: { pos, piece },
+                        to: { pos: pos2, piece: piece2 },
+                    });
+                    if (piece2 === EMPTY) break dirLoop;
+                } else {
+                    break dirLoop;
+                }
+            }
+        }
     });
     return moves;
 }

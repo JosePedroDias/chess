@@ -1,5 +1,7 @@
-import { isWhitePiece, isPiece } from "./pieces.mjs";
-import { LIGHT, DARK } from "./unicode_pieces.mjs";
+import { pc } from './vendor/colorette.mjs';
+
+import { isWhitePiece,isBlackPiece, isPiece } from "./pieces.mjs";
+import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
 
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
@@ -7,8 +9,41 @@ export const INDICES_TO_POSITIONS = new Map();
 export const WHITE = 'white';
 export const BLACK = 'black';
 
-const EMPTY = ` `;
+export const EMPTY = ` `;
 const NL = '\n';
+
+const COLORED = true;
+const BG_IS_LIGHT = false;
+
+const CHARS_WIDTH = 1;
+//const CHARS_WIDTH = 2;
+//const CHARS_WIDTH = 3;
+
+let darkBgCell = (v) => v;
+let lightBgCell = (v) => v;
+
+if (COLORED) {
+    darkBgCell = (v) => pc.bgBlackBright(v);
+    lightBgCell = (v) => pc.bgBlueBright(v);
+}
+
+let getUnicodePiece = (p) => {
+    const pieces = BG_IS_LIGHT ? LIGHT : DARK;
+    p = pieces[p] || p;
+    return p;
+}
+
+if (COLORED) {
+    getUnicodePiece = (p) => {
+        const pieces = ALWAYS_FILLED;
+        const isWhite = isWhitePiece(p);
+        if (pieces[p]) {
+            p = pieces[p];
+        }
+        p = isWhite ? pc.whiteBright(p) : pc.black(p);
+        return p;
+    }
+}
 
 export function otherSide(side) {
     return side === WHITE ? BLACK : WHITE;
@@ -30,6 +65,8 @@ export class Board {
     }
 
     _moves = [];
+
+    _cellTransformations = new Array(64);
 
     static empty() {
         const b = new Board();
@@ -121,6 +158,16 @@ export class Board {
         this._cells[ POSITIONS_TO_INDICES.get(pos) ] = v;
     }
 
+    setTransformation(pos, fn) {
+        const idx = POSITIONS_TO_INDICES.get(pos);
+        this._cellTransformations[idx] = fn;
+    }
+
+    clearTransformation(pos) {
+        const idx = POSITIONS_TO_INDICES.get(pos);
+        this._cellTransformations[idx] = undefined;
+    }
+
     clone() {
         const b = new Board();
         b._cells = Array.from(this._cells);
@@ -146,30 +193,38 @@ export class Board {
         for (let yi = 0; yi < 8; ++yi) {
             const line = [];
             for (let xi = 0; xi < 8; ++xi) {
-                const i = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
-                line.push( this._cells[i] );
+                const idx = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
+                const p = this._cells[idx];
+                line.push(p);
             }
-            lines.push(line.join(EMPTY))
+            lines.push(line.join(''));
         }
         return lines.join(NL);
     }
 
     // TODO colors
-    toPrettyString({ fromBlacks, isLight, details } = { fromBlacks: false, isLight: false, details: false }) {
-        const pieces = isLight ? LIGHT : DARK;
+    toPrettyString({ fromBlacks, details } = { fromBlacks: false, details: false }) {
         const lines = [];
         for (let yi = 0; yi < 8; ++yi) {
             const line = [];
             line.push(RANKS[fromBlacks ? 7 - yi : yi]);
             for (let xi = 0; xi < 8; ++xi) {
-                const i = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
-                const p = this._cells[i];
-                line.push(pieces[p] || p);
+                const idx = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
+                let p = this._cells[idx];
+                p = getUnicodePiece(p);
+                if (COLORED) {
+                    const isDarkCell = ((xi + yi) % 2 === 1);
+                    p = isDarkCell ? darkBgCell(p) : lightBgCell(p);
+                    const fn = this._cellTransformations[idx];
+                    if (fn) p = fn(cell);
+                }
+                line.push(p);
             }
-            lines.push(line.join(EMPTY))
+            lines.push(line.join(''))
         }
-        lines.push(EMPTY + EMPTY + (fromBlacks ? FILES.toReversed() : FILES).join(EMPTY));
 
+        lines.push(' ' + (fromBlacks ? FILES.toReversed() : FILES).join(''));
+        
         if (details) {
             lines.push(`next: ${this._params.next}`);
             lines.push(`en passant: ${this._params.enPassantPos }`);

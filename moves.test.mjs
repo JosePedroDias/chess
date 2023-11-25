@@ -2,6 +2,7 @@ import test from 'node:test';
 import { equal } from 'node:assert/strict';
 
 //import { log } from './testUtils.mjs';
+import { BLACK, Board } from './board.mjs';
 import { flatten1Level } from './utils.mjs';
 import { KING_W, QUEEN_W, ROOK_W, BISHOP_W, KNIGHT_W, PAWN_B, PAWN_W } from './pieces.mjs';
 import { bishopMoves, kingMoves, knightMoves, pawnMoves, queenMoves, rookMoves, illustrateMoves } from './moves.mjs';
@@ -89,7 +90,7 @@ test('knight moves', (_t) => {
 test('pawn moves double white', (_t) => {
     const pos = 'b2';
     const piece = PAWN_W;
-    const moves = flatten1Level(pawnMoves(pos, true));
+    const moves = flatten1Level(pawnMoves(pos, Board.empty()));
     const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
@@ -97,7 +98,7 @@ test('pawn moves double white', (_t) => {
 . . . . . . . .
 . . . . . . . .
 . * . . . . . .
-* * * . . . . .
+. * . . . . . .
 . P . . . . . .
 . . . . . . . .`);
 });
@@ -105,14 +106,14 @@ test('pawn moves double white', (_t) => {
 test('pawn moves regular white', (_t) => {
     const pos = 'b3';
     const piece = PAWN_W;
-    const moves = flatten1Level(pawnMoves(pos, true));
+    const moves = flatten1Level(pawnMoves(pos, Board.empty()));
     const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
-* * * . . . . .
+. * . . . . . .
 . P . . . . . .
 . . . . . . . .
 . . . . . . . .`);
@@ -121,12 +122,14 @@ test('pawn moves regular white', (_t) => {
 test('pawn moves double black', (_t) => {
     const pos = 'g7';
     const piece = PAWN_B;
-    const moves = flatten1Level(pawnMoves(pos, false));
+    const b0 = Board.empty();
+    b0._params.next = BLACK;
+    const moves = flatten1Level(pawnMoves(pos, b0));
     const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . p .
-. . . . . * * *
+. . . . . . * .
 . . . . . . * .
 . . . . . . . .
 . . . . . . . .
@@ -137,13 +140,15 @@ test('pawn moves double black', (_t) => {
 test('pawn moves regular black', (_t) => {
     const pos = 'g6';
     const piece = PAWN_B;
-    const moves = flatten1Level(pawnMoves(pos, false));
+    const b0 = Board.empty();
+    b0._params.next = BLACK;
+    const moves = flatten1Level(pawnMoves(pos, b0));
     const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 `. . . . . . . .
 . . . . . . . .
 . . . . . . p .
-. . . . . * * *
+. . . . . . * .
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .

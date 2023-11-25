@@ -44,3 +44,8 @@ https://www.chess.com/terms/chess-piece-value
 https://chess-bot.com/online_calculator/next_best_move.html
 https://stackoverflow.com/questions/17003561/using-the-universal-chess-interface
 https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
+
+
+
+https://github.com/alexeyraspopov/picocolors/blob/main/picocolors.js
+https://github.com/jorgebucaran/colorette/blob/main/index.js
