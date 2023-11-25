@@ -3,6 +3,15 @@ import { pc } from './vendor/colorette.mjs';
 import { isWhitePiece,isBlackPiece, isPiece } from "./pieces.mjs";
 import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
 
+const BG_IS_LIGHT = false;
+
+//const CHARS_WIDTH = 1;
+const CHARS_WIDTH = 2;
+//const CHARS_WIDTH = 3;
+
+//const UNICODE_PIECES = {};
+const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK;
+
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
 
@@ -12,50 +21,29 @@ export const BLACK = 'black';
 export const EMPTY = ` `;
 const NL = '\n';
 
-const COLORED = true;
-const BG_IS_LIGHT = false;
-
-//const CHARS_WIDTH = 1;
-const CHARS_WIDTH = 2;
-//const CHARS_WIDTH = 3;
-
-let darkBgCell = (v) => v;
-let lightBgCell = (v) => v;
-
-if (COLORED) {
-    darkBgCell = (v) => pc.bgBlackBright(v);
-    lightBgCell = (v) => pc.bgBlueBright(v);
-}
+const darkBgCell = (v) => pc.bgBlackBright(v);
+const lightBgCell = (v) => pc.bgBlueBright(v);
 
 const sizeCell = (p) => {
     return CHARS_WIDTH === 1 ? p :
            CHARS_WIDTH === 2 ? ` ${p}`: ` ${p} `;
 }
 
-let getUnicodePiece = (p) => {
-    const pieces = BG_IS_LIGHT ? LIGHT : DARK;
-    p = pieces[p] || p;
-    return sizeCell(p);
-}
-
-if (COLORED) {
-    getUnicodePiece = (p, fn, isWhiteCell) => {
-        const pieces = ALWAYS_FILLED;
-        const isWhite = isWhitePiece(p);
-        if (pieces[p]) {
-            p = pieces[p];
-        }
-        p = sizeCell(p);
-        p = isWhite ? pc.whiteBright(p) : pc.black(p);
-
-        if (fn) {
-            p = fn(p, isWhiteCell);
-        } else {
-            p = isWhiteCell ? lightBgCell(p) : darkBgCell(p);
-        }
-        
-        return p;
+const getUnicodePiece = (p, fn, isWhiteCell) => {
+    const isWhite = isWhitePiece(p);
+    if (UNICODE_PIECES[p]) {
+        p = UNICODE_PIECES[p];
     }
+    p = sizeCell(p);
+    p = isWhite ? pc.whiteBright(p) : pc.black(p);
+
+    if (fn) {
+        p = fn(p, isWhiteCell);
+    } else {
+        p = isWhiteCell ? lightBgCell(p) : darkBgCell(p);
+    }
+    
+    return p;
 }
 
 export function otherSide(side) {
@@ -227,12 +215,6 @@ export class Board {
                 const fn = this._cellTransformations[idx];
                 const isWhiteCell = ((xi + yi) % 2 === 0);
                 p = getUnicodePiece(p, fn, isWhiteCell);
-                /* if (COLORED) {
-                    const isDarkCell = ((xi + yi) % 2 === 1);
-                    p = isDarkCell ? darkBgCell(p) : lightBgCell(p);
-                    const fn = this._cellTransformations[idx];
-                    if (fn) p = fn(cell);
-                } */
                 line.push(p);
             }
             lines.push(line.join(''))

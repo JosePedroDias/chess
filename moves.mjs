@@ -39,7 +39,7 @@ function xyToValidPosition(xy) {
 }
 
 // TODO: plus castling
-export function kingMoves(pos) {
+export function kingMoves(pos, board) {
     const [x, y] = posToXY(pos);
     return [
         [x-1, y-1],
@@ -110,39 +110,36 @@ export function pawnMoves(pos, board) {
     const side = board._params.next;
 
     const [x, y] = posToXY(pos);
-    const isWhite = side === WHITE;
-    const dy = isWhite ? -1 : 1;
+    const sideIsWhite = side === WHITE;
+    const dy = sideIsWhite ? -1 : 1;
 
-    const isCapturable = isWhite ? (p) => isBlackPiece(p) : (p) => isWhitePiece(p); 
-
-    const capture1 = xyToValidPosition([x-1, y+dy]);
-    const capture2 = xyToValidPosition([x+1, y+dy]);
-
-    const advance1 = xyToValidPosition([x, y+dy]);
-    let advance2;
-    if ((isWhite && y === 6) || (!isWhite && y === 1)) {
-        advance2 = xyToValidPosition([x, y+dy*2]);
-    }
+    const canBeCaptured = sideIsWhite ? (p) => isBlackPiece(p) : (p) => isWhitePiece(p);
 
     const moves = [];
 
-    if (advance1 && !isPiece(advance1)) moves.push([advance1]);
-    if (advance2 && !isPiece(advance2)) moves.push([advance2]);
-
-    let captured1 = false;
-
-    if (capture1) {
-        const pieceAtCap = board.get(capture1);
-        if (isCapturable(pieceAtCap)) {
-            moves.push([capture1]);
-            captured1 = true;
-        }
+    const capture1Pos = xyToValidPosition([x-1, y+dy]);
+    const capture2Pos = xyToValidPosition([x+1, y+dy]);
+    if (capture1Pos) {
+        if (canBeCaptured(board.get(capture1Pos)))
+            moves.push([capture1Pos]);
+    }
+    if (capture2Pos) {
+        if (canBeCaptured(board.get(capture2Pos)))
+            moves.push([capture2Pos]);
     }
 
-    if (captured1 && capture2) {
-        const pieceAtCap = board.get(capture2);
-        if (isCapturable(pieceAtCap)) moves.push([capture2]);
+    const advance1Pos = xyToValidPosition([x, y+dy]);
+    let advance2Pos;
+    if ((sideIsWhite && y === 6) || (!sideIsWhite && y === 1)) {
+        advance2Pos = xyToValidPosition([x, y+dy*2]);
     }
+    const advanceMoves = [];
+    if (advance1Pos && !isPiece(board.get(advance1Pos))) {
+        advanceMoves.push(advance1Pos);
+        if (advance2Pos && !isPiece(board.get(advance2Pos)))
+            advanceMoves.push(advance2Pos);
+    }
+    if (advanceMoves.length > 0) moves.push(advanceMoves);
 
     return moves;
 }
@@ -151,7 +148,7 @@ export function getMoves(board, piece, pos) {
     switch (piece) {
         case KING_W:
         case KING_B:
-            return kingMoves(pos);
+            return kingMoves(pos, board);
         case QUEEN_W:
         case QUEEN_B:
             return queenMoves(pos);
@@ -176,4 +173,12 @@ export function illustrateMoves(moves, piece, pos, possibleMove = '*', nonMove =
     b.set(pos, piece);
     for (const mv of moves) b.set(mv, possibleMove);
     return b;
+}
+
+export function isMoveCapture(board, move) {
+    // TODO
+}
+
+export function isMoveCheck(board, move) {
+    // TODO
 }

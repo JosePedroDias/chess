@@ -1,0 +1,9 @@
+{
+    "private": true,
+    "name": "chess",
+    "description": "the most naive and human-like algorithm I could come up with",
+    "scripts": {
+        "test": "NO_COLOR=1 node --test",
+        "bot": "node bot.mjs"
+    }
+}
