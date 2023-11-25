@@ -68,12 +68,13 @@ https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 # TODO
 
 - fix valid moves
-    - castling
+    - castling (check for no checks in kings way)
 - move object <-> string
 - move:
     - isCapture
     - isCheck
 - applyMove
+    - moving K or R disables respective castling flags
 - play valid random moves
 - find checkmate
 - find stalemate

@@ -1,16 +1,18 @@
 import test from 'node:test';
 import { equal } from 'node:assert/strict';
 
-//import { log } from './testUtils.mjs';
+import { pc } from './vendor/colorette.mjs';
+
+import { log } from './testUtils.mjs';
 import { BLACK, Board } from './board.mjs';
 import { flatten1Level } from './utils.mjs';
 import { KING_W, QUEEN_W, ROOK_W, BISHOP_W, KNIGHT_W, PAWN_B, PAWN_W } from './pieces.mjs';
-import { bishopMoves, kingMoves, knightMoves, pawnMoves, queenMoves, rookMoves, illustrateMoves, isMoveCapture, isMoveCheck } from './moves.mjs';
+import { bishopMoves, kingMoves, knightMoves, pawnMoves, queenMoves, rookMoves, illustrateMoves, validMoves, isMoveCapture, isMoveCheck } from './moves.mjs';
 
 test('king moves', (_t) => {
     const pos = 'c6';
     const piece = KING_W;
-    const moves = flatten1Level(kingMoves(pos));
+    const moves = flatten1Level(kingMoves(pos, Board.empty()));
     const b = illustrateMoves(moves, piece, pos);
     equal(b.toString(),
 ` . . . . . . . .
@@ -164,5 +166,51 @@ test('isMoveCheck', (_t) => {
     _t.todo();
     //isMoveCheck();
 });
+
+/* test('valid moves', (_t) => {
+    _t.todo();
+    const b = Board.default();
+    const moves = validMoves(b);
+    const b2 = b.clone();
+    for (const { from ,to } of moves) {
+        const b3 = illustrateMoves([to.pos], pc.bgCyan(from.piece), from.pos, pc.bgMagenta(to.piece), '', b2);
+        log(b3.toString());
+    }
+}); */
+
+if (false) { // TODO TESTED MANUALLY
+    //const b = Board.default();
+    //const b = Board.fromFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 3 6`);
+    // castling
+    //const b = Board.fromFen(`8/8/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1`);
+    //const b = Board.fromFen(`8/8/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1`);
+    //const b = Board.fromFen(`r3kbnr/pppppppp/8/8/8/8/8/8 b KQkq - 0 1`);
+    const b = Board.fromFen(`rnbqk2r/pppppppp/8/8/8/8/8/8 b KQkq - 0 1`);
+
+    //log(b.toPrettyString())
+    const moves = validMoves(b, log);
+    console.log(moves);
+
+    const tr1 = (p, isWhiteCell) => isWhiteCell ? pc.bgRedBright(p) : pc.bgRed(p);
+    const tr2 = (p, isWhiteCell) => isWhiteCell ? pc.bgGreenBright(p) : pc.bgGreen(p);
+
+    for (const move of moves) {
+        if (move instanceof Array) { // castling
+            const b2 = b.clone();
+            for (const { from, to } of move) {
+                b2.setTransformation(from.pos, tr1);
+                b2.setTransformation(to.pos, tr2);
+            }
+            log(b2.toPrettyString());
+        } else {
+            const { from, to } = move;
+            const b2 = b.clone();
+            b2.setTransformation(from.pos, tr1);
+            b2.setTransformation(to.pos, tr2);
+            log(b2.toPrettyString());
+        }
+        
+    }
+}
 
 // log(b.toString())

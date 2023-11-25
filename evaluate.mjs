@@ -1,7 +1,6 @@
-import { WHITE, EMPTY } from './board.mjs';
-import { getMoves } from './moves.mjs';
-import { isBlackPiece, isWhitePiece } from "./pieces.mjs";
-import { log } from './testUtils.mjs';
+import { WHITE } from './board.mjs';
+import { isWhitePiece } from "./pieces.mjs";
+// import { log } from './testUtils.mjs';
 
 const values = {
     'q': 9,
@@ -21,34 +20,6 @@ export function material(board, isWhite) {
         }
     });
     return mat;
-}
-
-export function validMoves(board) {
-    const side = board._params.next;
-    const isOk = side === WHITE ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
-    const moves = [];
-    board.iteratePiecesOfSide(side, (pos, piece) => {
-        //log(`pos: ${pos}, piece: ${piece}`);
-        const pieceMoves = getMoves(board, piece, pos);
-        for (let directionArr of pieceMoves) {
-            //log(directionArr)
-            dirLoop: for (let pos2 of directionArr) {
-                const piece2 = board.get(pos2);
-                const ok = isOk(piece2);
-                //log(`  to ${pos2} (${piece2})? ${ok ? 'Y' : 'N'}`);
-                if (ok) {
-                    moves.push({
-                        from: { pos, piece },
-                        to: { pos: pos2, piece: piece2 },
-                    });
-                    if (piece2 !== EMPTY) break dirLoop;
-                } else {
-                    break dirLoop;
-                }
-            }
-        }
-    });
-    return moves;
 }
 
 // TODO use AbortController

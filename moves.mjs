@@ -1,4 +1,4 @@
-import { Board, POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE } from './board.mjs';
+import { Board, POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE, EMPTY } from './board.mjs';
 import {
     KING_W, KING_B,
     QUEEN_W, QUEEN_B,
@@ -8,6 +8,16 @@ import {
     PAWN_W, PAWN_B,
     isPiece, isWhitePiece, isBlackPiece,
 } from './pieces.mjs';
+
+const CASTLE_W_QUEENSIDE = 'O-O-O';
+const CASTLE_B_QUEENSIDE = 'o-o-o';
+const CASTLE_W_KINGSIDE = 'O-O';
+const CASTLE_B_KINGSIDE = 'o-o';
+const CASTLE_MOVES = [CASTLE_W_QUEENSIDE, CASTLE_B_QUEENSIDE, CASTLE_W_KINGSIDE, CASTLE_B_KINGSIDE];
+
+export function isCastleMove(s) {
+    return CASTLE_MOVES.includes(s);
+}
 
 function posToXY(pos) {
     const index = POSITIONS_TO_INDICES.get(pos);
@@ -38,10 +48,9 @@ function xyToValidPosition(xy) {
     return INDICES_TO_POSITIONS.get(idx);
 }
 
-// TODO: plus castling
 export function kingMoves(pos, board) {
     const [x, y] = posToXY(pos);
-    return [
+    const moves = [
         [x-1, y-1],
         [x,   y-1],
         [x+1, y-1],
@@ -51,6 +60,27 @@ export function kingMoves(pos, board) {
         [x,   y+1],
         [x+1, y+1],
     ].map((pos) => xysToValidPositions([pos]));
+
+    const side = board._params.next;
+    const sideIsWhite = side === WHITE;
+
+    const castlingFlags = board._params.castling;
+    const canCastleKS = castlingFlags.indexOf(sideIsWhite ? KING_W : KING_B) !== -1;
+    const canCastleQS = castlingFlags.indexOf(sideIsWhite ? QUEEN_W : QUEEN_B) !== -1;
+
+    if (canCastleKS) {
+        const posMustBeEmpty = sideIsWhite ? ['f1', 'g1'] : ['f8', 'g8'];
+        const canDoIt = posMustBeEmpty.every((pos) => !isPiece(board.get(pos)));
+        canDoIt && moves.push([sideIsWhite ? CASTLE_W_KINGSIDE : CASTLE_B_KINGSIDE]);
+    }
+
+    if (canCastleQS) {
+        const posMustBeEmpty = sideIsWhite ? ['b1', 'c1', 'd1'] : ['b8', 'c8', 'd8'];
+        const canDoIt = posMustBeEmpty.every((pos) => !isPiece(board.get(pos)));
+        canDoIt && moves.push([sideIsWhite ? CASTLE_W_QUEENSIDE : CASTLE_B_QUEENSIDE]);
+    }
+
+    return moves;
 }
 
 export function queenMoves(pos) {
@@ -181,4 +211,54 @@ export function isMoveCapture(board, move) {
 
 export function isMoveCheck(board, move) {
     // TODO
+}
+
+export function validMoves(board) {
+    const side = board._params.next;
+    const sideIsWhite = side === WHITE;
+    const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
+    const moves = [];
+    board.iteratePiecesOfSide(side, (pos, piece) => {
+        const pieceMoves = getMoves(board, piece, pos);
+        for (let directionArr of pieceMoves) {
+            dirLoop: for (let pos2 of directionArr) {
+                if (isCastleMove(pos2)) {
+                    // TODO: check king in not in danger (check) nor during the move to destination
+
+                    let toKingPos, fromRookPos, toRookPos;
+                    const fromRook = sideIsWhite ? ROOK_W : ROOK_B;
+
+                    // K: e1 -> g1; R: h1 -> f1
+                    if      (pos2 === CASTLE_W_KINGSIDE) { toKingPos = 'g1'; fromRookPos = 'h1'; toRookPos = 'f1'; }
+                    // K: e8 -> g8; R: h8 -> f8
+                    else if (pos2 === CASTLE_B_KINGSIDE) { toKingPos = 'g8'; fromRookPos = 'h8'; toRookPos = 'f8'; }
+                    // K: e1 -> c1; R: a1 -> d1
+                    else if (pos2 === CASTLE_W_QUEENSIDE) { toKingPos = 'c1'; fromRookPos = 'a1'; toRookPos = 'd1'; }
+                    // K: e8 -> c8; R: d8 -> d8
+                    else if (pos2 === CASTLE_B_QUEENSIDE) { toKingPos = 'c8'; fromRookPos = 'a8'; toRookPos = 'd8'; }
+                    
+                    moves.push([{
+                        from: { pos, piece },
+                        to: { pos: toKingPos, piece: EMPTY },
+                    }, {
+                        from: { pos: fromRookPos, piece: fromRook },
+                        to: { pos: toRookPos, piece: EMPTY},
+                    }]);
+                } else {
+                    const piece2 = board.get(pos2);
+                    const ok = isOk(piece2);
+                    if (ok) {
+                        moves.push({
+                            from: { pos, piece },
+                            to: { pos: pos2, piece: piece2 },
+                        });
+                        if (piece2 !== EMPTY) break dirLoop;
+                    } else {
+                        break dirLoop;
+                    }
+                }
+            }
+        }
+    });
+    return moves;
 }
