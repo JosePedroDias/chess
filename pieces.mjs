@@ -28,27 +28,28 @@ export function isBlackPiece(piece) {
 }
 
 export const KINGS = [KING_W, KING_B];
+export const ROOKS = [ROOK_W, ROOK_B];
 export const PAWNS = [PAWN_W, PAWN_B];
 
 export function isKing(piece) {
     return KINGS.includes(piece);
 }
 
+export function isRook(piece) {
+    return ROOKS.includes(piece);
+}
+
 export function isPawn(piece) {
     return PAWNS.includes(piece);
 }
 
-/*export const QUEENS = [QUEEN_W, QUEEN_B];
-export const ROOKS = [ROOK_W, ROOK_B];
+/*
+export const QUEENS = [QUEEN_W, QUEEN_B];
 export const BISHOPS = [BISHOP_W, BISHOP_B];
 export const KNIGHTS = [KNIGHT_W, KNIGHT_B];
 
 export function isQueen(piece) {
     return QUEENS.includes(piece);
-}
-
-export function isRook(piece) {
-    return ROOKS.includes(piece);
 }
 
 export function isBishop(piece) {

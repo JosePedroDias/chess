@@ -13,6 +13,26 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/moves.test.mjs"
+        },
+        {
+            "type": "node",
+            "runtimeVersion": "20.10.0",
+            "request": "launch",
+            "name": "run bot",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/bot.mjs"
+        },
+        {
+            "type": "node",
+            "runtimeVersion": "20.10.0",
+            "request": "launch",
+            "name": "run botWithoutUci",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/botWithoutUci.mjs"
         }
     ]
 }

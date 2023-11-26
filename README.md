@@ -69,10 +69,6 @@ https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 
 - fix valid moves
     - castling (check for no checks in kings way)
-- applyMove
-    - update enPassant
-    - moving K or R disables respective castling flags
-- play valid random moves
 - find checkmate
 - find stalemate
 - find checkmate in 1/2/3

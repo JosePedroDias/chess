@@ -1,5 +1,7 @@
 import { WHITE } from './board.mjs';
+import { moveToString, validMoves } from './moves.mjs';
 import { isWhitePiece } from "./pieces.mjs";
+import { randomFromArr } from './utils.mjs';
 // import { log } from './testUtils.mjs';
 
 const values = {
@@ -23,9 +25,15 @@ export function material(board, isWhite) {
 }
 
 // TODO use AbortController
-export function electNextMove(board) {
+export function electNextMove(board, log) {
     return new Promise((resolve, reject) => {
-        const move = (board._params.next === WHITE) ? 'b2b3' : 'b7b6';
-        resolve(move);
+        const moves = validMoves(board).map(moveToString);
+        if (log) {
+            for (const move of moves) {
+                log(`info ${move}`);
+            }
+        }
+        const chosenMove = randomFromArr(moves);
+        resolve(chosenMove);
     });
 }

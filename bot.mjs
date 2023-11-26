@@ -43,7 +43,7 @@ rl.on('line', (line) => {
     } else if (command === 'ucinewgame') {
         out('TODO');
     } else if (command === 'go') {
-        electNextMove(b)
+        electNextMove(b, out)
         .then((move) => {
             b = b.applyMove(move);
             out(`bestmove ${move}`);
