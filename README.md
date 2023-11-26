@@ -69,11 +69,8 @@ https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 
 - fix valid moves
     - castling (check for no checks in kings way)
-- move object <-> string
-- move:
-    - isCapture
-    - isCheck
 - applyMove
+    - update enPassant
     - moving K or R disables respective castling flags
 - play valid random moves
 - find checkmate

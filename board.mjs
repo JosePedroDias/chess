@@ -61,8 +61,8 @@ export class Board {
         next: WHITE, // next to move
         castling: 'QKqk', // whether white can castle queen and king-side (caps), same for black (lowers). otherwise -
         enPassantPos: '-', // if the last move was a pawn move 2 cells forward, the intermediate position should be set here, otherwise - is returned
-        halfMoveClock: 0, // ?
-        fullMoveNumber: 1, // ?
+        halfMoveClock: 0, // whether white has played last (0, 1, 0, 1...)
+        fullMoveNumber: 1, // full move number (a move is comprised of 1 white move + 1 black move, therefore 1, 1, 2, 2...)
     }
 
     _moves = [];
@@ -237,6 +237,10 @@ export class Board {
         // TODO returns a new board
         const b = this.clone();
         b._moves.push(move);
+        // increment move stats
+        const isEvenMove = b._moves.length % 2 === 0;
+        b._params.halfMoveClock = isEvenMove ? 0 : 1;
+        if (isEvenMove) ++b._params.fullMoveNumber;
         return b;
     }
 }

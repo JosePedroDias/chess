@@ -6,7 +6,7 @@ import {
     BISHOP_W, BISHOP_B,
     KNIGHT_W, KNIGHT_B,
     PAWN_W, PAWN_B,
-    isPiece, isWhitePiece, isBlackPiece,
+    isPiece, isWhitePiece, isBlackPiece, isPawn, isKing
 } from './pieces.mjs';
 
 const CASTLE_W_QUEENSIDE = 'O-O-O';
@@ -150,11 +150,11 @@ export function pawnMoves(pos, board) {
     const capture1Pos = xyToValidPosition([x-1, y+dy]);
     const capture2Pos = xyToValidPosition([x+1, y+dy]);
     if (capture1Pos) {
-        if (canBeCaptured(board.get(capture1Pos)))
+        if (canBeCaptured(board.get(capture1Pos)) || board._params.enPassantPos === capture1Pos)
             moves.push([capture1Pos]);
     }
     if (capture2Pos) {
-        if (canBeCaptured(board.get(capture2Pos)))
+        if (canBeCaptured(board.get(capture2Pos)) || board._params.enPassantPos === capture2Pos)
             moves.push([capture2Pos]);
     }
 
@@ -205,12 +205,14 @@ export function illustrateMoves(moves, piece, pos, possibleMove = '*', nonMove =
     return b;
 }
 
-export function isMoveCapture(board, move) {
-    // TODO
+export function isMoveCapture(move) {
+    if (move instanceof Array) return false; // castling
+    return (move.to.piece !== EMPTY);
 }
 
-export function isMoveCheck(board, move) {
-    // TODO
+export function isMoveCheck(move) {
+    if (move instanceof Array) return false; // castling
+    return isKing(move.to.piece);
 }
 
 export function validMoves(board) {
@@ -225,24 +227,24 @@ export function validMoves(board) {
                 if (isCastleMove(pos2)) {
                     // TODO: check king in not in danger (check) nor during the move to destination
 
-                    let toKingPos, fromRookPos, toRookPos;
-                    const fromRook = sideIsWhite ? ROOK_W : ROOK_B;
+                    let toKPos, fromRPos, toRPos;
+                    const fromRPiece = sideIsWhite ? ROOK_W : ROOK_B;
 
-                    // K: e1 -> g1; R: h1 -> f1
-                    if      (pos2 === CASTLE_W_KINGSIDE) { toKingPos = 'g1'; fromRookPos = 'h1'; toRookPos = 'f1'; }
-                    // K: e8 -> g8; R: h8 -> f8
-                    else if (pos2 === CASTLE_B_KINGSIDE) { toKingPos = 'g8'; fromRookPos = 'h8'; toRookPos = 'f8'; }
-                    // K: e1 -> c1; R: a1 -> d1
-                    else if (pos2 === CASTLE_W_QUEENSIDE) { toKingPos = 'c1'; fromRookPos = 'a1'; toRookPos = 'd1'; }
-                    // K: e8 -> c8; R: d8 -> d8
-                    else if (pos2 === CASTLE_B_QUEENSIDE) { toKingPos = 'c8'; fromRookPos = 'a8'; toRookPos = 'd8'; }
+                    // K: e1 -> g1; R: h1 -> f1 (O-O)
+                    if      (pos2 === CASTLE_W_KINGSIDE) { toKPos = 'g1'; fromRPos = 'h1'; toRPos = 'f1'; }
+                    // K: e8 -> g8; R: h8 -> f8 (o-o)
+                    else if (pos2 === CASTLE_B_KINGSIDE) { toKPos = 'g8'; fromRPos = 'h8'; toRPos = 'f8'; }
+                    // K: e1 -> c1; R: a1 -> d1 (O-O-O)
+                    else if (pos2 === CASTLE_W_QUEENSIDE) { toKPos = 'c1'; fromRPos = 'a1'; toRPos = 'd1'; }
+                    // K: e8 -> c8; R: d8 -> d8 (o-o-o)
+                    else if (pos2 === CASTLE_B_QUEENSIDE) { toKPos = 'c8'; fromRPos = 'a8'; toRPos = 'd8'; }
                     
                     moves.push([{
                         from: { pos, piece },
-                        to: { pos: toKingPos, piece: EMPTY },
+                        to: { pos: toKPos, piece: EMPTY },
                     }, {
-                        from: { pos: fromRookPos, piece: fromRook },
-                        to: { pos: toRookPos, piece: EMPTY},
+                        from: { pos: fromRPos, piece: fromRPiece },
+                        to: { pos: toRPos, piece: EMPTY},
                     }]);
                 } else {
                     const piece2 = board.get(pos2);
@@ -261,4 +263,67 @@ export function validMoves(board) {
         }
     });
     return moves;
+}
+
+export function moveToString(move) {
+    if (move instanceof Array) {
+        const toKingPos = move[0].to.pos;
+        if (toKingPos === 'g1') return CASTLE_W_KINGSIDE;
+        if (toKingPos === 'g8') return CASTLE_B_KINGSIDE;
+        if (toKingPos === 'c1') return CASTLE_W_QUEENSIDE;
+        else                    return CASTLE_B_QUEENSIDE;
+    }
+    const movingPiece = isPawn(move.from.piece) ? '' : move.from.piece;
+    const isCapture = isMoveCapture(move) ? 'x' : '';
+    const isCheck = isMoveCheck(move) ? '+' : '';
+    const fromPos = move.from.pos;
+    const toPos = move.to.pos;
+    return `${movingPiece}${fromPos}${isCapture}${toPos}${isCheck}`;
+}
+
+export function moveFromString(st, board) {
+    const sideIsWhite = board._params.next === WHITE;
+    if (isCastleMove(st)) {
+        let fromKPos, toKPos, fromRPos, toRPos;
+        const fromKPiece = sideIsWhite ? KING_W : KING_B;
+        const fromRPiece = sideIsWhite ? ROOK_W : ROOK_B;
+
+        // K: e1 -> g1; R: h1 -> f1 (O-O)
+        if      (st === CASTLE_W_KINGSIDE)  { fromKPos = 'e1'; toKPos = 'g1'; fromRPos = 'h1'; toRPos = 'f1'; }
+        // K: e8 -> g8; R: h8 -> f8 (o-o)
+        else if (st === CASTLE_B_KINGSIDE) {  fromKPos = 'e8'; toKPos = 'g8'; fromRPos = 'h8'; toRPos = 'f8'; }
+        // K: e1 -> c1; R: a1 -> d1 (O-O-O)
+        else if (st === CASTLE_W_QUEENSIDE) { fromKPos = 'e1'; toKPos = 'c1'; fromRPos = 'a1'; toRPos = 'd1'; }
+        // K: e8 -> c8; R: d8 -> d8 (o-o-o)
+        else if (st === CASTLE_B_QUEENSIDE) { fromKPos = 'e8'; toKPos = 'c8'; fromRPos = 'a8'; toRPos = 'd8'; }
+
+        return [{
+            from: { pos: fromKPos, piece: fromKPiece },
+            to: {   pos: toKPos,   piece: EMPTY },
+        }, {
+            from: { pos: fromRPos, piece: fromRPiece },
+            to: {   pos: toRPos,   piece: EMPTY},
+        }];
+    }
+
+    // 0       1        3   4
+    // <piece?><fromPos><x?><toPos><+?>
+
+    const isCapture = st.includes('x');
+    //const isCheck = st.includes('+');
+    let startOfToPos = isCapture ? 4 : 3;
+    let piece = st[0];
+    let fromPos = st.substring(1, 3);
+    let thirdChar = st[2];
+    thirdChar = parseInt(thirdChar, 10);
+    if (isNaN(thirdChar)) {
+        fromPos = st.substring(0, 2);
+        piece = sideIsWhite ? PAWN_W : PAWN_B;
+        --startOfToPos;
+    }
+    const toPos = st.substring(startOfToPos, startOfToPos + 2);
+    return {
+        from: { pos: fromPos, piece: board.get(fromPos) },
+        to: {   pos: toPos,   piece: board.get(toPos) },
+    }
 }
