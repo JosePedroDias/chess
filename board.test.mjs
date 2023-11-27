@@ -174,7 +174,7 @@ test('toPrettyString fromBlacks + details', (_t) => {
 next: white
 en passant: -
 castling: KQkq
-clock: 0  move nr: 1`);
+half: 0  move #: 1`);
 });
 
 // log(b.toString())

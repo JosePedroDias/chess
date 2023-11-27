@@ -69,9 +69,10 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 # TODO
 
 - fix valid moves
+    - prevent king from walking into checks!
     - castling (check for no checks in kings way)
-- find checkmate
-- find stalemate
+- test checkmate
+- test stalemate
 - find draw
 - find checkmate in 1/2/3
 - fix bot UCI compatibility

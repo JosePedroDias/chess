@@ -10,8 +10,8 @@ const BG_IS_LIGHT = false;
 const CHARS_WIDTH = 2;
 //const CHARS_WIDTH = 3;
 
-//const UNICODE_PIECES = {};
-const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK;
+const UNICODE_PIECES = {};
+//const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK;
 
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
@@ -189,6 +189,14 @@ export class Board {
         this.iterateCells((pos, piece) => {
             if (isPieceOfSide(piece, side)) onCell(pos, piece);
         });
+    }
+
+    positionsHavingPiece(wantedPiece) {
+        const res = [];
+        this.iterateCells((pos, piece) => {
+            if (piece === wantedPiece) res.push(pos);
+        });
+        return res;
     }
 
     toString(fromBlacks) {

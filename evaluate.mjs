@@ -36,7 +36,10 @@ export function electNextMove(board, log) {
             reject( isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate' );
             return;
         }
-        const chosenMove = randomFromArr(moves);
+
+        const checkMoves = moves.filter(isMoveStringCheck);
+
+        const chosenMove = checkMoves.length > 0 ? randomFromArr(checkMoves) : randomFromArr(moves);
         resolve(chosenMove);
     });
 }

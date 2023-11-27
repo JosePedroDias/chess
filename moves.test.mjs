@@ -4,12 +4,36 @@ import { equal } from 'node:assert/strict';
 import { pc } from './vendor/colorette.mjs';
 
 import { log } from './testUtils.mjs';
-import { BLACK, Board } from './board.mjs';
+import { BLACK, Board, EMPTY } from './board.mjs';
 import { flatten1Level, zip3 } from './utils.mjs';
-import { KING_W, QUEEN_W, ROOK_W, BISHOP_W, KNIGHT_W, PAWN_B, PAWN_W } from './pieces.mjs';
-import { bishopMoves, kingMoves, knightMoves, pawnMoves, queenMoves, rookMoves, illustrateMoves, validMoves, moveToString, moveFromString, isMoveCapture, isMoveCheck } from './moves.mjs';
+import {
+    KING_W,
+    QUEEN_W,
+    ROOK_W,
+    BISHOP_W,
+    KNIGHT_W,
+    PAWN_B,
+    PAWN_W,
+    KING_B,
+} from './pieces.mjs';
+import {
+    bishopMoves,
+    kingMoves,
+    knightMoves,
+    pawnMoves,
+    queenMoves,
+    rookMoves,
+    illustrateMoves,
+    validMoves,
+    moveToString,
+    moveFromString,
+    isMoveCapture,
+    isMoveCheck,
+    isMoveStringCheck,
+} from './moves.mjs';
+import { deepEqual } from 'node:assert';
 
-test('king moves', (_t) => {
+test('king moves',  (_t) => {
     const pos = 'c6';
     const piece = KING_W;
     const moves = flatten1Level(kingMoves(pos, Board.empty()));
@@ -158,20 +182,26 @@ test('pawn moves regular black', (_t) => {
 });
 
 test('isMoveCapture', (_t) => {
-    _t.todo();
-    //isMoveCapture();
+    equal(isMoveCapture({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } }), false);
+    equal(isMoveCapture({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: PAWN_B } }), true);
 });
 
 test('isMoveCheck', (_t) => {
-    _t.todo();
-    //isMoveCheck();
+    equal(isMoveCheck({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } }), false);
+    equal(isMoveCheck({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: KING_B } }), true);
 });
 
-test('valid pawn moves start', { skip: true}, (_t) => {
+test('isMoveStringCheck', (_t) => {
+    equal(isMoveStringCheck('b2b3'), false);
+    equal(isMoveStringCheck('b2b3+'), true);
+});
+
+test('valid pawn moves start', (_t) => {
     _t.todo();
     const b = Board.fromFen(`8/8/8/8/8/8/1P6/8 w - 0 1`);
     const moves = validMoves(b);
-    log(moves);
+    deepEqual(moves, [{"from":{"pos":"b2","piece":"P"},"to":{"pos":"b3","piece":" "}},{"from":{"pos":"b2","piece":"P"},"to":{"pos":"b4","piece":" "}}]);
+    //log(moves);
 })
 
 /* test('valid moves', (_t) => {
@@ -186,7 +216,8 @@ test('valid pawn moves start', { skip: true}, (_t) => {
 }); */
 
 test('moveFromString', (_t) => {
-    _t.todo();
+    const b = Board.default();
+    deepEqual(moveFromString('b2b4', b), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } });
 });
 
 if (false) { // TODO TESTED MANUALLY
