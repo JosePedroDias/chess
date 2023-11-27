@@ -46,7 +46,7 @@ rl.on('line', (line) => {
     } else if (command === 'go') {
         electNextMove(b, out)
         .then((move) => {
-            b = b.applyMove(move);
+            b = b.applyMove(move, true);
             out(`bestmove ${move}`);
         });
     } else if (command === 'position') {

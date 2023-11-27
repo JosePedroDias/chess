@@ -12,10 +12,22 @@ const debug = false;
 
 const log = (msg) => console.log(msg);
 
-while (b._params.fullMoveNumber < 20) {
+//while (b._params.fullMoveNumber < 20) {
 //while (b._params.halfMoveClock === 0) {
-    //console.log('\n\n'); console.log(b.toPrettyString({ details: true }));
-    const move = await electNextMove(b, debug ? log: undefined);
+while (true) {
+    console.log('\n\n');
+    console.log(b.toPrettyString({
+        details: true,
+        fen: true,
+    }));
+
+    let move;
+    try {
+        move = await electNextMove(b, debug ? log: undefined);
+    } catch (err) {
+        console.log(err);
+        break;
+    }
 
     //const move = 'O-O-O';
     //const move = 'Ra1b1';
@@ -30,7 +42,7 @@ while (b._params.fullMoveNumber < 20) {
     //const move = 'Rh8g8';
 
     console.log(`best move: ${move}`);
-    b = b.applyMove(move);
+    b = b.applyMove(move, true);
 
     //console.log(b.toPrettyString({ details: true }));
 }
