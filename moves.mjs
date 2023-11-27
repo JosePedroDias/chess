@@ -1,4 +1,4 @@
-import { Board, POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE, EMPTY } from './board.mjs';
+import { Board, POSITIONS_TO_INDICES, INDICES_TO_POSITIONS, WHITE, EMPTY, otherSide } from './board.mjs';
 import {
     KING_W, KING_B,
     QUEEN_W, QUEEN_B,
@@ -8,6 +8,7 @@ import {
     PAWN_W, PAWN_B,
     isPiece, isWhitePiece, isBlackPiece, isPawn, isKing
 } from './pieces.mjs';
+import { intersection } from './utils.mjs';
 
 const CASTLE_W_QUEENSIDE = 'O-O-O';
 const CASTLE_B_QUEENSIDE = 'o-o-o';
@@ -71,13 +72,29 @@ export function kingMoves(pos, board) {
     if (canCastleKS) {
         const posMustBeEmpty = sideIsWhite ? ['f1', 'g1'] : ['f8', 'g8'];
         const canDoIt = posMustBeEmpty.every((pos) => !isPiece(board.get(pos)));
-        canDoIt && moves.push([sideIsWhite ? CASTLE_W_KINGSIDE : CASTLE_B_KINGSIDE]);
+
+        if (canDoIt) {
+            const moves = [];//validMoves(board, otherSide(board._params.next));
+            const positions = getThreatenedPositions(moves);
+            const cantBeThreatenedPositions = sideIsWhite ? ['e1', 'f1', 'g1'] : ['e8', 'f8', 'g8'];
+            if (intersection(positions, cantBeThreatenedPositions).length === 0) {
+                moves.push([sideIsWhite ? CASTLE_W_KINGSIDE : CASTLE_B_KINGSIDE]);
+            }
+        }
     }
 
     if (canCastleQS) {
-        const posMustBeEmpty = sideIsWhite ? ['b1', 'c1', 'd1'] : ['b8', 'c8', 'd8'];
+        const posMustBeEmpty = sideIsWhite ? ['d1', 'c1', 'b1'] : ['d8', 'c8', 'b8'];
         const canDoIt = posMustBeEmpty.every((pos) => !isPiece(board.get(pos)));
-        canDoIt && moves.push([sideIsWhite ? CASTLE_W_QUEENSIDE : CASTLE_B_QUEENSIDE]);
+
+        if (canDoIt) {
+            const moves = [];//validMoves(board, otherSide(board._params.next)); // TODO
+            const positions = getThreatenedPositions(moves);
+            const cantBeThreatenedPositions = sideIsWhite ? ['e1', 'd1', 'c1'] : ['e8', 'd8', 'c8'];
+            if (intersection(positions, cantBeThreatenedPositions).length === 0) {
+                moves.push([sideIsWhite ? CASTLE_W_QUEENSIDE : CASTLE_B_QUEENSIDE]);
+            }
+        }
     }
 
     return moves;
@@ -215,8 +232,8 @@ export function isMoveCheck(move) {
     return isKing(move.to.piece);
 }
 
-export function validMoves(board) {
-    const side = board._params.next;
+export function validMoves(board, fromSide) {
+    const side = fromSide || board._params.next;
     const sideIsWhite = side === WHITE;
     const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
     const moves = [];
@@ -326,4 +343,21 @@ export function moveFromString(st, board) {
         from: { pos: fromPos, piece: board.get(fromPos) },
         to: {   pos: toPos,   piece: board.get(toPos) },
     }
+}
+
+export function isCheckPossible(moves) {
+    return moves.some(isMoveCheck);
+}
+
+export function areAllMovesCheck(moves) {
+    return moves.every(isMoveCheck);
+}
+
+export function getCaptureMoves(moves) {
+    return moves.filter(isMoveCapture);
+}
+
+export function getThreatenedPositions(moves) {
+    const positions = getCaptureMoves(moves).map((move) => move.to.pos);
+    return Array.from( new Set(positions) );
 }

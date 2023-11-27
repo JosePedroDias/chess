@@ -69,6 +69,8 @@ export class Board {
 
     _moves = [];
 
+    //_previousBoards = [];
+
     _cellTransformations = new Array(64);
 
     static empty() {
@@ -176,6 +178,7 @@ export class Board {
         b._cells = Array.from(this._cells);
         b._params = structuredClone(this._params);
         b._moves = Array.from(this._moves);
+        //b._previousBoards = Array.from(this._previousBoards);
         return b;
     }
 
@@ -205,7 +208,6 @@ export class Board {
         return lines.join(NL);
     }
 
-    // TODO colors
     toPrettyString({ fromBlacks, details } = { fromBlacks: false, details: false }) {
         const lines = [];
         for (let yi = 0; yi < 8; ++yi) {
@@ -228,7 +230,7 @@ export class Board {
             lines.push(`next: ${this._params.next}`);
             lines.push(`en passant: ${this._params.enPassantPos }`);
             lines.push(`castling: ${this._params.castling }`);
-            lines.push(`clock: ${this._params.halfMoveClock }  move nr: ${this._params.fullMoveNumber}`);
+            lines.push(`half: ${this._params.halfMoveClock }  move #: ${this._params.fullMoveNumber}`);
             lines.push();
         }
 
@@ -286,8 +288,14 @@ export class Board {
 
         b._params.next = otherSide(b._params.next);
 
+        //b._previousBoards.push(this);
+
         return b;
     }
+
+    /* getLastMove() {
+        return this._moves[ this._moves.length - 1 ];
+    } */
 }
 
 export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

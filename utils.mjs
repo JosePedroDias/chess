@@ -21,3 +21,14 @@ export function randomFromArr(arr) {
     const i = randomInt(l);
     return arr[i];
 }
+
+export function intersection(arr1, arr2) {
+    let biggerArr = arr1.length >= arr2.length ? arr1 : arr2;
+    let smallerArr = arr1.length < arr2.length ? arr2 : arr1;
+    const biggerSet = new Set(biggerArr);
+    const res = [];
+    for (let it of smallerArr) {
+        if (biggerSet.has(it)) res.push(it);
+    }
+    return res;
+}

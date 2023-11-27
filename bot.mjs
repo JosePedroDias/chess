@@ -10,7 +10,8 @@ stdin.setEncoding('utf-8');
 const rl = createInterface({
     input: stdin,
     output: stdout,
-    terminal: false,
+    terminal: true,
+    //terminal: false,
 });
 
 let b = Board.default();
