@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { deepEqual, throws } from 'node:assert/strict';
+import { equal, deepEqual, throws } from 'node:assert/strict';
 // https://nodejs.org/dist/latest-v20.x/docs/api/assert.html
 
 import { log } from './testUtils.mjs';
@@ -9,6 +9,7 @@ import {
     zip3,
     intersection,
     subtraction,
+    memoFactory,
 } from './utils.mjs';
 
 test('flatten1Level', (_t) => {
@@ -52,4 +53,28 @@ test('intersection', (_t) => {
 test('subtraction', (_t) => {
     deepEqual(subtraction([2, 4, 6, 8], [1, 3, 5, 7]), [2, 4, 6, 8]);
     deepEqual(subtraction([2, 4, 6, 8], [3, 6, 9]), [2, 4, 8]);
+});
+
+test('memoFactory', (_t) => {
+    const _sin = (n) => Math.sin(n);
+    const sinMap = new Map();
+    const sin = memoFactory(_sin, sinMap);
+    deepEqual(sin(0), 0);
+    deepEqual(sin(Math.PI/2), 1);
+    deepEqual(sin(0), 0);
+    deepEqual(sin(Math.PI/2), 1);
+    deepEqual(sinMap, new Map([[0, 0], [Math.PI/2, 1]]));
+
+    const _pow = (a, b) => Math.pow(a, b);
+    const powMap = new Map();
+    const pow = memoFactory(_pow, powMap, (a, b) => `${a}|${b}`);
+    deepEqual(pow(1, 1), 1);
+    deepEqual(pow(2, 1), 2);
+    deepEqual(pow(1, 2), 1);
+    deepEqual(pow(2, 2), 4);
+    deepEqual(pow(1, 1), 1);
+    deepEqual(pow(2, 1), 2);
+    deepEqual(pow(1, 2), 1);
+    deepEqual(pow(2, 2), 4);
+    deepEqual(powMap, new Map([['1|1', 1], ['1|2', 1], ['2|1', 2], ['2|2', 4]]));
 });

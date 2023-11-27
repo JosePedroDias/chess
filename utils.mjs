@@ -42,3 +42,12 @@ export function subtraction(arr1, arr2) {
 }
 
 export const identity = (a) => a;
+
+export const memoFactory = (fn, map, keyFn = identity) => (a, b) => {
+    let k = keyFn(a, b);
+    let v = map.get(k);
+    if (v) return v;
+    v = fn(a, b);
+    map.set(k, v);
+    return v;
+}
