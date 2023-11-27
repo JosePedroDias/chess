@@ -23,8 +23,8 @@ export function randomFromArr(arr) {
 }
 
 export function intersection(arr1, arr2) {
-    let biggerArr = arr1.length >= arr2.length ? arr1 : arr2;
-    let smallerArr = arr1.length < arr2.length ? arr2 : arr1;
+    const biggerArr = arr1.length >= arr2.length ? arr1 : arr2;
+    const smallerArr = arr1.length < arr2.length ? arr1 : arr2;
     const biggerSet = new Set(biggerArr);
     const res = [];
     for (let it of smallerArr) {
@@ -32,3 +32,13 @@ export function intersection(arr1, arr2) {
     }
     return res;
 }
+
+export function subtraction(arr1, arr2) {
+    const resSet = new Set(arr1);
+    for (let it of arr2) {
+        resSet.delete(it);
+    }
+    return Array.from(resSet);
+}
+
+export const identity = (a) => a;

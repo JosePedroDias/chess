@@ -71,6 +71,7 @@ https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
     - castling (check for no checks in kings way)
 - find checkmate
 - find stalemate
+- find draw
 - find checkmate in 1/2/3
 - fix bot UCI compat
 - alternative readline interface 
