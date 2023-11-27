@@ -259,6 +259,7 @@ export class Board {
         }
 
         if (isRealMove && isMoveCapture(moveO) && isKing(moveO.to.piece)) {
+            console.log(moveO);
             throw new Error('king can not be captured!');
         }
 

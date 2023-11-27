@@ -14,7 +14,7 @@ import {
     PAWN_W, PAWN_B,
     isPiece, isWhitePiece, isBlackPiece, isPawn, isKing,
 } from './pieces.mjs';
-import { intersection, subtraction } from './utils.mjs';
+import { intersection, subtraction, memoFactory } from './utils.mjs';
 
 const CASTLE_W_QUEENSIDE = 'O-O-O';
 const CASTLE_B_QUEENSIDE = 'o-o-o';
@@ -52,7 +52,8 @@ function xyToValidPosition(xy) {
 }
 
 export function kingMoves(pos, board) {
-    const threatenedPosits = []; // getThreatenedPositions(board.getInvertedBoard()); //TODO
+    const threatenedPosits = [];
+    //const threatenedPosits = getThreatenedPositions(board.getInvertedBoard()); //TODO
 
     const [x, y] = posToXY(pos);
     const moves0 = [
@@ -64,7 +65,7 @@ export function kingMoves(pos, board) {
         [x-1, y+1],
         [x,   y+1],
         [x+1, y+1],
-    ].map((pos) => xyToValidPosition(pos));
+    ].map((pos) => xyToValidPosition(pos)).filter(o => Boolean(o));
     const moves = subtraction(moves0, threatenedPosits).map((pos) => [pos]);
 
     const side = board._params.next;
@@ -252,8 +253,7 @@ export function isMoveCheck(move) {
     return isKing(move.to.piece);
 }
 
-export function validMoves(board) { //, fromSide) {
-    //const side = fromSide || board._params.next;
+export function validMoves(board) {
     const side = board._params.next;
     const sideIsWhite = side === WHITE;
     const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
@@ -295,9 +295,10 @@ export function validMoves(board) { //, fromSide) {
         }
     });
 
-    // if last move was a check, make sure no checks exist in the list of next moves...
-    const lastMoveS = board.getLastMove();
+    // TODO if last move was a check, make sure no checks exist in the list of next moves...
+    /* const lastMoveS = board.getLastMove();
     if (lastMoveS && isMoveStringCheck(lastMoveS)) {
+        //console.log('testing for checks')
         //const myKingPos = board.positionsHavingPiece(sideIsWhite ? KING_W : KING_B)[0];
         return moves.filter((mv) => {
             const boardAfterMove = board.applyMove(mv);
@@ -306,7 +307,9 @@ export function validMoves(board) { //, fromSide) {
         });
     } else {
         return moves;
-    }
+    } */
+
+    return moves;
 }
 
 export function isMoveStringCastle(s) {
@@ -398,3 +401,6 @@ function getThreatenedPositions(board) {
 
 //const gtpMap = new Map();
 //export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
+
+//const vmMap = new Map();
+//export const validMoves = memoFactory(_validMoves, vmMap, (a) => a.getUniqueString());
