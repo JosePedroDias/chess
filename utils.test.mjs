@@ -1,6 +1,5 @@
 import test from 'node:test';
 import { equal, deepEqual, throws } from 'node:assert/strict';
-// https://nodejs.org/dist/latest-v20.x/docs/api/assert.html
 
 import { log } from './testUtils.mjs';
 import {

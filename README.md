@@ -35,8 +35,8 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 
 ### FEN
 
-https://www.chess.com/terms/fen-chess
-https://lichess.org/editor/r2qkb1r/ppp2ppp/3pb3/3np1N1/1n2P3/2N5/PPP1BPPP/R1BQK2R_b_KQkq_-_0_2?color=white
+- https://www.chess.com/terms/fen-chess
+- https://lichess.org/editor/r2qkb1r/ppp2ppp/3pb3/3np1N1/1n2P3/2N5/PPP1BPPP/R1BQK2R_b_KQkq_-_0_2?color=white
 
 
 ### PGN
@@ -53,16 +53,17 @@ https://lichess.org/editor/r2qkb1r/ppp2ppp/3pb3/3np1N1/1n2P3/2N5/PPP1BPPP/R1BQK2
 
 ## terminal colors
 
-https://github.com/alexeyraspopov/picocolors/blob/main/picocolors.js
-https://github.com/jorgebucaran/colorette/blob/main/index.js
+- https://github.com/alexeyraspopov/picocolors/blob/main/picocolors.js
+- https://github.com/jorgebucaran/colorette/blob/main/index.js
 
 
 ## Other
 
-https://www.chess.com/terms/chess-piece-value
-https://chess-bot.com/online_calculator/next_best_move.html
-https://stackoverflow.com/questions/17003561/using-the-universal-chess-interface
-https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
+- https://www.chess.com/terms/chess-piece-value
+- https://chess-bot.com/online_calculator/next_best_move.html
+- https://stackoverflow.com/questions/17003561/using-the-universal-chess-interface
+- https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
+- https://nodejs.org/dist/latest-v20.x/docs/api/assert.html
 
 
 # TODO
@@ -73,7 +74,7 @@ https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 - find stalemate
 - find draw
 - find checkmate in 1/2/3
-- fix bot UCI compat
+- fix bot UCI compatibility
 - alternative readline interface 
 - add more common knowledge / heuristic (material + more)
 - (low prio) minimax/alpha-beta

@@ -1,5 +1,4 @@
-import { WHITE } from './board.mjs';
-import { moveToString, validMoves } from './moves.mjs';
+import { isMoveStringCheck, moveToString, validMoves } from './moves.mjs';
 import { isWhitePiece } from "./pieces.mjs";
 import { randomFromArr } from './utils.mjs';
 // import { log } from './testUtils.mjs';
@@ -32,6 +31,10 @@ export function electNextMove(board, log) {
             for (const move of moves) {
                 log(`info ${move}`);
             }
+        }
+        if (moves.length === 0) {
+            reject( isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate' );
+            return;
         }
         const chosenMove = randomFromArr(moves);
         resolve(chosenMove);
