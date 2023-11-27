@@ -2,7 +2,7 @@ import { pc } from './vendor/colorette.mjs';
 
 import { isWhitePiece,isBlackPiece, isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
 import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
-import { moveFromString, moveToString } from './moves.mjs';
+import { isMoveCapture, moveFromString, moveToString } from './moves.mjs';
 
 const BG_IS_LIGHT = false;
 
@@ -69,8 +69,6 @@ export class Board {
 
     _moves = [];
 
-    //_previousBoards = [];
-
     _cellTransformations = new Array(64);
 
     static empty() {
@@ -114,7 +112,7 @@ export class Board {
             ranks.push(rank.join(''));
         }
         const p = this._params;
-        return `${ranks.join('/')} ${p.next === WHITE ? 'w' : 'b'} ${p.castling} ${p.enPassantPos} ${p.halfMoveClock} ${p.fullMoveNumber}`;
+        return `${ranks.join('/')} ${p.next === WHITE ? 'w' : 'b'} ${p.castling || NOTHING} ${p.enPassantPos} ${p.halfMoveClock} ${p.fullMoveNumber}`;
     }
 
     setFen(fen) {
@@ -178,7 +176,6 @@ export class Board {
         b._cells = Array.from(this._cells);
         b._params = structuredClone(this._params);
         b._moves = Array.from(this._moves);
-        //b._previousBoards = Array.from(this._previousBoards);
         return b;
     }
 
@@ -208,7 +205,7 @@ export class Board {
         return lines.join(NL);
     }
 
-    toPrettyString({ fromBlacks, details } = { fromBlacks: false, details: false }) {
+    toPrettyString({ fromBlacks, details, fen } = { fromBlacks: false, details: false, fen: false }) {
         const lines = [];
         for (let yi = 0; yi < 8; ++yi) {
             const line = [];
@@ -234,10 +231,14 @@ export class Board {
             lines.push();
         }
 
+        if (fen) {
+            lines.push(`fen: ${this.getFen()}`);
+        }
+
         return lines.join(NL);
     }
 
-    applyMove(move) {
+    applyMove(move, isRealMove) {
         const isSideWhite = this._params.next === WHITE;
         
         let moveO, moveS;
@@ -247,6 +248,10 @@ export class Board {
         } else {
             moveO = move;
             moveS = moveToString(move);
+        }
+
+        if (isRealMove && isMoveCapture(moveO) && isKing(moveO.to.piece)) {
+            throw new Error('king can not be captured!');
         }
 
         const b = this.clone();
@@ -288,14 +293,22 @@ export class Board {
 
         b._params.next = otherSide(b._params.next);
 
-        //b._previousBoards.push(this);
-
         return b;
     }
 
-    /* getLastMove() {
+    getLastMove() {
         return this._moves[ this._moves.length - 1 ];
-    } */
+    }
+
+    getUniqueString() {
+        return `${this._cells.join('')}${this._params.castling}`;
+    }
+
+    getInvertedBoard() {
+        const board = this.clone();
+        board._params.next = otherSide(this._params.next);
+        return board;
+    }
 }
 
 export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
