@@ -14,7 +14,7 @@ import {
     PAWN_W, PAWN_B,
     isPiece, isWhitePiece, isBlackPiece, isPawn, isKing,
 } from './pieces.mjs';
-import { intersection, subtraction, memoFactory } from './utils.mjs';
+import { intersection, subtraction } from './utils.mjs';
 
 const CASTLE_W_QUEENSIDE = 'O-O-O';
 const CASTLE_B_QUEENSIDE = 'o-o-o';
@@ -132,7 +132,7 @@ export function bishopMoves(pos) {
     const [x, y] = posToXY(pos);
     const moves = [];
     const dirs = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
-    for (let [dx, dy] of dirs) {
+    for (const [dx, dy] of dirs) {
         const dirMoves = [];
         for (let r = 1; r < 8; ++r)
             dirMoves.push([x + r*dx, y + r*dy]);
@@ -193,25 +193,6 @@ export function pawnMoves(pos, board) {
     return moves;
 }
 
-/*
-// (string, object) => `{string}{string}`
-const memoKM = new Map();
-const memoPM = new Map();
-const mapPosBoard = (a, b) => `${a}${b.getUniqueString()}`;
-const kingMoves = memo2Factory(_kingMoves, memoKM, mapPosBoard);
-const pawnMoves = memo2Factory(_pawnMoves, memoPM, mapPosBoard);
-
-// (string)
-const memoQM = new Map();
-const memoRM = new Map();
-const memoBM = new Map();
-const memoNM = new Map();
-const queenMoves   = memoFactory(_queenMoves,  memoQM);
-const rookMoves    = memoFactory(_rookMoves,   memoRM);
-const bishopMoves  = memoFactory(_bishopMoves, memoBM);
-const knightMoves  = memoFactory(_knightMoves, memoNM);
-*/
-
 export function getMoves(board, piece, pos) {
     switch (piece) {
         case KING_W:
@@ -250,7 +231,7 @@ export function isMoveCapture(move) {
 
 export function isMoveCheck(move) {
     if (move instanceof Array) return false; // castling
-    return isKing(move.to.piece);
+    return isKing(move.to.piece); // TODO WRONG
 }
 
 export function validMoves(board) {
@@ -258,9 +239,11 @@ export function validMoves(board) {
     const sideIsWhite = side === WHITE;
     const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
     const moves = [];
-    board.iteratePiecesOfSide(side, (pos, piece) => {
+    
+    const it = board.cellsHaving(sideIsWhite ? isWhitePiece : isBlackPiece);
+    for (const [pos, piece] of it) {
         const pieceMoves = getMoves(board, piece, pos);
-        for (let directionArr of pieceMoves) {
+        for (const directionArr of pieceMoves) {
             dirLoop: for (let pos2 of directionArr) {
                 if (isMoveStringCastle(pos2)) {
                     let toKPos, fromRPos, toRPos;
@@ -293,21 +276,7 @@ export function validMoves(board) {
                 }
             }
         }
-    });
-
-    // TODO if last move was a check, make sure no checks exist in the list of next moves...
-    /* const lastMoveS = board.getLastMove();
-    if (lastMoveS && isMoveStringCheck(lastMoveS)) {
-        //console.log('testing for checks')
-        //const myKingPos = board.positionsHavingPiece(sideIsWhite ? KING_W : KING_B)[0];
-        return moves.filter((mv) => {
-            const boardAfterMove = board.applyMove(mv);
-            const moves2 = validMoves(boardAfterMove);
-            return !isCheckPossible(moves2);
-        });
-    } else {
-        return moves;
-    } */
+    }
 
     return moves;
 }
@@ -329,12 +298,17 @@ export function moveToString(move) {
         if (toKingPos === 'c8') return CASTLE_B_QUEENSIDE;
         throw new Error('oops');
     }
-    const movingPiece = isPawn(move.from.piece) ? '' : move.from.piece;
     const isCapture = isMoveCapture(move) ? 'x' : '';
     const isCheck = isMoveCheck(move) ? '+' : '';
     const fromPos = move.from.pos;
     const toPos = move.to.pos;
-    return `${movingPiece}${fromPos}${isCapture}${toPos}${isCheck}`;
+    let sub;
+    if (isPawn(move.from.piece)) {
+        sub = isCapture ? `${fromPos[0]}x${toPos}` : toPos;
+    } else {
+        sub = `${move.from.piece}${fromPos}${isCapture}${toPos}`;
+    }
+    return `${sub}${isCheck}`;
 }
 
 export function moveFromString(st, board) {
@@ -358,6 +332,8 @@ export function moveFromString(st, board) {
         }];
     }
 
+    // TODO support pawns: f2, support fg3
+
     // 0       1        3   4
     // <piece?><fromPos><x?><toPos><+?>
 
@@ -380,14 +356,6 @@ export function moveFromString(st, board) {
     }
 }
 
-export function isCheckPossible(moves) {
-    return moves.some(isMoveCheck);
-}
-
-export function areAllMovesCheck(moves) {
-    return moves.every(isMoveCheck);
-}
-
 export function getCaptureMoves(moves) {
     return moves.filter(isMoveCapture);
 }
@@ -398,6 +366,25 @@ function getThreatenedPositions(board) {
     const positions = getCaptureMoves(moves).map((move) => move.to.pos);
     return Array.from( new Set(positions) );
 }
+
+/*
+// (string, object) => `{string}{string}`
+const memoKM = new Map();
+const memoPM = new Map();
+const mapPosBoard = (a, b) => `${a}${b.getUniqueString()}`;
+const kingMoves = memo2Factory(_kingMoves, memoKM, mapPosBoard);
+const pawnMoves = memo2Factory(_pawnMoves, memoPM, mapPosBoard);
+
+// (string)
+const memoQM = new Map();
+const memoRM = new Map();
+const memoBM = new Map();
+const memoNM = new Map();
+const queenMoves   = memoFactory(_queenMoves,  memoQM);
+const rookMoves    = memoFactory(_rookMoves,   memoRM);
+const bishopMoves  = memoFactory(_bishopMoves, memoBM);
+const knightMoves  = memoFactory(_knightMoves, memoNM);
+*/
 
 //const gtpMap = new Map();
 //export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());

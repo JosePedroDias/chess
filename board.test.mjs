@@ -3,6 +3,7 @@ import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
 import { log } from './testUtils.mjs';
 import { Board, WHITE, BLACK } from './board.mjs';
+import { isBlackPiece, isWhitePiece } from './pieces.mjs';
 
 test('empty board', (_t) => {
     const b = Board.empty();
@@ -61,7 +62,7 @@ test('setFen', (_t) => {
 
 test('cell positions and iterateCells', (_t) => {
     const b = new Board();
-    b.iterateCells((pos, _) => b.set(pos, pos));
+    for (const [pos] of b) b.set(pos, pos);
     equal(b.toString(),
 ` a8 b8 c8 d8 e8 f8 g8 h8
  a7 b7 c7 d7 e7 f7 g7 h7
@@ -178,3 +179,18 @@ half: 0  move #: 1`);
 });
 
 // log(b.toString())
+
+
+//const b = Board.default();
+
+/* for (const [pos, piece] of b) {
+    console.log(`${pos}/${piece}`);
+} */
+
+/* log('a');
+//let it = b.cellsHaving(isBlackPiece);
+let it = b.cellsHaving();
+//let it = b.cellsHaving();
+for (const [pos, piece] of it) {
+    console.log(`${pos}/${piece}`);
+} */

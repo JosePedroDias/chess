@@ -90,7 +90,9 @@ export class Board {
     }
 
     fill(v) {
-        this.iterateCells((pos) => this.set(pos, v));
+        for (const [pos] of this) {
+            this.set(pos, v);
+        }
     }
 
     getFen() {
@@ -118,7 +120,7 @@ export class Board {
     setFen(fen) {
         const [board, next, castling, enPassantPos, halfMoveClock, fullMoveNumber] = fen.split(' ');
         const ranks = board.split('/');
-        for (let [y, rank] of ranks.entries()) {
+        for (const [y, rank] of ranks.entries()) {
             let x = 0;
             for (const char of rank.split('')) {
                 const num = parseInt(char, 10);
@@ -179,24 +181,36 @@ export class Board {
         return b;
     }
 
-    iterateCells(onCell) {
+    *[Symbol.iterator]() {
         for (let i = 0; i < 64; ++i) {
-            onCell(INDICES_TO_POSITIONS.get(i), this._cells[i]);
+            yield [
+                INDICES_TO_POSITIONS.get(i),
+                this._cells[i],
+            ];
         }
     }
 
-    iteratePiecesOfSide(side, onCell) {
-        this.iterateCells((pos, piece) => {
-            if (isPieceOfSide(piece, side)) onCell(pos, piece);
-        });
-    }
-
-    positionsHavingPiece(wantedPiece) {
-        const res = [];
-        this.iterateCells((pos, piece) => {
-            if (piece === wantedPiece) res.push(pos);
-        });
-        return res;
+    cellsHaving(criteria = () => true) {
+        return {
+            [Symbol.iterator]: () => {
+                let i = 0;
+                return {
+                    next: () => {
+                        let pos, v, ok;
+                        do {
+                            pos = INDICES_TO_POSITIONS.get(i);
+                            v = this._cells[i];
+                            ok = criteria(v, pos);
+                            ++i;
+                            if (ok) {
+                                return { done: i === 64, value: [pos, v] };
+                            }
+                        } while (i < 64);
+                        return { done: true };
+                    }
+                }
+            }
+        }
     }
 
     toString(fromBlacks) {
@@ -268,7 +282,7 @@ export class Board {
         b._moves.push(moveS);
 
         const movesSteps = moveO instanceof Array ? moveO : [moveO];
-        for (let moveStep of movesSteps) {
+        for (const moveStep of movesSteps) {
             const { from, to } = moveStep;
             const piece = from.piece;
             if (isPawn(piece)) { // set en passant flag

@@ -13,13 +13,13 @@ const values = {
 
 export function material(board, isWhite) {
     let mat = 0;
-    board.iterateCells((_, piece) => {
+    for (const [_, piece] of board) {
         let v = values[piece.toLowerCase()] || 0;
         if (v) {
             const sign = (isWhitePiece(piece) === isWhite) ? 1 : -1;
             mat += sign * v;
         }
-    });
+    }
     return mat;
 }
 

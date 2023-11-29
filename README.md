@@ -64,7 +64,7 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://stackoverflow.com/questions/17003561/using-the-universal-chess-interface
 - https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 - https://nodejs.org/dist/latest-v20.x/docs/api/assert.html
-
+- https://github.com/jhlywa/chess.js/blob/master/src/chess.ts
 
 # TODO
 

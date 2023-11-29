@@ -27,7 +27,7 @@ export function intersection(arr1, arr2) {
     const smallerArr = arr1.length < arr2.length ? arr1 : arr2;
     const biggerSet = new Set(biggerArr);
     const res = [];
-    for (let it of smallerArr) {
+    for (const it of smallerArr) {
         if (biggerSet.has(it)) res.push(it);
     }
     return res;
@@ -35,7 +35,7 @@ export function intersection(arr1, arr2) {
 
 export function subtraction(arr1, arr2) {
     const resSet = new Set(arr1);
-    for (let it of arr2) {
+    for (const it of arr2) {
         resSet.delete(it);
     }
     return Array.from(resSet);

@@ -216,8 +216,19 @@ test('valid pawn moves start', (_t) => {
 }); */
 
 test('moveFromString', (_t) => {
-    const b = Board.default();
-    deepEqual(moveFromString('b2b4', b), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } });
+    //log(Board.fromFen(`8/8/8/8/8/2p5/1P6/8 w - - 0 1`).toPrettyString());
+    deepEqual(moveFromString('b2b4', Board.default()), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } });
+    //deepEqual(moveFromString('b4', Board.default()), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } }); // TODO
+    deepEqual(moveFromString('b2xc3', Board.fromFen(`8/8/8/8/8/2p5/1P6/8 w - - 0 1`)), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'c3', piece: PAWN_B } });
+    //deepEqual(moveFromString('bxc3', Board.fromFen(`8/8/8/8/8/2p5/1P6/8 w - - 0 1`)), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'c3', piece: PAWN_B } }); // TODO
+    deepEqual(moveFromString('O-O-O', Board.fromFen(`8/8/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1`)), [{ from: { piece: KING_W, pos: 'e1' }, to: { piece: EMPTY, pos: 'c1' } }, { from: { piece: ROOK_W, pos: 'a1' }, to: { piece: EMPTY, pos: 'd1' } }]);
+});
+
+test('moveToString', (_t) => {
+    equal('b4', moveToString({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } }));
+    //equal('b4+', moveToString({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: KING_B } }));
+    equal('bxc3', moveToString({ from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'c3', piece: PAWN_B } }));
+    equal('O-O-O', moveToString([{ from: { piece: KING_W, pos: 'e1' }, to: { piece: EMPTY, pos: 'c1' } }, { from: { piece: ROOK_W, pos: 'a1' }, to: { piece: EMPTY, pos: 'd1' } }]));
 });
 
 if (false) { // TODO TESTED MANUALLY
