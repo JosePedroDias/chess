@@ -7,7 +7,7 @@ let completerArr;
 
 import { Board, WHITE } from './board.mjs';
 import { electNextMove } from './evaluate.mjs';
-import { moveToString, validMoves } from './moves.mjs';
+import { moveToString, validMoves, getThreatenedPositions } from './moves.mjs';
 
 const BOT_VS_BOT = false;
 const HUMAN_SIDE = WHITE;
@@ -37,6 +37,8 @@ while (true) {
         details: true,
         //fen: true,
     }));
+    const threatenedPositions = getThreatenedPositions(b);
+    console.log(threatenedPositions.length);
 
     let move;
     try {

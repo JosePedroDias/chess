@@ -128,13 +128,13 @@ test('getPgn odd num of moves', (_t) => {
 test('applyMove', (_t) => {
     _t.todo();
     const b = Board.default();
-    const b2 = b.applyMove('b2b4');
+    const b2 = b.applyMove('b4');
     //equal(b2._params.next, BLACK); // TODO
     //equal(b2._params.enPassantPos, 'b3'); // TODO
     deepEqual(b2._params.castling.split('').toSorted(), 'KQkq'.split(''));
     //b2._params.halfMoveClock
     //b2._params.fullMoveNumber
-    deepEqual(b2._moves, ['b2b4']);
+    deepEqual(b2._moves, ['b4']);
     /*equal(b2.toString(),
 `r n b q k b n r
 p p p p p p p p

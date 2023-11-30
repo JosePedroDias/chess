@@ -1,5 +1,7 @@
 import { pc } from './vendor/colorette.mjs';
 
+//import { log } from './testUtils.mjs';
+
 import { isWhitePiece,isBlackPiece, isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
 import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
 import { isMoveCapture, moveFromString, moveToString } from './moves.mjs';
@@ -10,8 +12,8 @@ const BG_IS_LIGHT = false;
 const CHARS_WIDTH = 2;
 //const CHARS_WIDTH = 3;
 
-const UNICODE_PIECES = {};
-//const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK;
+//const UNICODE_PIECES = {};
+const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK;
 
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
@@ -346,4 +348,10 @@ for (let [yi, y] of RANKS.entries()) {
         POSITIONS_TO_INDICES.set(position, index);
         INDICES_TO_POSITIONS.set(index, position);
     }
+}
+
+export const POSITIONS = new Set(POSITIONS_TO_INDICES.keys());
+
+export function isValidPosition(pos) {
+    return POSITIONS.has(pos);
 }

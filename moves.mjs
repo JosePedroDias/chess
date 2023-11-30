@@ -4,6 +4,7 @@ import {
     INDICES_TO_POSITIONS,
     WHITE,
     EMPTY,
+    isValidPosition,
 } from './board.mjs';
 import {
     KING_W, KING_B,
@@ -12,9 +13,12 @@ import {
     BISHOP_W, BISHOP_B,
     KNIGHT_W, KNIGHT_B,
     PAWN_W, PAWN_B,
-    isPiece, isWhitePiece, isBlackPiece, isPawn, isKing,
+    isPiece, isWhitePiece, isBlackPiece,
+    isKing, isQueen, isRook, isBishop, isKnight, isPawn,
 } from './pieces.mjs';
-import { intersection, subtraction } from './utils.mjs';
+import { intersection, subtraction, memoFactory } from './utils.mjs';
+
+//import { log } from './testUtils.mjs';
 
 const CASTLE_W_QUEENSIDE = 'O-O-O';
 const CASTLE_B_QUEENSIDE = 'o-o-o';
@@ -51,8 +55,9 @@ function xyToValidPosition(xy) {
     return INDICES_TO_POSITIONS.get(idx);
 }
 
-export function kingMoves(pos, board) {
-    const threatenedPosits = [];
+export function kingMoves(pos, board, relaxed) {
+    const threatenedPosits = relaxed ? [] : getThreatenedPositions(board.getInvertedBoard()); //TODO
+    //const threatenedPosits = [];
     //const threatenedPosits = getThreatenedPositions(board.getInvertedBoard()); //TODO
 
     const [x, y] = posToXY(pos);
@@ -193,11 +198,11 @@ export function pawnMoves(pos, board) {
     return moves;
 }
 
-export function getMoves(board, piece, pos) {
+export function getMoves(board, piece, pos, relaxed) {
     switch (piece) {
         case KING_W:
         case KING_B:
-            return kingMoves(pos, board);
+            return kingMoves(pos, board, relaxed);
         case QUEEN_W:
         case QUEEN_B:
             return queenMoves(pos);
@@ -234,7 +239,7 @@ export function isMoveCheck(move) {
     return isKing(move.to.piece); // TODO WRONG
 }
 
-export function validMoves(board) {
+export function validMoves(board, relaxed) {
     const side = board._params.next;
     const sideIsWhite = side === WHITE;
     const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
@@ -242,7 +247,7 @@ export function validMoves(board) {
     
     const it = board.cellsHaving(sideIsWhite ? isWhitePiece : isBlackPiece);
     for (const [pos, piece] of it) {
-        const pieceMoves = getMoves(board, piece, pos);
+        const pieceMoves = getMoves(board, piece, pos, relaxed);
         for (const directionArr of pieceMoves) {
             dirLoop: for (let pos2 of directionArr) {
                 if (isMoveStringCastle(pos2)) {
@@ -338,21 +343,50 @@ export function moveFromString(st, board) {
     // <piece?><fromPos><x?><toPos><+?>
 
     const isCapture = st.includes('x');
-    //const isCheck = st.includes('+');
-    let startOfToPos = isCapture ? 4 : 3;
-    let piece = st[0];
-    let fromPos = st.substring(1, 3);
-    let thirdChar = st[2];
-    thirdChar = parseInt(thirdChar, 10);
-    if (isNaN(thirdChar)) {
-        fromPos = st.substring(0, 2);
-        piece = sideIsWhite ? PAWN_W : PAWN_B;
-        --startOfToPos;
-    }
-    const toPos = st.substring(startOfToPos, startOfToPos + 2);
-    return {
-        from: { pos: fromPos, piece: board.get(fromPos) },
-        to: {   pos: toPos,   piece: board.get(toPos) },
+    let potentialPiece = st[0];
+
+    if (!isValidPosition(st.substring(1, 3)) ||
+           (!isKing(potentialPiece)
+        && !isQueen(potentialPiece)
+        && !isRook(potentialPiece)
+        && !isBishop(potentialPiece)
+        && !isKnight(potentialPiece))
+    ) {
+        // pawn
+        const myPiece = sideIsWhite ? PAWN_W : PAWN_B;
+        if (isCapture) {
+            const xPos = st.indexOf('x');
+            const toPos = st.substring(xPos + 1, xPos + 3);
+            let fromFile = st[0];
+            let fromRank = parseInt(toPos[1], 10);
+            fromRank += sideIsWhite ? -1 : 1;
+            const fromPos = `${fromFile}${fromRank}`;
+            return { from: { piece: myPiece, pos: fromPos }, to: { piece: board.get(toPos), pos: toPos } };
+        } else {
+            const toPos = st.substring(0, 2);
+            let fromFile = st[0];
+            let fromRank = parseInt(st[1], 10);
+            fromRank += sideIsWhite ? -1 : 1;
+            let fromPos = `${fromFile}${fromRank}`;
+            
+            if (board.get(fromPos) !== myPiece) {
+                fromRank += sideIsWhite ? -1 : 1;
+                fromPos = `${fromFile}${fromRank}`;
+                if (board.get(fromPos) !== myPiece) {
+                    throw new Error(`Can not find pawn starting position on "${fromPos}" from "${st}"!`);
+                }
+            }
+            return { from: { piece: myPiece, pos: fromPos }, to: { piece: EMPTY, pos: toPos } };
+        }
+    } else {
+        // non-pawn
+        const fromPos = st.substring(1, 3);
+        const startOfToPos = isCapture ? 4 : 3;
+        const toPos = st.substring(startOfToPos, startOfToPos + 2);
+        return {
+            from: { pos: fromPos, piece: board.get(fromPos) },
+            to: {   pos: toPos,   piece: board.get(toPos) },
+        }
     }
 }
 
@@ -360,12 +394,16 @@ export function getCaptureMoves(moves) {
     return moves.filter(isMoveCapture);
 }
 
-function getThreatenedPositions(board) {
+// validMoves > kingMoves > getThreatenedPositions > validMoves
+function _getThreatenedPositions(board) {
     const board2 = board.getInvertedBoard();
-    const moves = validMoves(board2);
+    const moves = validMoves(board2, true);
     const positions = getCaptureMoves(moves).map((move) => move.to.pos);
     return Array.from( new Set(positions) );
 }
+
+const gtpMap = new Map();
+export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
 
 /*
 // (string, object) => `{string}{string}`
@@ -385,9 +423,6 @@ const rookMoves    = memoFactory(_rookMoves,   memoRM);
 const bishopMoves  = memoFactory(_bishopMoves, memoBM);
 const knightMoves  = memoFactory(_knightMoves, memoNM);
 */
-
-//const gtpMap = new Map();
-//export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
 
 //const vmMap = new Map();
 //export const validMoves = memoFactory(_validMoves, vmMap, (a) => a.getUniqueString());

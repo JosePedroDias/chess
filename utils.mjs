@@ -45,9 +45,9 @@ export const identity = (a) => a;
 
 export const memoFactory = (fn, map, keyFn = identity) => (a, b) => {
     let k = keyFn(a, b);
-    let v = map.get(k);
-    if (v) return v;
-    v = fn(a, b);
+    if (map.has(k)) return map.get(k);
+    const v = fn(a, b);
     map.set(k, v);
+    //console.log(`${fn.name} memo recorded #${map.size}`);
     return v;
 }
