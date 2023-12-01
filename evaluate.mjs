@@ -1,7 +1,6 @@
 import { isMoveStringCheck, moveToString, validMoves } from './moves.mjs';
 import { isWhitePiece } from "./pieces.mjs";
 import { randomFromArr } from './utils.mjs';
-// import { log } from './testUtils.mjs';
 
 const values = {
     'q': 9,

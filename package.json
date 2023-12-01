@@ -4,6 +4,7 @@
     "description": "the most naive and human-like algorithm I could come up with",
     "scripts": {
         "test": "NO_COLOR=1 node --test",
+        "test2": "NO_COLOR=1 node utils.test.mjs && NO_COLOR=1 node board.test.mjs && NO_COLOR=1 node moves.test.mjs && NO_COLOR=1 node evaluate.test.mjs",
         "host": "node host.js",
         "bot": "node bot.mjs"
     },

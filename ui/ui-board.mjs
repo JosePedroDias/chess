@@ -72,7 +72,6 @@ export function UiBoard(
                 Arrow({}, {
                     from: posToXY(from.pos),
                     to: posToXY(to.pos),
-                    //color: 'yellow',
                     color: randomColor(),
                     alpha: 0.5,
                     length: 2.5,
@@ -89,7 +88,6 @@ export function UiBoard(
                     Arrow({}, {
                         from: posToXY(from.pos),
                         to: posToXY(to.pos),
-                        //color: 'orange',
                         color: '#333',
                         alpha: 0.5,
                         length: 5,

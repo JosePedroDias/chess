@@ -17,8 +17,8 @@ function setSkillLevel(skill) {
     uciCmd(`setoption name Skill Level value ${skill}`);
 
     // Stockfish level 20 does not make errors (intentially), so these numbers have no effect on level 20.
-    const err_prob = Math.round((skill * 6.35) + 1); // Level 0 starts at 1
-    const max_err = Math.round((skill * -0.5) + 10); // Level 0 starts at 10
+    //const err_prob = Math.round((skill * 6.35) + 1); // Level 0 starts at 1
+    //const max_err = Math.round((skill * -0.5) + 10); // Level 0 starts at 10
     //uciCmd(`setoption name Skill Level Maximum Error value ${max_err}`);
     //uciCmd(`setoption name Skill Level Probability value ${err_prob}`);
 
@@ -26,8 +26,13 @@ function setSkillLevel(skill) {
 }
 window.setSkillLevel = setSkillLevel;
 
+function boardToUci(board) {
+    return `position fen ${board.getFen()}`;
+    //return `position startpos moves ${board._moves.join(' ')}`;
+}
+
 async function playBoard(board) {
-    uciCmd(`position ${board.getFen()}`);
+    uciCmd(boardToUci(board));
     await waitReady();
     uciCmd('go movetime 1000');
     const bestMove = await waitOn((l) => l.indexOf('bestmove') === 0);
@@ -36,7 +41,7 @@ async function playBoard(board) {
 window.playBoard = playBoard;
 
 async function evalBoard(board) {
-    uciCmd(`position ${board.getFen()}`);
+    uciCmd(boardToUci(board));
     await waitReady();
     uciCmd('eval');
     const classEval = await waitOn((l) => l.indexOf('Classical evaluation') === 0);
@@ -44,16 +49,10 @@ async function evalBoard(board) {
 }
 window.evalBoard = evalBoard;
 
-
 let listeners = [];
-
 function waitOn(criteriaFn) {
     return new Promise((resolve) => listeners.push({ criteriaFn, resolve }));
 }
-
-/*function listen(criteriaFn, resolve) {
-    listeners.push({ criteriaFn, resolve });
-}*/
 
 export function setup() {
     // https://github.com/nmrugg/stockfish.js/
@@ -67,6 +66,7 @@ export function setup() {
 
     
     engine.addEventListener('message', (ev) => {
+        //console.log(`#${listeners.length}`);
         const line = (ev && typeof ev === "object") ? ev.data : ev;
         LOG && console.log(`<< '${line}'`);
 
@@ -77,6 +77,7 @@ export function setup() {
                 listeners.splice(i, 1);
             }
         }
+        //console.log(`#${listeners.length}`);
 
         /* let m = line.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
         if (m) {
@@ -106,7 +107,7 @@ export function setup() {
 
     //waitReady().then(() => console.log('ready'));
 
-    const SKILL_LEVEL = 1; // 1-20 ?
+    const SKILL_LEVEL = 20; // 1-20 ?
     setSkillLevel(SKILL_LEVEL).then(() => console.log(`skill level ${SKILL_LEVEL} set`));
 }
 

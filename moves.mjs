@@ -18,8 +18,6 @@ import {
 } from './pieces.mjs';
 import { intersection, subtraction, memoFactory } from './utils.mjs';
 
-//import { log } from './testUtils.mjs';
-
 const CASTLE_QUEENSIDE = 'O-O-O';
 const CASTLE_KINGSIDE = 'O-O';
 const CASTLE_MOVES = [CASTLE_QUEENSIDE, CASTLE_KINGSIDE];
@@ -307,7 +305,7 @@ export function moveToString(move) {
     if (isPawn(move.from.piece)) {
         sub = isCapture ? `${fromPos[0]}x${toPos}` : toPos;
     } else {
-        sub = `${move.from.piece}${fromPos}${isCapture}${toPos}`;
+        sub = `${move.from.piece.toUpperCase()}${fromPos}${isCapture}${toPos}`;
     }
     return `${sub}${isCheck}`;
 }
@@ -400,6 +398,11 @@ function _getThreatenedPositions(board) {
 
 const gtpMap = new Map();
 export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
+
+export function isBoardChecked(board) {
+    const res = getThreatenedPositions(board);
+    return res.some((pos) => isKing(board.get(pos)));
+}
 
 /*
 // (string, object) => `{string}{string}`
