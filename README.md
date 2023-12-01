@@ -77,16 +77,14 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 
 - logic
     - fix valid moves
-        - prevent king from walking into checks!
         - castling (check for no checks in kings way)
-    - test checkmate
-    - test stalemate
-    - find draw
+        - moveFromString pawns sometimes fail
+    - support promotions!
+    - detect repetition (3 sets of equal moves?)
     - find checkmate in 1/2/3
     - fix bot UCI compatibility
     - add more common knowledge / heuristic (material + more)
     - (low prio) minimax/alpha-beta
 - ui
-    - dialog instead of window.prompt
     - allow moving by dragging
     - animate pieces... (hard)

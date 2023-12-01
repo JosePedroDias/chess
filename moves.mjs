@@ -2,7 +2,6 @@ import {
     Board,
     POSITIONS_TO_INDICES,
     INDICES_TO_POSITIONS,
-    WHITE,
     EMPTY,
     isValidPosition,
 } from './board.mjs';
@@ -16,7 +15,7 @@ import {
     isPiece, isWhitePiece, isBlackPiece,
     isKing, isQueen, isRook, isBishop, isKnight, isPawn,
 } from './pieces.mjs';
-import { intersection, subtraction, memoFactory } from './utils.mjs';
+import { intersection, subtraction } from './utils.mjs';
 
 const CASTLE_QUEENSIDE = 'O-O-O';
 const CASTLE_KINGSIDE = 'O-O';
@@ -52,9 +51,7 @@ function xyToValidPosition(xy) {
 }
 
 export function kingMoves(pos, board, relaxed) {
-    const threatenedPosits = relaxed ? [] : getThreatenedPositions(board.getInvertedBoard()); //TODO
-    //const threatenedPosits = [];
-    //const threatenedPosits = getThreatenedPositions(board.getInvertedBoard()); //TODO
+    const threatenedPosits = relaxed ? [] : getThreatenedPositions(board);
 
     const [x, y] = posToXY(pos);
     const moves0 = [
@@ -384,25 +381,16 @@ export function getCaptureMoves(moves) {
     return moves.filter(isMoveCapture);
 }
 
-// validMoves > kingMoves > getThreatenedPositions > validMoves
-// ie get capture destinations from THE OTHER PLAYER
 export function getPotentialCapturePositions(board) {
     const moves = validMoves(board, true);
     const positions = getCaptureMoves(moves).map((move) => move.to.pos);
     return Array.from( new Set(positions) );
 }
 
-//const gtpMap = new Map();
-//export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
-
 export function getThreatenedPositions(board) {
     board = board.getInvertedBoard();
     return getPotentialCapturePositions(board);
 }
-
-/*export function getTargetPositions(board) {
-    return getPotentialCapturePositions(board);
-} */
 
 export function isBoardChecked(board, move, byMe) { // 2nd arg may be useless?
     board = board.applyMove(move);
@@ -416,25 +404,3 @@ export function isBoardChecked(board, move, byMe) { // 2nd arg may be useless?
     const positions = getPotentialCapturePositions(board);
     return positions.some((pos) => board.get(pos) === specificPiece);
 }
-
-/*
-// (string, object) => `{string}{string}`
-const memoKM = new Map();
-const memoPM = new Map();
-const mapPosBoard = (a, b) => `${a}${b.getUniqueString()}`;
-const kingMoves = memo2Factory(_kingMoves, memoKM, mapPosBoard);
-const pawnMoves = memo2Factory(_pawnMoves, memoPM, mapPosBoard);
-
-// (string)
-const memoQM = new Map();
-const memoRM = new Map();
-const memoBM = new Map();
-const memoNM = new Map();
-const queenMoves   = memoFactory(_queenMoves,  memoQM);
-const rookMoves    = memoFactory(_rookMoves,   memoRM);
-const bishopMoves  = memoFactory(_bishopMoves, memoBM);
-const knightMoves  = memoFactory(_knightMoves, memoNM);
-*/
-
-//const vmMap = new Map();
-//export const validMoves = memoFactory(_validMoves, vmMap, (a) => a.getUniqueString());
