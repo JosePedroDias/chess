@@ -1,4 +1,4 @@
-import { createWriteStream } from 'fs'
+/* import { createWriteStream } from 'fs'
 
 const tty = createWriteStream('/dev/tty');
 
@@ -13,4 +13,9 @@ export const log = (...args) => {
   });
   return tty.write(args2.join(' ') + '\n');
   //return tty.write(args2.join(',\n...') + '\n');
+}
+ */
+
+export const log = (...args) => {
+    console.log(...args);
 }

@@ -3,7 +3,7 @@
 // reordered colors so they're easy to use
 // expose hasColors in interface
 
-import * as tty from "tty"
+//import * as tty from "tty";
 
 const {
     env = {},
@@ -16,8 +16,8 @@ const isForced = "FORCE_COLOR" in env || argv.includes("--color")
 const isWindows = platform === "win32"
 const isDumbTerminal = env.TERM === "dumb"
 
-const isCompatibleTerminal =
-    tty && tty.isatty && tty.isatty(1) && env.TERM && !isDumbTerminal
+//const isCompatibleTerminal = tty && tty.isatty && tty.isatty(1) && env.TERM && !isDumbTerminal;
+const isCompatibleTerminal = false;
 
 const isCI =
     "CI" in env &&

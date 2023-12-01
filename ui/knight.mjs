@@ -3,7 +3,7 @@ import m from '../vendor/mithril.mjs';
 import { CW, STROKE_WIDTH } from './constants.mjs';
 import { BLACK, WHITE } from './colors.mjs';
 
-export function knight({ isWhite }, { pos }) {
+export function Knight({ isWhite }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
     const fill2 = isWhite ? BLACK : WHITE;
     const stroke = isWhite ? BLACK : WHITE;

@@ -3,7 +3,7 @@ import m from '../vendor/mithril.mjs';
 import { CW, STROKE_WIDTH } from './constants.mjs';
 import { BLACK, WHITE } from './colors.mjs';
 
-export function rook({ isWhite }, { pos }) {
+export function Rook({ isWhite }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
     const stroke = isWhite ? BLACK : WHITE;
 

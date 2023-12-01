@@ -17,6 +17,7 @@ const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK
 
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
+export const POSITIONS_TO_XY = new Map();
 
 export const WHITE = 'white';
 export const BLACK = 'black';
@@ -347,6 +348,7 @@ for (let [yi, y] of RANKS.entries()) {
 
         POSITIONS_TO_INDICES.set(position, index);
         INDICES_TO_POSITIONS.set(index, position);
+        POSITIONS_TO_XY.set(position, [xi, yi]);
     }
 }
 
