@@ -22,6 +22,7 @@ export function promptDialog(question, alternatives, defaultAlt) {
 
         alternatives.forEach((alt, i) => {
             const buttonEl = document.createElement('button');
+            buttonEl.type = 'button';
             if (i === 0) firstButton = buttonEl;
             buttonEl.appendChild(document.createTextNode(alt));
             buttonEl.addEventListener('click', () => {

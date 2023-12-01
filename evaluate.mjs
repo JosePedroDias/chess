@@ -1,4 +1,4 @@
-import { isMoveStringCheck, moveToString, validMoves } from './moves.mjs';
+import { isBoardChecked, isMoveStringCheck, moveToString, validMoves } from './moves.mjs';
 import { isWhitePiece } from "./pieces.mjs";
 import { randomFromArr } from './utils.mjs';
 
@@ -22,23 +22,35 @@ export function material(board, isWhite) {
     return mat;
 }
 
-// TODO use AbortController
-export function electNextMove(board, log) {
-    return new Promise((resolve, reject) => {
-        const moves = validMoves(board).map(moveToString);
-        if (log) {
-            for (const move of moves) {
-                log(`info ${move}`);
-            }
+export function validMoves2(board) {
+    let moves = validMoves(board);
+    moves = moves.filter((move) => {
+        if (isBoardChecked(board, move, false)) {
+            //console.log(`removing illegal move: We would remain/get into check! `, moveToString(move));
+            return false;
         }
-        if (moves.length === 0) {
-            reject( isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate' );
-            return;
-        }
-
-        const checkMoves = moves.filter(isMoveStringCheck);
-
-        const chosenMove = checkMoves.length > 0 ? randomFromArr(checkMoves) : randomFromArr(moves);
-        resolve(chosenMove);
+        return true;
     });
+    moves = moves.map((move) => {
+        let str = moveToString(move);
+        if (isBoardChecked(board, move, true)) {
+            str = `${str}+`;
+        }
+        return str;
+    });
+
+    //console.log('moves', moves);
+    return moves;
+}
+
+export function electNextMove(board) {
+    const moves = validMoves2(board);
+
+    if (moves.length === 0) {
+        throw isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate';
+    }
+
+    const checkMoves = moves.filter(isMoveStringCheck);
+
+    return checkMoves.length > 0 ? randomFromArr(checkMoves) : randomFromArr(moves);
 }

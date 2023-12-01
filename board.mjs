@@ -97,6 +97,10 @@ export class Board {
         }
     }
 
+    isWhiteNext() {
+        return this._params.next === WHITE;
+    }
+
     getFen() {
         const ranks = [];
         for (let y = 0; y < 8; ++y) {
@@ -264,7 +268,7 @@ export class Board {
     }
 
     applyMove(move, isRealMove) {
-        const isSideWhite = this._params.next === WHITE;
+        const isSideWhite = this.isWhiteNext();
         
         let moveO, moveS;
         if (typeof move === 'string') {

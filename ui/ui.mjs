@@ -2,8 +2,7 @@ import { mount, redraw, default as m } from '../vendor/mithril.mjs';
 
 import { sleep } from '../utils.mjs';
 import { Board, WHITE } from '../board.mjs';
-import { validMoves, moveToString, isBoardChecked } from '../moves.mjs';
-import { electNextMove } from '../evaluate.mjs';
+import { electNextMove, validMoves2 } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -20,31 +19,45 @@ export function ui(
 ) {
     mount(rootEl, {
         oninit(_vnode) {
+            // TODO HACKY TEMPORARY
+            function undo() {
+                board = board.getLastBoard();
+                window.board = board;
+                redraw();
+            }
+            window.undo = undo;
+
             const doNextMove = async () => {
                 location.hash = board.getFen();
 
                 let move;
                 if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
-                    const possibleMoves = validMoves(board).map(moveToString);
-                    possibleMoves.sort();
+                    const moves = validMoves2(board);
+                    moves.sort();
+
+                    if (moves.length === 0) {
+                        window.alert(isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate');
+                    }
+
                     do {
                         await sleep(200);
-                        move = await promptDialog(`next move for ${board._params.next}?`, possibleMoves, '');
+                        move = await promptDialog(`next move for ${board._params.next}?`, moves, '');
 
                         if (move === '') {
                             setTimeout(doNextMove, 5 * BOT_SPEED_MS);
                             return;
                         }
-                    } while (!possibleMoves.includes(move));
+                    } while (!moves.includes(move));
                 } else {
-                    move = await electNextMove(board);
+                    try {
+                        move = electNextMove(board);
+                    } catch (err) {
+                        window.alert(err); // check mate / stale mate
+                        console.error(err);
+                        return;
+                    }
                 }
 
-                if (isBoardChecked(board)) {
-                    move = `${move}+`;
-                    console.log('CHECK!');
-                }
-                
                 console.log(`\nmove: ${move}\n`);
                 try {
                     board = board.applyMove(move, true);
@@ -54,7 +67,7 @@ export function ui(
                     return;
                 }
                 
-                console.log(board.toPrettyString({ details: true, fromBlacks: FROM_BLACKS }));
+                //console.log(board.toPrettyString({ details: true, fromBlacks: FROM_BLACKS }));
                 redraw();
                 setTimeout(doNextMove, BOT_SPEED_MS);
             }
@@ -111,7 +124,7 @@ if (location.hash) {
         // from fen
         startBoard = Board.fromFen(hash);
         window.board = startBoard; // TODO TEMP
-        console.log(startBoard.toPrettyString({ details: true }));
+        //console.log(startBoard.toPrettyString({ details: true }));
     }
 } else {
     window.board = startBoard; // TODO TEMP

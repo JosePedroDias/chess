@@ -52,8 +52,8 @@ function xyToValidPosition(xy) {
 }
 
 export function kingMoves(pos, board, relaxed) {
-    const threatenedPosits = relaxed ? [] : getThreatenedPositions(board.getInvertedBoard()); //TODO
-    //const threatenedPosits = [];
+    //const threatenedPosits = relaxed ? [] : getThreatenedPositions(board.getInvertedBoard()); //TODO
+    const threatenedPosits = [];
     //const threatenedPosits = getThreatenedPositions(board.getInvertedBoard()); //TODO
 
     const [x, y] = posToXY(pos);
@@ -69,8 +69,7 @@ export function kingMoves(pos, board, relaxed) {
     ].map((pos) => xyToValidPosition(pos)).filter(o => Boolean(o));
     const moves = subtraction(moves0, threatenedPosits).map((pos) => [pos]);
 
-    const side = board._params.next;
-    const sideIsWhite = side === WHITE;
+    const sideIsWhite = board.isWhiteNext();
 
     const castlingFlags = board._params.castling;
     const canCastleKS = castlingFlags.indexOf(sideIsWhite ? KING_W : KING_B) !== -1;
@@ -157,10 +156,8 @@ export function knightMoves(pos) {
 }
 
 export function pawnMoves(pos, board) {
-    const side = board._params.next;
-
     const [x, y] = posToXY(pos);
-    const sideIsWhite = side === WHITE;
+    const sideIsWhite = board.isWhiteNext();
     const dy = sideIsWhite ? -1 : 1;
 
     const canBeCaptured = sideIsWhite ? (p) => isBlackPiece(p) : (p) => isWhitePiece(p);
@@ -236,8 +233,7 @@ export function isMoveCheck(move) {
 }
 
 export function validMoves(board, relaxed) {
-    const side = board._params.next;
-    const sideIsWhite = side === WHITE;
+    const sideIsWhite = board.isWhiteNext();
     const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
     const moves = [];
     
@@ -311,7 +307,7 @@ export function moveToString(move) {
 }
 
 export function moveFromString(st, board) {
-    const sideIsWhite = board._params.next === WHITE;
+    const sideIsWhite = board.isWhiteNext();
     if (isMoveStringCastle(st)) {
         let fromKPos, toKPos, fromRPos, toRPos;
         const fromKPiece = sideIsWhite ? KING_W : KING_B;
@@ -389,19 +385,36 @@ export function getCaptureMoves(moves) {
 }
 
 // validMoves > kingMoves > getThreatenedPositions > validMoves
-function _getThreatenedPositions(board) {
-    const board2 = board.getInvertedBoard();
-    const moves = validMoves(board2, true);
+// ie get capture destinations from THE OTHER PLAYER
+export function getPotentialCapturePositions(board) {
+    const moves = validMoves(board, true);
     const positions = getCaptureMoves(moves).map((move) => move.to.pos);
     return Array.from( new Set(positions) );
 }
 
-const gtpMap = new Map();
-export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
+//const gtpMap = new Map();
+//export const getThreatenedPositions = memoFactory(_getThreatenedPositions, gtpMap, (a) => a.getUniqueString());
 
-export function isBoardChecked(board) {
-    const res = getThreatenedPositions(board);
-    return res.some((pos) => isKing(board.get(pos)));
+export function getThreatenedPositions(board) {
+    board = board.getInvertedBoard();
+    return getPotentialCapturePositions(board);
+}
+
+/*export function getTargetPositions(board) {
+    return getPotentialCapturePositions(board);
+} */
+
+export function isBoardChecked(board, move, byMe) { // 2nd arg may be useless?
+    board = board.applyMove(move);
+    let specificPiece;
+    if (byMe) {
+        specificPiece = board.isWhiteNext() ? KING_W : KING_B;
+        board = board.getInvertedBoard();
+    } else {
+        specificPiece = board.isWhiteNext() ? KING_B : KING_W;
+    }
+    const positions = getPotentialCapturePositions(board);
+    return positions.some((pos) => board.get(pos) === specificPiece);
 }
 
 /*

@@ -44,11 +44,9 @@ rl.on('line', (line) => {
     } else if (command === 'ucinewgame') {
         out('TODO');
     } else if (command === 'go') {
-        electNextMove(b, out)
-        .then((move) => {
-            b = b.applyMove(move, true);
-            out(`bestmove ${move}`);
-        });
+        const move = electNextMove(b);
+        b = b.applyMove(move, true);
+        out(`bestmove ${move}`);
     } else if (command === 'position') {
         let otherArgs;
         if (args[0] === 'startpos') {

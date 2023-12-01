@@ -51,7 +51,7 @@ while (true) {
                 if (move === '') console.log(b.getPgn());
             } while (!possibleMoves.includes(move));
         } else {
-            move = await electNextMove(b, debug ? log: undefined);
+            move = electNextMove(b);
         }
     } catch (err) {
         console.log(err);

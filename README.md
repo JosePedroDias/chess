@@ -71,6 +71,7 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://mithril.js.org/components.html#lifecycle-methods
 - https://www.chessboardjs.com/examples#5000
 - https://github.com/nmrugg/stockfish.js/
+- https://github.com/official-stockfish/Stockfish/wiki/UCI-%26-Commands
 
 # TODO
 

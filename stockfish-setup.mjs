@@ -27,6 +27,7 @@ function setSkillLevel(skill) {
 window.setSkillLevel = setSkillLevel;
 
 function boardToUci(board) {
+    //setTimeout(() => uciCmd('d'), 0); // display board in ascii art
     return `position fen ${board.getFen()}`;
     //return `position startpos moves ${board._moves.join(' ')}`;
 }
