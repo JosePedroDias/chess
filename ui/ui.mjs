@@ -27,6 +27,10 @@ export function ui(
             }
             window.undo = undo;
 
+            const updateEval = () => window.evalBoard(board).then((e) => document.title = `chess eval: ${e}`);
+            
+            updateEval();
+
             const doNextMove = async () => {
                 location.hash = board.getFen();
 
@@ -66,6 +70,8 @@ export function ui(
                     console.error(err);
                     return;
                 }
+
+                updateEval();
                 
                 //console.log(board.toPrettyString({ details: true, fromBlacks: FROM_BLACKS }));
                 redraw();

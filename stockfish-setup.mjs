@@ -45,8 +45,11 @@ async function evalBoard(board) {
     uciCmd(boardToUci(board));
     await waitReady();
     uciCmd('eval');
-    const classEval = await waitOn((l) => l.indexOf('Classical evaluation') === 0);
-    return classEval;
+
+    let finalEval = await waitOn((l) => l.indexOf('Final evaluation') === 0);
+    const m = /\+?-?\d\.\d\d/.exec(finalEval);
+    finalEval = parseFloat(m[0]);
+    return finalEval;
 }
 window.evalBoard = evalBoard;
 
