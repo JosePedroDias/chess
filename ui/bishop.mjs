@@ -13,8 +13,8 @@ export function Bishop({ isWhite }, { pos }) {
 
     return m('g',
         {
-            style: `stroke:${stroke}; stroke-width:${STROKE_WIDTH}; opacity:1; fill:none; fill-rule:evenodd; fill-opacity:1; stroke-linecap:round; stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
             transform: `translate(${x}, ${y + 0.6})`,
+            style: `stroke:${stroke}; stroke-width:${STROKE_WIDTH}; opacity:1; fill:none; fill-rule:evenodd; fill-opacity:1; stroke-linecap:round; stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
         },
         [
             m('g',

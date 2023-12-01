@@ -12,8 +12,8 @@ export function Queen({ isWhite }, { pos }) {
 
     return m('g',
         {
-            style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; stroke-linejoin:round`,
             transform: `translate(${x}, ${y})`,
+            style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; stroke-linejoin:round`,
         },
         [
             m('path', {

@@ -12,6 +12,8 @@ import { Bishop } from './bishop.mjs';
 import { Rook } from './rook.mjs';
 import { Queen } from './queen.mjs';
 import { King } from './king.mjs';
+import { ValidMove } from './valid-move.mjs';
+import { Arrow } from './arrow.mjs';
 
 export function UiBoard(
     { fromBlacks },
@@ -81,6 +83,17 @@ export function UiBoard(
             );
         }),
         // pieces
-        ...pieces
+        ...pieces,
+        /*ValidMove({}, {
+            pos: [3, 3],
+            //color: 'red',
+            //alpha: 0.5,
+        }),
+        Arrow({}, {
+            from: [3, 4],
+            to: [5, 3],
+            //color: 'blue',
+            //alpha: 0.5,
+        }),*/
     ]);
 };

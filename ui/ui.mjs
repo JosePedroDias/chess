@@ -16,7 +16,7 @@ export function ui(
     { board }
 ) {
     mount(rootEl, {
-        oninit(vnode) {
+        xoninit(vnode) {
             let timer = setInterval(async () => {
                 let move;
                 if (!BOT_VS_BOT && board._params.next === HUMAN_SIDE) {
@@ -53,6 +53,30 @@ export function ui(
                     viewBox: `${-MARGIN * CW} ${-MARGIN * CW} ${(8 + 2 * MARGIN) * CW} ${(8 + 2 * MARGIN) * CW}`,
                 },
                 [
+                    m('defs', [
+                        // used by arrow.mjs
+                        m(
+                            'marker',
+                            {
+                                id: 'head',
+                                orient: 'auto',
+                                markerWidth: 3,
+                                markerHeight: 4,
+                                refX: 0.1,
+                                refY: 2,
+                                //markerUnits: 'strokeWidth',
+                            },
+                            [
+                                m(
+                                    'path',
+                                    {
+                                        d: 'M0,0 V4 L2,2 Z',
+                                        style: `fill:context-stroke`,
+                                    }
+                                ),
+                            ]
+                        ),
+                    ]),
                     UiBoard({ fromBlacks: FROM_BLACKS }, { board }),
                 ],
             );

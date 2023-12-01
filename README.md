@@ -69,6 +69,7 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://developer.mozilla.org/en-US/docs/Web/SVG/Element
 - https://mithril.js.org/autoredraw.html
 - https://mithril.js.org/components.html#lifecycle-methods
+- https://www.chessboardjs.com/examples#5000
 
 # TODO
 

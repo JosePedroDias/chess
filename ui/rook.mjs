@@ -12,8 +12,8 @@ export function Rook({ isWhite }, { pos }) {
 
     return m('g',
         {
-            style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; opacity:1; fill-opacity:1; fill-rule:evenodd; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
             transform: `translate(${x}, ${y + 0.3})`,
+            style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; opacity:1; fill-opacity:1; fill-rule:evenodd; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
         },
         [
             m('path', {
