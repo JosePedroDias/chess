@@ -67,6 +67,8 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://github.com/jhlywa/chess.js/blob/master/src/chess.ts
 - https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
 - https://developer.mozilla.org/en-US/docs/Web/SVG/Element
+- https://mithril.js.org/autoredraw.html
+- https://mithril.js.org/components.html#lifecycle-methods
 
 # TODO
 

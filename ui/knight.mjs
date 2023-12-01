@@ -31,14 +31,14 @@ export function Knight({ isWhite }, { pos }) {
                 style: `fill:${fill2}; stroke:${stroke}`,
             }),
             m('path', {
-                d: `M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1  15 15.5 z`,
+                d: `M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z`,
                 transform: `matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)`,
                 style: `fill:${fill2}; stroke:${stroke}`,
             }),
-            isWhite ? undefined : m('path', {
+            /* isWhite ? undefined : m('path', {
                 d: `M 24.55,10.4 L 24.1,11.85 L 24.6,12 C 27.75,13 30.25,14.49 32.5,18.75 C 34.75,23.01 35.75,29.06 35.25,39 L 35.2,39.5 L 37.45,39.5 L 37.5,39 C 38,28.94 36.62,22.15 34.25,17.66 C 31.88,13.17 28.46,11.02 25.06,10.5 L 24.55,10.4 z`,
                 style: `fill:${fill2}; stroke:none`,
-            })
+            }) */
         ]
     );
 }

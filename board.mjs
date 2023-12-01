@@ -6,7 +6,7 @@ import { isWhitePiece,isBlackPiece, isPiece, isPawn, isRook, isKing, KING_W, KIN
 import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
 import { isMoveCapture, moveFromString, moveToString } from './moves.mjs';
 
-const BG_IS_LIGHT = false;
+const BG_IS_LIGHT = true;
 
 //const CHARS_WIDTH = 1;
 const CHARS_WIDTH = 2;
