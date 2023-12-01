@@ -75,6 +75,7 @@ export function UiBoard(
                     //color: 'yellow',
                     color: randomColor(),
                     alpha: 0.5,
+                    length: 2.5,
                 }),
             );
         }
@@ -91,6 +92,7 @@ export function UiBoard(
                         //color: 'orange',
                         color: '#333',
                         alpha: 0.5,
+                        length: 5,
                     }),
                 );
             }

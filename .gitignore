@@ -1,3 +1,5 @@
 .DS_Store
 wukongJS
+stockfish-js
 *.txt
+node_modules

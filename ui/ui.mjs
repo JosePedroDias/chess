@@ -20,6 +20,8 @@ export function ui(
     mount(rootEl, {
         oninit(_vnode) {
             const doNextMove = async () => {
+                location.hash = board.getFen();
+
                 let move;
                 if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
                     const possibleMoves = validMoves(board).map(moveToString);
@@ -28,7 +30,9 @@ export function ui(
                         await sleep(200);
                         move = window.prompt(`next move for ${board._params.next}?`);
                         if (move === '') {
+                            console.log('FEN: ' + board.getFen());
                             console.log('PGN: ' + board.getPgn());
+                            setTimeout(doNextMove, 5 * BOT_SPEED_MS);
                             return;
                         }
                     } while (!possibleMoves.includes(move));
@@ -39,6 +43,7 @@ export function ui(
                 console.log(`\nmove: ${move}\n`);
                 try {
                     board = board.applyMove(move, true);
+                    window.board = board; // TODO TEMP
                 } catch (err) {
                     console.error(err);
                     return;
@@ -49,7 +54,7 @@ export function ui(
                 setTimeout(doNextMove, BOT_SPEED_MS);
             }
 
-            setTimeout(doNextMove, BOT_SPEED_MS);
+            //setTimeout(doNextMove, BOT_SPEED_MS);
         },
         view() {
             return m(
@@ -91,11 +96,24 @@ export function ui(
     });
 }
 
+let startBoard = Board.default();
+window.board = startBoard; // TODO TEMP
+if (location.hash) {
+    const hash = decodeURIComponent(location.hash.substring(1));
+    if (hash.substring(0, 2) === '1.') {
+        // from pgn
+        //startBoard = Board.fromPgn(hash); // TODO
+    } else {
+        // from fen
+        startBoard = Board.fromFen(hash);
+        console.log(startBoard.toPrettyString({ details: true }));
+    }
+}
 ui(
     {
         rootEl: document.body,
     },
     {
-        board: Board.default(),
+        board: startBoard,
     }
 );

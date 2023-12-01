@@ -4,6 +4,10 @@
     "description": "the most naive and human-like algorithm I could come up with",
     "scripts": {
         "test": "NO_COLOR=1 node --test",
+        "host": "node host.js",
         "bot": "node bot.mjs"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
     }
 }

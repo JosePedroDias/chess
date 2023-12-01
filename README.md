@@ -70,6 +70,7 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://mithril.js.org/autoredraw.html
 - https://mithril.js.org/components.html#lifecycle-methods
 - https://www.chessboardjs.com/examples#5000
+- https://github.com/nmrugg/stockfish.js/
 
 # TODO
 
@@ -85,7 +86,6 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
     - add more common knowledge / heuristic (material + more)
     - (low prio) minimax/alpha-beta
 - ui
-    - render valid move annotation
-    - render arrow annotation
+    - dialog instead of window.prompt
     - allow moving by dragging
     - animate pieces... (hard)
