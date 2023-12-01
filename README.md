@@ -72,14 +72,19 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 
 # TODO
 
-- fix valid moves
-    - prevent king from walking into checks!
-    - castling (check for no checks in kings way)
-- test checkmate
-- test stalemate
-- find draw
-- find checkmate in 1/2/3
-- fix bot UCI compatibility
-- alternative readline interface 
-- add more common knowledge / heuristic (material + more)
-- (low prio) minimax/alpha-beta
+- logic
+    - fix valid moves
+        - prevent king from walking into checks!
+        - castling (check for no checks in kings way)
+    - test checkmate
+    - test stalemate
+    - find draw
+    - find checkmate in 1/2/3
+    - fix bot UCI compatibility
+    - add more common knowledge / heuristic (material + more)
+    - (low prio) minimax/alpha-beta
+- ui
+    - render valid move annotation
+    - render arrow annotation
+    - allow moving by dragging
+    - animate pieces... (hard)

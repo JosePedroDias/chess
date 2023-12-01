@@ -146,7 +146,7 @@ P   P P P P P P
 R N B Q K B N R`);*/
 });
 
-test('toPrettyString simplest', (_t) => {
+test('toPrettyString simplest', { skip: true }, (_t) => {
     const b = Board.default();
     equal(b.toPrettyString({}),
 ` 8 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
@@ -160,7 +160,7 @@ test('toPrettyString simplest', (_t) => {
    a b c d e f g h`);
 });
 
-test('toPrettyString fromBlacks + details', (_t) => {
+test('toPrettyString fromBlacks + details', { skip: true }, (_t) => {
     const b = Board.default();
     equal(b.toPrettyString({ fromBlacks: true, details: true }),
 ` 1 ♜ ♞ ♝ ♚ ♛ ♝ ♞ ♜

@@ -20,11 +20,9 @@ import { intersection, subtraction, memoFactory } from './utils.mjs';
 
 //import { log } from './testUtils.mjs';
 
-const CASTLE_W_QUEENSIDE = 'O-O-O';
-const CASTLE_B_QUEENSIDE = 'o-o-o';
-const CASTLE_W_KINGSIDE = 'O-O';
-const CASTLE_B_KINGSIDE = 'o-o';
-const CASTLE_MOVES = [CASTLE_W_QUEENSIDE, CASTLE_B_QUEENSIDE, CASTLE_W_KINGSIDE, CASTLE_B_KINGSIDE];
+const CASTLE_QUEENSIDE = 'O-O-O';
+const CASTLE_KINGSIDE = 'O-O';
+const CASTLE_MOVES = [CASTLE_QUEENSIDE, CASTLE_KINGSIDE];
 
 function posToXY(pos) {
     const index = POSITIONS_TO_INDICES.get(pos);
@@ -86,7 +84,7 @@ export function kingMoves(pos, board, relaxed) {
         if (canDoIt) {
             const cantBeThreatenedPositions = sideIsWhite ? ['e1', 'f1', 'g1'] : ['e8', 'f8', 'g8'];
             if (intersection(threatenedPosits, cantBeThreatenedPositions).length === 0) {
-                moves.push([sideIsWhite ? CASTLE_W_KINGSIDE : CASTLE_B_KINGSIDE]);
+                moves.push([CASTLE_KINGSIDE]);
             }
         }
     }
@@ -99,7 +97,7 @@ export function kingMoves(pos, board, relaxed) {
 
             const cantBeThreatenedPositions = sideIsWhite ? ['e1', 'd1', 'c1'] : ['e8', 'd8', 'c8'];
             if (intersection(threatenedPosits, cantBeThreatenedPositions).length === 0) {
-                moves.push([sideIsWhite ? CASTLE_W_QUEENSIDE : CASTLE_B_QUEENSIDE]);
+                moves.push([CASTLE_QUEENSIDE]);
             }
         }
     }
@@ -297,10 +295,8 @@ export function isMoveStringCheck(moveS) {
 export function moveToString(move) {
     if (move instanceof Array) {
         const toKingPos = move[0].to.pos;
-        if (toKingPos === 'g1') return CASTLE_W_KINGSIDE;
-        if (toKingPos === 'g8') return CASTLE_B_KINGSIDE;
-        if (toKingPos === 'c1') return CASTLE_W_QUEENSIDE;
-        if (toKingPos === 'c8') return CASTLE_B_QUEENSIDE;
+        if (toKingPos === 'g1' || toKingPos === 'g8') return CASTLE_KINGSIDE;
+        if (toKingPos === 'c1' || toKingPos === 'c8') return CASTLE_QUEENSIDE;
         throw new Error('oops');
     }
     const isCapture = isMoveCapture(move) ? 'x' : '';
@@ -323,10 +319,10 @@ export function moveFromString(st, board) {
         const fromKPiece = sideIsWhite ? KING_W : KING_B;
         const fromRPiece = sideIsWhite ? ROOK_W : ROOK_B;
 
-        if      (st === CASTLE_W_KINGSIDE)  { fromKPos = 'e1'; toKPos = 'g1'; fromRPos = 'h1'; toRPos = 'f1'; }
-        else if (st === CASTLE_B_KINGSIDE) {  fromKPos = 'e8'; toKPos = 'g8'; fromRPos = 'h8'; toRPos = 'f8'; }
-        else if (st === CASTLE_W_QUEENSIDE) { fromKPos = 'e1'; toKPos = 'c1'; fromRPos = 'a1'; toRPos = 'd1'; }
-        else if (st === CASTLE_B_QUEENSIDE) { fromKPos = 'e8'; toKPos = 'c8'; fromRPos = 'a8'; toRPos = 'd8'; }
+        if      (st === CASTLE_KINGSIDE && sideIsWhite)  { fromKPos = 'e1'; toKPos = 'g1'; fromRPos = 'h1'; toRPos = 'f1'; }
+        else if (st === CASTLE_KINGSIDE) {                 fromKPos = 'e8'; toKPos = 'g8'; fromRPos = 'h8'; toRPos = 'f8'; }
+        else if (st === CASTLE_QUEENSIDE && sideIsWhite) { fromKPos = 'e1'; toKPos = 'c1'; fromRPos = 'a1'; toRPos = 'd1'; }
+        else if (st === CASTLE_QUEENSIDE) {                fromKPos = 'e8'; toKPos = 'c8'; fromRPos = 'a8'; toRPos = 'd8'; }
 
         return [{
             from: { pos: fromKPos, piece: fromKPiece },
