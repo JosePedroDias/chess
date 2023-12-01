@@ -65,6 +65,8 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 - https://nodejs.org/dist/latest-v20.x/docs/api/assert.html
 - https://github.com/jhlywa/chess.js/blob/master/src/chess.ts
+- https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
+- https://developer.mozilla.org/en-US/docs/Web/SVG/Element
 
 # TODO
 

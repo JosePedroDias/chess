@@ -51,3 +51,7 @@ export const memoFactory = (fn, map, keyFn = identity) => (a, b) => {
     //console.log(`${fn.name} memo recorded #${map.size}`);
     return v;
 }
+
+export const times = (n) => {
+    return new Array(n).fill(true).map((_, i) => i);
+}
