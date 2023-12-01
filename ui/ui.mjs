@@ -9,6 +9,7 @@ import { MARGIN, CW } from './constants.mjs';
 const BOT_VS_BOT = true;
 const HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
+const FROM_BLACKS = false;
 
 export function ui(
     { rootEl },
@@ -39,7 +40,7 @@ export function ui(
                     return;
                 }
                 
-                console.log(board.toPrettyString({ details: true }));
+                console.log(board.toPrettyString({ details: true, fromBlacks: FROM_BLACKS }));
                 redraw();
             }, BOT_SPEED_MS);
         },
@@ -52,7 +53,7 @@ export function ui(
                     viewBox: `${-MARGIN * CW} ${-MARGIN * CW} ${(8 + 2 * MARGIN) * CW} ${(8 + 2 * MARGIN) * CW}`,
                 },
                 [
-                    UiBoard({}, { board }),
+                    UiBoard({ fromBlacks: FROM_BLACKS }, { board }),
                 ],
             );
         }

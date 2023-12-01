@@ -14,7 +14,7 @@ import { Queen } from './queen.mjs';
 import { King } from './king.mjs';
 
 export function UiBoard(
-    {},
+    { fromBlacks },
     { board },
 ) {
     const pieces = [];
@@ -29,7 +29,11 @@ export function UiBoard(
         else if (isQueen(piece)) Fn = Queen;
         else if (isKing(piece)) Fn = King;
 
-        const posXY = POSITIONS_TO_XY.get(pos);
+        const posXY = Array.from(POSITIONS_TO_XY.get(pos));
+        if (fromBlacks) {
+            posXY[0] = 7 - posXY[0];
+            posXY[1] = 7 - posXY[1];
+        }
         pieces.push(Fn({ isWhite }, { pos: posXY }))
     }
 
@@ -51,10 +55,30 @@ export function UiBoard(
         }),
         // cell labels
         ...times(8).map((i) => {
-            return m('text', { x: -MARGIN * 0.75 * CW, y: (i - 0.5) * CW, dy: CW, 'dominant-baseline':'middle', fill: WHITE }, `${i + 1}`);
+            return m(
+                'text',
+                {
+                    x: -MARGIN * 0.75 * CW,
+                    y: (i - 0.5) * CW,
+                    dy: CW,
+                    fill: WHITE,
+                    'dominant-baseline': 'middle',
+                },
+                `${ fromBlacks ? i + 1 : 8 - i}`
+            );
         }),
         ...times(8).map((i) => {
-            return m('text', { x: (i + 0.5) * CW, y: (7 + MARGIN * 0.75) * CW, dy: CW, 'text-anchor': 'middle', fill: WHITE }, `${String.fromCharCode(97 + i)}`);
+            return m(
+                'text',
+                {
+                    x: (i + 0.5) * CW,
+                    y: (7 + MARGIN * 0.75) * CW,
+                    dy: CW,
+                    fill: WHITE,
+                    'text-anchor': 'middle',
+                },
+                `${String.fromCharCode( fromBlacks ? 104 - i : 97 + i )}`
+            );
         }),
         // pieces
         ...pieces
