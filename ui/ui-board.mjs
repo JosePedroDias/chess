@@ -99,6 +99,9 @@ export function UiBoard(
         }
     }
 
+    const yToRank = (i) => fromBlacks ? i + 1 : 8 - i;
+    const xToFile = (i) => String.fromCharCode( fromBlacks ? 104 - i : 97 + i );
+
     return m('g', [
         // bg
         m('rect', { width: 9 * CW, height: 9 * CW, x: -0.5 * CW, y: -0.5 * CW, fill: GRAY }),
@@ -113,7 +116,9 @@ export function UiBoard(
                 width:  CW,
                 height: CW,
                 fill: isEven ? LIGHT : DARK,
-            });
+            }, [
+                m('title', `${xToFile(xi)}${yToRank(yi)}`),
+            ]);
         }),
         // cell labels
         ...times(8).map((i) => {
@@ -126,7 +131,7 @@ export function UiBoard(
                     fill: WHITE,
                     'dominant-baseline': 'middle',
                 },
-                `${ fromBlacks ? i + 1 : 8 - i}`
+                yToRank(i),
             );
         }),
         ...times(8).map((i) => {
@@ -139,7 +144,7 @@ export function UiBoard(
                     fill: WHITE,
                     'text-anchor': 'middle',
                 },
-                `${String.fromCharCode( fromBlacks ? 104 - i : 97 + i )}`
+                xToFile(i),
             );
         }),
         

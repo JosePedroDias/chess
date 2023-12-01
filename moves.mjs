@@ -52,8 +52,8 @@ function xyToValidPosition(xy) {
 }
 
 export function kingMoves(pos, board, relaxed) {
-    //const threatenedPosits = relaxed ? [] : getThreatenedPositions(board.getInvertedBoard()); //TODO
-    const threatenedPosits = [];
+    const threatenedPosits = relaxed ? [] : getThreatenedPositions(board.getInvertedBoard()); //TODO
+    //const threatenedPosits = [];
     //const threatenedPosits = getThreatenedPositions(board.getInvertedBoard()); //TODO
 
     const [x, y] = posToXY(pos);
