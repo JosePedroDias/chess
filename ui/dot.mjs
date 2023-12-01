@@ -2,7 +2,7 @@ import m from '../vendor/mithril.mjs';
 
 import { CW } from './constants.mjs';
 
-export function ValidMove({  }, { pos, color, alpha }) {
+export function Dot({  }, { pos, color, alpha }) {
     const x = pos[0] * CW;
     const y = pos[1] * CW;
 

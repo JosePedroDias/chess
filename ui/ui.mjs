@@ -1,12 +1,14 @@
 import { mount, redraw, default as m } from '../vendor/mithril.mjs';
 
+import { sleep } from '../utils.mjs';
 import { Board, WHITE } from '../board.mjs';
 import { validMoves, moveToString } from '../moves.mjs';
 import { electNextMove } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 
-const BOT_VS_BOT = true;
+const BOT_VS_BOT = false;
+const HUMAN_VS_HUMAN = false;
 const HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
 const FROM_BLACKS = false;
@@ -16,15 +18,19 @@ export function ui(
     { board }
 ) {
     mount(rootEl, {
-        xoninit(vnode) {
-            let timer = setInterval(async () => {
+        oninit(_vnode) {
+            const doNextMove = async () => {
                 let move;
-                if (!BOT_VS_BOT && board._params.next === HUMAN_SIDE) {
+                if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
                     const possibleMoves = validMoves(board).map(moveToString);
                     do {
                         console.log(possibleMoves.map((move) => `* ${move}`).join('\n'));
-                        move = window.prompt('move?');
-                        if (move === '') console.log(board.getPgn());
+                        await sleep(200);
+                        move = window.prompt(`next move for ${board._params.next}?`);
+                        if (move === '') {
+                            console.log('PGN: ' + board.getPgn());
+                            return;
+                        }
                     } while (!possibleMoves.includes(move));
                 } else {
                     move = await electNextMove(board);
@@ -35,14 +41,15 @@ export function ui(
                     board = board.applyMove(move, true);
                 } catch (err) {
                     console.error(err);
-                    clearInterval(timer);
-                    timer = undefined;
                     return;
                 }
                 
                 console.log(board.toPrettyString({ details: true, fromBlacks: FROM_BLACKS }));
                 redraw();
-            }, BOT_SPEED_MS);
+                setTimeout(doNextMove, BOT_SPEED_MS);
+            }
+
+            setTimeout(doNextMove, BOT_SPEED_MS);
         },
         view() {
             return m(

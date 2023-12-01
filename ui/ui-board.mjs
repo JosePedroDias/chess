@@ -1,8 +1,9 @@
 import m from '../vendor/mithril.mjs';
 
-import { times } from '../utils.mjs';
+import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
 import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
+import { moveFromString, validMoves, getThreatenedPositions } from '../moves.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW } from './constants.mjs';
@@ -12,13 +13,24 @@ import { Bishop } from './bishop.mjs';
 import { Rook } from './rook.mjs';
 import { Queen } from './queen.mjs';
 import { King } from './king.mjs';
-import { ValidMove } from './valid-move.mjs';
+import { Dot } from './dot.mjs';
 import { Arrow } from './arrow.mjs';
 
 export function UiBoard(
     { fromBlacks },
     { board },
 ) {
+    const posToXY = (pos) => {
+        const posXY = Array.from(POSITIONS_TO_XY.get(pos));
+        if (fromBlacks) {
+            posXY[0] = 7 - posXY[0];
+            posXY[1] = 7 - posXY[1];
+        }
+        return posXY;
+    }
+
+    const moveToArr = (move) => move instanceof Array ? move : [move];
+
     const pieces = [];
     for (const [pos, piece] of board) {
         if (piece === EMPTY) continue;
@@ -31,12 +43,60 @@ export function UiBoard(
         else if (isQueen(piece)) Fn = Queen;
         else if (isKing(piece)) Fn = King;
 
-        const posXY = Array.from(POSITIONS_TO_XY.get(pos));
-        if (fromBlacks) {
-            posXY[0] = 7 - posXY[0];
-            posXY[1] = 7 - posXY[1];
+        pieces.push(Fn({ isWhite }, { pos: posToXY(pos) }))
+    }
+
+    const annotations = [];
+
+    const lastMove = board.getLastMove();
+    const possibleMoves = validMoves(board, true);
+    const riskedPositions = getThreatenedPositions(board);
+    //console.log('lastMove', lastMove);
+    //console.log('possibleMoves', possibleMoves);
+    //console.log('riskedPositions', riskedPositions);
+
+    for (const pos of riskedPositions) {
+        annotations.push(
+            Dot({}, {
+                pos: posToXY(pos),
+                color: 'red',
+                alpha: 0.5,
+            }),
+        );
+    }
+
+    for (const mv of possibleMoves) {
+        const moveArr = moveToArr(mv);
+        for (const { from, to } of moveArr) {
+            annotations.push(
+                Arrow({}, {
+                    from: posToXY(from.pos),
+                    to: posToXY(to.pos),
+                    //color: 'yellow',
+                    color: randomColor(),
+                    alpha: 0.5,
+                }),
+            );
         }
-        pieces.push(Fn({ isWhite }, { pos: posXY }))
+    }
+
+    if (lastMove) {
+        try {
+            const moveArr = moveToArr( moveFromString(lastMove, board.getLastBoard()) );
+            for (const { from, to } of moveArr) {
+                annotations.push(
+                    Arrow({}, {
+                        from: posToXY(from.pos),
+                        to: posToXY(to.pos),
+                        //color: 'orange',
+                        color: '#333',
+                        alpha: 0.5,
+                    }),
+                );
+            }
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     return m('g', [
@@ -82,18 +142,8 @@ export function UiBoard(
                 `${String.fromCharCode( fromBlacks ? 104 - i : 97 + i )}`
             );
         }),
-        // pieces
+        
         ...pieces,
-        /*ValidMove({}, {
-            pos: [3, 3],
-            //color: 'red',
-            //alpha: 0.5,
-        }),
-        Arrow({}, {
-            from: [3, 4],
-            to: [5, 3],
-            //color: 'blue',
-            //alpha: 0.5,
-        }),*/
+        ...annotations,
     ]);
 };

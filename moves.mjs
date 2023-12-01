@@ -252,10 +252,10 @@ export function validMoves(board, relaxed) {
                     let toKPos, fromRPos, toRPos;
                     const fromRPiece = sideIsWhite ? ROOK_W : ROOK_B;
 
-                    if      (pos2 === CASTLE_W_KINGSIDE) { toKPos = 'g1'; fromRPos = 'h1'; toRPos = 'f1'; }
-                    else if (pos2 === CASTLE_B_KINGSIDE) { toKPos = 'g8'; fromRPos = 'h8'; toRPos = 'f8'; }
-                    else if (pos2 === CASTLE_W_QUEENSIDE) { toKPos = 'c1'; fromRPos = 'a1'; toRPos = 'd1'; }
-                    else if (pos2 === CASTLE_B_QUEENSIDE) { toKPos = 'c8'; fromRPos = 'a8'; toRPos = 'd8'; }
+                    if      (pos2 === CASTLE_KINGSIDE && sideIsWhite) {  toKPos = 'g1'; fromRPos = 'h1'; toRPos = 'f1'; }
+                    else if (pos2 === CASTLE_KINGSIDE) {                 toKPos = 'g8'; fromRPos = 'h8'; toRPos = 'f8'; }
+                    else if (pos2 === CASTLE_QUEENSIDE && sideIsWhite) { toKPos = 'c1'; fromRPos = 'a1'; toRPos = 'd1'; }
+                    else if (pos2 === CASTLE_QUEENSIDE) {                toKPos = 'c8'; fromRPos = 'a8'; toRPos = 'd8'; }
                     
                     moves.push([{
                         from: { pos, piece },

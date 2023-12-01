@@ -71,6 +71,7 @@ export class Board {
     }
 
     _moves = [];
+    _pastBoards = [];
 
     _cellTransformations = new Array(64);
 
@@ -181,6 +182,7 @@ export class Board {
         b._cells = Array.from(this._cells);
         b._params = structuredClone(this._params);
         b._moves = Array.from(this._moves);
+        b._pastBoards = Array.from(this._pastBoards);
         return b;
     }
 
@@ -319,11 +321,17 @@ export class Board {
 
         b._params.next = otherSide(b._params.next);
 
+        b._pastBoards.push(this);
+
         return b;
     }
 
     getLastMove() {
         return this._moves[ this._moves.length - 1 ];
+    }
+
+    getLastBoard() {
+        return this._pastBoards[ this._pastBoards.length - 1 ];
     }
 
     getUniqueString() {

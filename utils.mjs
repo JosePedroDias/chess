@@ -55,3 +55,7 @@ export const memoFactory = (fn, map, keyFn = identity) => (a, b) => {
 export const times = (n) => {
     return new Array(n).fill(true).map((_, i) => i);
 }
+
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const randomColor = () => `rgb(${randomInt(256)}, ${randomInt(256)}, ${randomInt(256)})`;
