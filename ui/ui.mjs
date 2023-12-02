@@ -9,9 +9,9 @@ import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
 const BOT_VS_BOT = false;
 const HUMAN_VS_HUMAN = false;
-const HUMAN_SIDE = WHITE;
+let HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
-const FROM_BLACKS = false;
+let FROM_BLACKS = false;
 
 export function ui(
     { rootEl, fromBlacks },
@@ -62,6 +62,7 @@ export function ui(
     // TODO HACKY TEMPORARY
     function undo() {
         board = board.getLastBoard();
+        location.hash = board.getFen();
         window.board = board;
         redraw();
     }
@@ -123,7 +124,7 @@ export function ui(
             }
         }
 
-        console.log(`\nmove: ${move}\n`);
+        console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${move}\n`);
         try {
             board = board.applyMove(move, true);
             window.board = board; // TODO TEMP
@@ -195,6 +196,8 @@ if (location.hash) {
     } else {
         // from fen
         startBoard = Board.fromFen(hash);
+        HUMAN_SIDE = startBoard._params.next;
+        FROM_BLACKS = !startBoard.isWhiteNext();
         window.board = startBoard; // TODO TEMP
         //console.log(startBoard.toPrettyString({ details: true }));
     }

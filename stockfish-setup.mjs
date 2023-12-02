@@ -49,7 +49,7 @@ async function evalBoard(board) {
     let finalEval = await waitOn((l) => l.indexOf('Final evaluation') === 0);
     const m = /\+?-?\d\.\d\d/.exec(finalEval);
     if (!m) {
-        console.warn(finalEval);
+        //console.warn(finalEval);
         return '?';
     }
     finalEval = parseFloat(m[0]);
