@@ -96,11 +96,15 @@ export function ui(
                 //console.log(`${from} -> ${to}`);
                 move = '';
                 for (const mvS of moves) {
-                    let mvO = moveFromString(mvS, board);
-                    if (mvO instanceof Array) mvO = mvO[0];
-                    if (from === mvO.from.pos && to === mvO.to.pos) {
-                        move = mvS;
-                        //console.log('matched', mvS, 'to', mvO);
+                    try {
+                        let mvO = moveFromString(mvS, board);
+                        if (mvO instanceof Array) mvO = mvO[0];
+                        if (from === mvO.from.pos && to === mvO.to.pos) {
+                            move = mvS;
+                            //console.log('matched', mvS, 'to', mvO);
+                        }
+                    } catch (err) {
+                        console.log(err);
                     }
                 }
             } while (!moves.includes(move));

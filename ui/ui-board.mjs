@@ -64,17 +64,21 @@ export function UiBoard(
     }
 
     for (const mv of possibleMoves) {
-        const moveArr = moveToArr(moveFromString(mv, board));
-        for (const { from, to } of moveArr) {
-            annotations.push(
-                Arrow({}, {
-                    from: posToXY(from.pos),
-                    to: posToXY(to.pos),
-                    color: randomColor(),
-                    alpha: 0.5,
-                    length: 2.5,
-                }),
-            );
+        try {
+            const moveArr = moveToArr(moveFromString(mv, board));
+            for (const { from, to } of moveArr) {
+                annotations.push(
+                    Arrow({}, {
+                        from: posToXY(from.pos),
+                        to: posToXY(to.pos),
+                        color: randomColor(),
+                        alpha: 0.5,
+                        length: 2.5,
+                    }),
+                );
+            }
+        } catch (err) {
+            //console.error(err); // TODO WEIRD
         }
     }
 
@@ -93,7 +97,7 @@ export function UiBoard(
                 );
             }
         } catch (err) {
-            console.error(err);
+            //console.error(err); // TODO WEIRD
         }
     }
 

@@ -72,6 +72,8 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 - https://www.chessboardjs.com/examples#5000
 - https://github.com/nmrugg/stockfish.js/
 - https://github.com/official-stockfish/Stockfish/wiki/UCI-%26-Commands
+- https://chesstempo.com/pgn-viewer/
+- https://lichess.org/paste
 
 # TODO
 
@@ -80,6 +82,13 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
         - castling (check for no checks in kings way)
         - moveFromString pawns sometimes fail
     - support promotions!
+        f8=Q(+)
+        f8=R(+)
+        f8=B(+)
+        f8=N(+)
+        for all pawn moving to last row, suffix with all these variants
+        detect these and prompt if one of them is chosen
+
     - detect repetition (3 sets of equal moves?)
     - find checkmate in 1/2/3
     - fix bot UCI compatibility
