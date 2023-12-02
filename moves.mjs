@@ -69,9 +69,8 @@ export function kingMoves(pos, board, relaxed) {
     const sideIsWhite = board.isWhiteNext();
 
     const castlingFlags = board._params.castling;
-    const canCastleKS = castlingFlags.indexOf(sideIsWhite ? KING_W : KING_B) !== -1;
-    const canCastleQS = castlingFlags.indexOf(sideIsWhite ? QUEEN_W : QUEEN_B) !== -1;
 
+    const canCastleKS = castlingFlags.indexOf(sideIsWhite ? KING_W : KING_B) !== -1;
     if (canCastleKS) {
         const posMustBeEmpty = sideIsWhite ? ['f1', 'g1'] : ['f8', 'g8'];
         const canDoIt = posMustBeEmpty.every((pos) => !isPiece(board.get(pos)));
@@ -83,12 +82,11 @@ export function kingMoves(pos, board, relaxed) {
         }
     }
 
+    const canCastleQS = castlingFlags.indexOf(sideIsWhite ? QUEEN_W : QUEEN_B) !== -1;
     if (canCastleQS) {
         const posMustBeEmpty = sideIsWhite ? ['d1', 'c1', 'b1'] : ['d8', 'c8', 'b8'];
         const canDoIt = posMustBeEmpty.every((pos) => !isPiece(board.get(pos)));
-
         if (canDoIt) {
-
             const cantBeThreatenedPositions = sideIsWhite ? ['e1', 'd1', 'c1'] : ['e8', 'd8', 'c8'];
             if (intersection(threatenedPosits, cantBeThreatenedPositions).length === 0) {
                 moves.push([CASTLE_QUEENSIDE]);

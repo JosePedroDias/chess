@@ -18,12 +18,12 @@ test('material queen is worth 9', (_t) => {
 });
 
 test('material losing', (_t) => {
-    const b = Board.fromFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1`);
+    const b = Board.fromFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 w - - 0 1`);
     equal(material(b, true), -21);
 });
 
 test('material winning', (_t) => {
-    const b = Board.fromFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1`);
+    const b = Board.fromFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 w - - 0 1`);
     equal(material(b, false), 21);
 });
 
@@ -64,6 +64,30 @@ test('validMoves2 b', (_t) => {
         'Ke7d8',
         'Ke7e8',
         'Ke7f7',
+    ].sort());
+});
+
+test('validMoves2 c', (_t) => {
+    let b = Board.fromFen(`k7/8/8/8/8/8/8/4K2R w K - 0 1`);
+
+    const moves = validMoves2(b);
+    equal(moves.length, 15);
+    deepEqual(moves.sort(), [
+        'Ke1d1',
+        'Ke1d2',
+        'Ke1e2',
+        'Ke1f1',
+        'Ke1f2',
+        'O-O',
+        'Rh1f1',
+        'Rh1g1',
+        'Rh1h2',
+        'Rh1h3',
+        'Rh1h4',
+        'Rh1h5',
+        'Rh1h6',
+        'Rh1h7',
+        'Rh1h8+',
     ].sort());
 });
 

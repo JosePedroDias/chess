@@ -124,7 +124,7 @@ export class Board {
     }
 
     setFen(fen) {
-        const [board, next, castling, enPassantPos, halfMoveClock, fullMoveNumber] = fen.split(' ');
+        let [board, next, castling, enPassantPos, halfMoveClock, fullMoveNumber] = fen.split(' ');
         const ranks = board.split('/');
         for (const [y, rank] of ranks.entries()) {
             let x = 0;
@@ -141,12 +141,26 @@ export class Board {
                 }
             }
         }
+
+        if (castling !== '-' && !castling.split('').every((ch) => ['k', 'K', 'q', 'Q'].includes(ch))) {
+            throw new Error(`incorrect castling string: "${castling}`);
+        }
+
+        if (enPassantPos !== '-' && !POSITIONS.has(enPassantPos)) {
+            throw new Error(`incorrect enPassantPos string: "${enPassantPos}`);
+        }
+
+        halfMoveClock = parseInt(halfMoveClock, 10);
+        if (isNaN(halfMoveClock)) throw new Error('Incorrect halfMoveClock!');
+        fullMoveNumber = parseInt(fullMoveNumber, 10);
+        if (isNaN(fullMoveNumber)) throw new Error('Incorrect halfMoveClock!');
+
         this._params = {
             next: next === 'w' ? WHITE : BLACK,
             castling,
             enPassantPos,
-            halfMoveClock: parseInt(halfMoveClock, 10),
-            fullMoveNumber: parseInt(fullMoveNumber, 10),
+            halfMoveClock,
+            fullMoveNumber,
         };
     }
 
