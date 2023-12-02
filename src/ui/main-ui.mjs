@@ -68,9 +68,13 @@ export function ui(
     }
     window.undo = undo;
 
-    const updateEval = () => {
+    const updateEval = async () => {
         if (!('evalBoard' in window)) return; // only used if stockfish was set up
-        window.evalBoard(board.getFen()).then((e) => document.title = `chess eval: ${e}`);
+        let ev = await window.evalBoard(board.getFen());
+
+        // instead of centered on white, centered on who's the human player
+        if (isFinite(ev) && HUMAN_SIDE === BLACK) ev = -ev;
+        document.title = `chess eval: ${ev}`;
     }
     
     updateEval();
@@ -84,7 +88,11 @@ export function ui(
             moves.sort();
 
             if (moves.length === 0) {
-                window.alert(isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate');
+                const isCheckMate = isMoveStringCheck(board.getLastMove());
+                if (isCheckMate) board.makeLastMoveMate();
+                const outcome = isCheckMate ? 'check mate' : 'stale mate';
+                window.alert(outcome);
+                return;
             }
 
             do {

@@ -46,6 +46,8 @@ It can now be divided into 3 parts:
 
 ### PGN
 
+- https://en.wikipedia.org/wiki/Portable_Game_Notation
+
     1. move move 2. move move...
 
     where move is (piece)(from)(x)(to)

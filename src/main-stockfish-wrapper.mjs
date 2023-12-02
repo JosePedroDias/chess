@@ -19,7 +19,7 @@ const ENGINE_FLAVOR_SUFFIX = ``; // best, less compatible
 let _engine;
 
 const _listeners = [];
-//window._l = _listeners; // incomment to debug listeners are running as intended
+//window._l = _listeners; // uncomment to debug listeners are running as intended
 
 function _waitOn({ startCriteriaFn, stopCriteriaFn, maxNumLines }) {
     return new Promise((resolve) => _listeners.push({

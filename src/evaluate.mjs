@@ -47,7 +47,10 @@ export function electNextMove(board) {
     const moves = validMoves2(board);
 
     if (moves.length === 0) {
-        throw isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate';
+        const isCheckMate = isMoveStringCheck(board.getLastMove());
+        if (isCheckMate) board.makeLastMoveMate();
+        const outcome = isCheckMate ? 'check mate' : 'stale mate';
+        throw outcome;
     }
 
     const checkMoves = moves.filter(isMoveStringCheck);

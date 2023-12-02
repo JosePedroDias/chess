@@ -351,6 +351,14 @@ export class Board {
         return this._moves[ this._moves.length - 1 ];
     }
 
+    makeLastMoveMate() {
+        const move = this.getLastMove();
+        if (!move) return;
+        const updatedMove = move.replace('+', '') + '#';
+        this._moves[ this._moves.length - 1 ] = updatedMove;
+        return updatedMove;
+    }
+
     getLastBoard() {
         return this._pastBoards[ this._pastBoards.length - 1 ];
     }
