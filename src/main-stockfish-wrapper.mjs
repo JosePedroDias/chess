@@ -19,35 +19,51 @@ const ENGINE_FLAVOR_SUFFIX = ``; // best, less compatible
 let _engine;
 
 const _listeners = [];
+//window._l = _listeners; // incomment to debug listeners are running as intended
 
-function _waitOn(criteriaFn) {
-    return new Promise((resolve) => _listeners.push({ criteriaFn, resolve }));
+function _waitOn({ startCriteriaFn, stopCriteriaFn, maxNumLines }) {
+    return new Promise((resolve) => _listeners.push({
+        startCriteriaFn: startCriteriaFn || (() => true),
+        stopCriteriaFn: stopCriteriaFn || (() => false),
+        active: false,
+        linesLeft: maxNumLines || (stopCriteriaFn ? 100 : 1),
+        result: [],
+        resolve,
+     }));
 }
 
 function _fireLine(line) {
     for (let i = _listeners.length - 1; i >= 0; --i) {
-        const { criteriaFn, resolve } = _listeners[i];
-        if (criteriaFn(line)) {
-            resolve(line);
-            _listeners.splice(i, 1);
+        const listener = _listeners[i];
+        const { startCriteriaFn, stopCriteriaFn, result, resolve } = listener;
+        if (listener.active || startCriteriaFn(line)) {
+            listener.active = true;
+            result.push(line);
+            --listener.linesLeft;
+            if (stopCriteriaFn(line) || listener.linesLeft === 0) {
+                resolve(result.join('\n'));
+                _listeners.splice(i, 1);
+            }
         }
     }
 }
 
-function _uciCmd(cmd) {
-    LOG && console.log(`>> '${cmd}'`);
-    _engine.postMessage(cmd);
-}
-
 function _waitReady() {
-    _uciCmd('isready');
-    return _waitOn((l) => l === 'readyok');
+    uciCmd('isready');
+    return _waitOn({
+        startCriteriaFn: (l) => l === 'readyok',
+    });
 }
 
 /////
 
+function uciCmd(cmd) {
+    LOG && console.log(`>> '${cmd}'`);
+    _engine.postMessage(cmd);
+}
+
 function setSkillLevel(skill) {
-    _uciCmd(`setoption name Skill Level value ${skill}`);
+    uciCmd(`setoption name Skill Level value ${skill}`);
 
     return _waitReady();
 }
@@ -59,43 +75,79 @@ function _setBoardViaFen(fenString) {
     //return `position startpos moves ${board._moves.join(' ')}`;
 }
 
-function getBoard() {
-    // TODO
-}
-
-function getValidMoves() {
-    
-}
-
-async function playBoard(fenString) {
-    _uciCmd(_setBoardViaFen(fenString));
-    await _waitReady();
-    _uciCmd('go movetime 1000');
-    const bestMove = await _waitOn((l) => l.indexOf('bestmove') === 0);
-    return bestMove;
-}
-
 async function evalBoard(fenString) {
-    _uciCmd(_setBoardViaFen(fenString));
+    uciCmd(_setBoardViaFen(fenString));
     await _waitReady();
-    _uciCmd('eval');
+    uciCmd('eval');
 
-    let finalEval = await _waitOn((l) => l.indexOf('Final evaluation') === 0);
+    let finalEval = await _waitOn({
+        startCriteriaFn: (l) => l.includes('Final evaluation'),
+    });
     const m = /\+?-?\d\.\d\d/.exec(finalEval);
     if (!m) {
-        //console.warn(finalEval);
         return '?'; // likely in a check
     }
     finalEval = parseFloat(m[0]);
     return finalEval;
 }
 
+async function playBoard(fenString) {
+    uciCmd(_setBoardViaFen(fenString));
+    await _waitReady();
+    uciCmd('go movetime 1000');
+    const line = await _waitOn({
+        startCriteriaFn: (l) => l.includes('bestmove'),
+    });
+    const m = /bestmove (\S+) ponder (\S+)/.exec(line);
+    const bestMove = m[1];
+    const ponder = m[2];
+    return { bestMove, ponder };
+}
+
+async function getBoard() {
+    uciCmd('d');
+    const result = await _waitOn({
+        startCriteriaFn: (l) => l.includes(' +---+---+---+---+---+---+---+---+'),
+        stopCriteriaFn: (l) => l.includes('Checkers:'),
+    });
+    const lines = result.split('\n');
+    const board = lines.slice(0, 18).join('\n');
+    const fen = lines[19].substring(5);
+    return { board, fen };
+}
+
+async function getBoardFen() {
+    uciCmd('d');
+    const line = await _waitOn({
+        startCriteriaFn: (l) => l.includes('Fen: '),
+    });
+    return line.substring(5);
+}
+
+async function getValidMoves(depth = 1) {
+    uciCmd(`go perft ${depth}`);
+    const result = await _waitOn({
+        stopCriteriaFn: (l) => l.includes('Nodes searched: '),
+    });
+    const moves = {};
+    for (const line of result.split('\n')) {
+        if (!line) return moves;
+        const [a, b] = line.split(': ');
+        moves[a] = parseFloat(b);
+    }
+    return moves;
+}
+
 /////
 
+window.uciCmd = uciCmd;
 window.setSkillLevel = setSkillLevel;
+window.evalBoard = evalBoard;
 window.playBoard = playBoard;
 window.getBoard = getBoard;
-window.evalBoard = evalBoard;
+window.getBoardFen = getBoardFen;
+window.getValidMoves = getValidMoves;
+
 
 /////
 
