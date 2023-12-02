@@ -1,6 +1,6 @@
-import { isBoardChecked, isMoveStringCheck, isMoveStringCapture, moveToString, validMoves } from './moves.mjs';
+import { isBoardChecked, isMoveStringCheck, isMoveStringCapture, moveToString, validMoves, isMoveStringPromotion } from './moves.mjs';
 import { isWhitePiece } from './pieces.mjs';
-import { randomFromArr } from './utils.mjs';
+import { randomFromArr, weightedRandom } from './utils.mjs';
 
 const values = {
     'q': 9,
@@ -43,6 +43,13 @@ export function validMoves2(board) {
     return moves;
 }
 
+const promotionProbWeights = [
+    ['=Q', 90],
+    ['=R', 40],
+    ['=B', 20],
+    ['=N', 10],
+];
+
 export function electNextMove(board) {
     const moves = validMoves2(board);
 
@@ -53,8 +60,14 @@ export function electNextMove(board) {
         throw outcome;
     }
 
+    const promotionMoves = moves.filter(isMoveStringPromotion);
     const checkMoves = moves.filter(isMoveStringCheck);
     const captureMoves = moves.filter(isMoveStringCapture);
+
+    if (promotionMoves.length > 0) {
+        const piecePart = weightedRandom(promotionProbWeights);
+        return promotionMoves.find((mv) => mv.includes(piecePart));
+    }
 
     if (checkMoves && captureMoves) {
         if (Math.random < 0.5) captureMoves = []; // when faced with both, capture 50% of the time

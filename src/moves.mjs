@@ -311,6 +311,10 @@ export function isMoveStringCapture(moveS) {
     return moveS.includes('x');
 }
 
+export function isMoveStringPromotion(moveS) {
+    return moveS.includes('=');
+}
+
 export function moveToString(move) {
     if (move instanceof Array) {
         const toKingPos = move[0].to.pos;

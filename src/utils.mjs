@@ -22,6 +22,24 @@ export function randomFromArr(arr) {
     return arr[i];
 }
 
+// array of [outcome, weight]
+export function weightedRandom(arr) {
+    const outcomeCuts = [];
+    let accum = 0;
+    for (const [out, weight] of arr) {
+        accum += weight;
+        outcomeCuts.push([out, accum]);
+    }
+    const r = accum * Math.random();
+    let best;
+    outcomeCuts.reverse();
+    for (const [out, cutAt] of outcomeCuts) {
+        if (r <= cutAt) best = out;
+        else break;
+    }
+    return best;
+}
+
 export function intersection(arr1, arr2) {
     const biggerArr = arr1.length >= arr2.length ? arr1 : arr2;
     const smallerArr = arr1.length < arr2.length ? arr1 : arr2;

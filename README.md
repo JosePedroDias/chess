@@ -85,14 +85,17 @@ It can now be divided into 3 parts:
 # TODO
 
 - logic
+    - game is buggy. review move object <-> string, maybe adopt simpler stockfish notation instead
     - fix valid moves
-        - properly test castling criteria
         - moveFromString pawns sometimes fail
-
-    - detect repetition (3 sets of equal moves?)
-    - find checkmate in 1/2/3
-    - support option to play against stockfish instead of my dumb bot
+        - properly test castling criteria
+        - refactor validMoves/validMoves2 mess
+    - enforce repetition rule
+    - detect attacked pieces and whether they're defended in a simpler way
+    - find checkmate in 1/2/3...
     - fix bot UCI compatibility
+    - introduce more tactical ideas to bot reasoning maybe?
+    - (super secondary) support option to play against stockfish instead of my dumb bot
 - ui
     - animate pieces... (hard)
 

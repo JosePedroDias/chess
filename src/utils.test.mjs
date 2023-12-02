@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { deepEqual, throws } from 'node:assert/strict';
+import { deepEqual, throws, ok } from 'node:assert/strict';
 
 import {
     flatten1Level,
@@ -8,6 +8,7 @@ import {
     intersection,
     subtraction,
     memoFactory,
+    weightedRandom,
 } from './utils.mjs';
 
 test('flatten1Level', (_t) => {
@@ -75,4 +76,25 @@ test('memoFactory', (_t) => {
     deepEqual(pow(1, 2), 1);
     deepEqual(pow(2, 2), 4);
     deepEqual(powMap, new Map([['1|1', 1], ['1|2', 1], ['2|1', 2], ['2|2', 4]]));
+});
+
+test('weightedRandom', (_t) => {
+    const config = [
+        ['a', 60], // 60% or 0.6
+        ['b', 30], // 30% or 0.3
+        ['c', 10], // 10% or 0.1
+    ];
+    const numRuns = 10000;
+    const histo = { a: 0, b: 0, c: 0 };
+    for (let i = 0; i < numRuns; ++i) {
+        const outcome = weightedRandom(config);
+        ++histo[outcome];
+    }
+    for (const k of Object.keys(histo)) histo[k] /= numRuns;
+
+    const e = 0.01;
+
+    ok(histo.a > 0.6 - e && histo.a < 0.6 + e);
+    ok(histo.b > 0.3 - e && histo.b < 0.3 + e);
+    ok(histo.c > 0.1 - e && histo.c < 0.1 + e);
 });
