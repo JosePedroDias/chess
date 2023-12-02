@@ -43,7 +43,7 @@ test('default board', (_t) => {
 
 test('setFen', (_t) => {
     const b = new Board();
-    b.setFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 3 6`);
+    b.setFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 1 6`);
     equal(b.toString(),
 ` r   b k       r
  p     p B p N p
@@ -56,7 +56,7 @@ test('setFen', (_t) => {
     equal(b._params.next, BLACK);
     deepEqual(b._params.castling.split('').toSorted(), 'Kq'.split(''));
     equal(b._params.enPassantPos, 'h2');
-    equal(b._params.halfMoveClock, 3);
+    equal(b._params.halfMoveClock, 1);
     equal(b._params.fullMoveNumber, 6);
 });
 
@@ -76,8 +76,8 @@ test('cell positions and iterateCells', (_t) => {
 
 test('getFen', (_t) => {
     const b = new Board();
-    b.setFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 3 6`);
-    equal(b.getFen(), `r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 3 6`);
+    b.setFen(`r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 1 6`);
+    equal(b.getFen(), `r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b Kq h2 1 6`);
 });
 
 test('set', (_t) => {

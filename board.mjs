@@ -140,6 +140,7 @@ export class Board {
                     }
                 }
             }
+            if (x !== 8) throw new Error(`fen board rank ${y} does not sum up to 8 cells!`);
         }
 
         if (castling !== '-' && !castling.split('').every((ch) => ['k', 'K', 'q', 'Q'].includes(ch))) {
@@ -150,13 +151,17 @@ export class Board {
             throw new Error(`incorrect enPassantPos string: "${enPassantPos}`);
         }
 
+        next = next === 'w' ? WHITE : BLACK;
+
         halfMoveClock = parseInt(halfMoveClock, 10);
         if (isNaN(halfMoveClock)) throw new Error('Incorrect halfMoveClock!');
+        if (next === WHITE && halfMoveClock !== 0) throw new Error('Incorrect halfMoveClock!');
+        if (next === BLACK && halfMoveClock !== 1) throw new Error('Incorrect halfMoveClock!');
         fullMoveNumber = parseInt(fullMoveNumber, 10);
-        if (isNaN(fullMoveNumber)) throw new Error('Incorrect halfMoveClock!');
+        if (isNaN(fullMoveNumber)) throw new Error('Incorrect fullMoveNumber!');
 
         this._params = {
-            next: next === 'w' ? WHITE : BLACK,
+            next,
             castling,
             enPassantPos,
             halfMoveClock,
@@ -327,7 +332,7 @@ export class Board {
                 }
             }
             b.set(from.pos, EMPTY);
-            b.set(to.pos, from.piece);
+            b.set(to.pos, from.newPiece || from.piece);
         }
 
         // increment move stats

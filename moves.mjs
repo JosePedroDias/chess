@@ -156,8 +156,9 @@ export function pawnMoves(pos, board) {
     const dy = sideIsWhite ? -1 : 1;
 
     const canBeCaptured = sideIsWhite ? (p) => isBlackPiece(p) : (p) => isWhitePiece(p);
+    const lastRank = sideIsWhite ? '8' : '1';
 
-    const moves = [];
+    let moves = [];
 
     const capture1Pos = xyToValidPosition([x-1, y+dy]);
     const capture2Pos = xyToValidPosition([x+1, y+dy]);
@@ -182,6 +183,16 @@ export function pawnMoves(pos, board) {
             advanceMoves.push(advance2Pos);
     }
     if (advanceMoves.length > 0) moves.push(advanceMoves);
+
+    const pieces = ['Q', 'R', 'B', 'N'];
+    moves = moves.map((group) => group.reduce((prev, curr) => {
+        if (curr[1] === lastRank) {
+            prev = [...prev, ...pieces.map((piece) => `${curr}=${piece}`)];
+        } else {
+            prev = [...prev, curr];
+        }
+        return prev;
+    }, []));
 
     return moves;
 }
@@ -289,16 +300,20 @@ export function moveToString(move) {
         throw new Error('oops');
     }
     const isCapture = isMoveCapture(move) ? 'x' : '';
-    const isCheck = isMoveCheck(move) ? '+' : '';
+    //const isCheck = isMoveCheck(move) ? '+' : '';
     const fromPos = move.from.pos;
     const toPos = move.to.pos;
     let sub;
     if (isPawn(move.from.piece)) {
         sub = isCapture ? `${fromPos[0]}x${toPos}` : toPos;
+        if (move.from.newPiece) {
+            sub = `${sub}=${move.from.newPiece.toUpperCase()}`;
+        }
     } else {
         sub = `${move.from.piece.toUpperCase()}${fromPos}${isCapture}${toPos}`;
     }
-    return `${sub}${isCheck}`;
+    return sub;
+    //return `${sub}${isCheck}`;
 }
 
 export function moveFromString(st, board) {
@@ -329,6 +344,9 @@ export function moveFromString(st, board) {
 
     const isCapture = st.includes('x');
     let potentialPiece = st[0];
+    const isPromotion = st.includes('=');
+    let promotedPiece = isPromotion ? st.split('=')[1][0] : '';
+    if (!sideIsWhite && isPromotion) promotedPiece = promotedPiece.toLowerCase();
 
     if (!isValidPosition(st.substring(1, 3)) ||
            (!isKing(potentialPiece)
@@ -361,7 +379,11 @@ export function moveFromString(st, board) {
                     throw new Error(`Can not find pawn starting position on "${fromPos}" from "${st}"!`);
                 }
             }
-            return { from: { piece: myPiece, pos: fromPos }, to: { piece: EMPTY, pos: toPos } };
+            if (isPromotion) {
+                return { from: { piece: myPiece, newPiece: promotedPiece, pos: fromPos }, to: { piece: EMPTY, pos: toPos } };
+            } else {
+                return { from: { piece: myPiece, pos: fromPos }, to: { piece: EMPTY, pos: toPos } };
+            }
         }
     } else {
         // non-pawn
