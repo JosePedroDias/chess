@@ -39,7 +39,7 @@ test('validMoves2', (_t) => {
     const b = Board.fromFen(`r1q3nr/pb1pk1pp/n2b1p2/1Bp1P3/P3P3/2N1BN2/1PP2PPP/R2Q1RK1 w - a3 0 10`);
 
     const moves = validMoves2(b);
-    /* deepEqual(moves.sort(), [
+    deepEqual(moves.sort(), [
         'Bb5xa6', 'Bb5c6', 'Bb5xd7', 'Bb5c4',
         'Bb5d3',  'Bb5e2', 'exd6+',  'exf6+',
         'e6',     'a5',    'Nc3d5+', 'Nc3b1',
@@ -52,7 +52,7 @@ test('validMoves2', (_t) => {
         'Ra1a3',  'Qd1c1', 'Qd1b1',  'Qd1d2',
         'Qd1d3',  'Qd1d4', 'Qd1d5',  'Qd1xd6+',
         'Qd1e2',  'Qd1e1', 'Rf1e1',  'Kg1h1'
-      ].sort()); */
+      ].sort());
 });
 
 test('validMoves2 b', (_t) => {
@@ -60,21 +60,11 @@ test('validMoves2 b', (_t) => {
     b = b.applyMove('Qd1xd6+');
 
     const moves = validMoves2(b);
-    //console.log(moves);
-    /* deepEqual(moves.sort(), [
-        'Bb5xa6', 'Bb5c6', 'Bb5xd7', 'Bb5c4',
-        'Bb5d3',  'Bb5e2', 'exd6+',  'exf6+',
-        'e6',     'a5',    'Nc3d5+', 'Nc3b1',
-        'Nc3a2',  'Nc3e2', 'Be3d4',  'Be3xc5',
-        'Be3f4',  'Be3g5', 'Be3h6',  'Be3d2',
-        'Be3c1',  'Nf3d4', 'Nf3g5',  'Nf3h4',
-        'Nf3e1',  'Nf3d2', 'a3',     'b3',
-        'b4',     'g3',    'g4',     'h3',
-        'h4',     'Ra1b1', 'Ra1c1',  'Ra1a2',
-        'Ra1a3',  'Qd1c1', 'Qd1b1',  'Qd1d2',
-        'Qd1d3',  'Qd1d4', 'Qd1d5',  'Qd1xd6+',
-        'Qd1e2',  'Qd1e1', 'Rf1e1',  'Kg1h1'
-    ].sort()); */
+    deepEqual(moves.sort(), [
+        'Ke7d8',
+        'Ke7e8',
+        'Ke7f7',
+    ].sort());
 });
 
 test('electNextMove', async (_t) => {
@@ -85,34 +75,8 @@ test('electNextMove', async (_t) => {
 
     b = b.applyMove('Qd1xd6+');
 
-    console.log(b.toString());
-    console.log('CHECK... NEXT SHOULD NOT KEEP CHECKING')
-
     const move = electNextMove(b);
 
-    console.log(move);
-
     equal(isBoardChecked(b, move, true), false);
-    equal(isBoardChecked(b, move, false), false); // ???
-
-    b = b.applyMove(move);
-
-    console.log(b.toString());
-
-    //const moves = validMoves2(b);
-    //console.log(moves);
-    /* deepEqual(moves.sort(), [
-        'Bb5xa6', 'Bb5c6', 'Bb5xd7', 'Bb5c4',
-        'Bb5d3',  'Bb5e2', 'exd6+',  'exf6+',
-        'e6',     'a5',    'Nc3d5+', 'Nc3b1',
-        'Nc3a2',  'Nc3e2', 'Be3d4',  'Be3xc5',
-        'Be3f4',  'Be3g5', 'Be3h6',  'Be3d2',
-        'Be3c1',  'Nf3d4', 'Nf3g5',  'Nf3h4',
-        'Nf3e1',  'Nf3d2', 'a3',     'b3',
-        'b4',     'g3',    'g4',     'h3',
-        'h4',     'Ra1b1', 'Ra1c1',  'Ra1a2',
-        'Ra1a3',  'Qd1c1', 'Qd1b1',  'Qd1d2',
-        'Qd1d3',  'Qd1d4', 'Qd1d5',  'Qd1xd6+',
-        'Qd1e2',  'Qd1e1', 'Rf1e1',  'Kg1h1'
-    ].sort()); */
+    equal(isBoardChecked(b, move, false), false);
 });

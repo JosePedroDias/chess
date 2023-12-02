@@ -3,7 +3,8 @@ import m from '../vendor/mithril.mjs';
 import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
 import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
-import { moveFromString, validMoves, getThreatenedPositions } from '../moves.mjs';
+import { moveFromString, getThreatenedPositions } from '../moves.mjs';
+import { validMoves2 } from '../evaluate.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW } from './constants.mjs';
@@ -49,7 +50,7 @@ export function UiBoard(
     const annotations = [];
 
     const lastMove = board.getLastMove();
-    const possibleMoves = validMoves(board, true);
+    const possibleMoves = validMoves2(board);
     const riskedPositions = getThreatenedPositions(board);
 
     for (const pos of riskedPositions) {
@@ -63,7 +64,7 @@ export function UiBoard(
     }
 
     for (const mv of possibleMoves) {
-        const moveArr = moveToArr(mv);
+        const moveArr = moveToArr(moveFromString(mv, board));
         for (const { from, to } of moveArr) {
             annotations.push(
                 Arrow({}, {

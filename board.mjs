@@ -210,7 +210,7 @@ export class Board {
                             ok = criteria(v, pos);
                             ++i;
                             if (ok) {
-                                return { done: i === 64, value: [pos, v] };
+                                return { done: false, value: [pos, v] };
                             }
                         } while (i < 64);
                         return { done: true };

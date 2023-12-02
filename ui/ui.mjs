@@ -4,8 +4,8 @@ import { Board, WHITE } from '../board.mjs';
 import { electNextMove, validMoves2 } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
-import { promptDialog } from './prompt-dialog.mjs';
-import { moveFromString } from '../moves.mjs';
+//import { promptDialog } from './prompt-dialog.mjs';
+import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
 const BOT_VS_BOT = false;
 const HUMAN_VS_HUMAN = false;
@@ -14,11 +14,9 @@ const BOT_SPEED_MS = 1500;
 const FROM_BLACKS = false;
 
 export function ui(
-    { rootEl },
+    { rootEl, fromBlacks },
     { board }
 ) {
-    let vnode;
-
     const vb = [
         -MARGIN * CW,
         -MARGIN * CW,
@@ -26,12 +24,11 @@ export function ui(
         (8 + 2 * MARGIN) * CW,
     ];
 
+    let vnode;
     const movePositions = [, ];
-
     let resolveFn;
-
-    const xx = 'abcdefgh';
-    const yy = '87654321';
+    const xx = fromBlacks ? 'hgfedcba' : 'abcdefgh';
+    const yy = fromBlacks ? '12345678' : '87654321';
     const indicesToPos = (x, y) => `${xx[x]}${yy[y]}`;
 
     const onMouse = (i) => (ev) => {
@@ -70,7 +67,10 @@ export function ui(
     }
     window.undo = undo;
 
-    const updateEval = () => window.evalBoard(board).then((e) => document.title = `chess eval: ${e}`);
+    const updateEval = () => {
+        if (!('evalBoard' in window)) return; // only used if stockfish was set up
+        window.evalBoard(board).then((e) => document.title = `chess eval: ${e}`);
+    }
     
     updateEval();
 
@@ -170,7 +170,7 @@ export function ui(
                             ]
                         ),
                     ]),
-                    UiBoard({ fromBlacks: FROM_BLACKS }, { board }),
+                    UiBoard({ fromBlacks }, { board }),
                 ],
             );
         }
@@ -195,6 +195,7 @@ if (location.hash) {
 ui(
     {
         rootEl: document.body,
+        fromBlacks: FROM_BLACKS,
     },
     {
         board: startBoard,
