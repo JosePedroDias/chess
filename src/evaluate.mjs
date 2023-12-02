@@ -1,5 +1,5 @@
 import { isBoardChecked, isMoveStringCheck, isMoveStringCapture, moveToString, validMoves } from './moves.mjs';
-import { isWhitePiece } from "./pieces.mjs";
+import { isWhitePiece } from './pieces.mjs';
 import { randomFromArr } from './utils.mjs';
 
 const values = {

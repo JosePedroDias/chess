@@ -1,4 +1,4 @@
-/* import { createWriteStream } from 'fs'
+/* import { createWriteStream } from 'fs';
 
 const tty = createWriteStream('/dev/tty');
 

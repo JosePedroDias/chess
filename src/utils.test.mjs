@@ -1,7 +1,6 @@
 import test from 'node:test';
-import { equal, deepEqual, throws } from 'node:assert/strict';
+import { deepEqual, throws } from 'node:assert/strict';
 
-import { log } from './testUtils.mjs';
 import {
     flatten1Level,
     zip2,

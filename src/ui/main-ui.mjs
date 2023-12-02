@@ -1,4 +1,4 @@
-import { mount, redraw, default as m } from '../vendor/mithril.mjs';
+import { mount, redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, WHITE } from '../board.mjs';
 import { electNextMove, validMoves2 } from '../evaluate.mjs';
@@ -70,7 +70,7 @@ export function ui(
 
     const updateEval = () => {
         if (!('evalBoard' in window)) return; // only used if stockfish was set up
-        window.evalBoard(board).then((e) => document.title = `chess eval: ${e}`);
+        window.evalBoard(board.getFen()).then((e) => document.title = `chess eval: ${e}`);
     }
     
     updateEval();

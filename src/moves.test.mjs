@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { equal } from 'node:assert/strict';
+import { equal, deepEqual } from 'node:assert/strict';
 
 import { Board, EMPTY } from './board.mjs';
 import { flatten1Level } from './utils.mjs';
@@ -29,7 +29,6 @@ import {
     isMoveCheck,
     isMoveStringCheck,
 } from './moves.mjs';
-import { deepEqual } from 'node:assert';
 
 test('king moves',  (_t) => {
     const pos = 'c6';

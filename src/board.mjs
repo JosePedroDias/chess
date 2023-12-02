@@ -1,8 +1,8 @@
-import { pc } from './vendor/colorette.mjs';
+import { pc } from '../vendor/colorette.mjs';
 
 import { isWhitePiece,isBlackPiece, isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
 import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
-import { isMoveCapture, moveFromString, moveToString } from './moves.mjs';
+import { moveFromString, moveToString } from './moves.mjs';
 
 const BG_IS_LIGHT = true;
 

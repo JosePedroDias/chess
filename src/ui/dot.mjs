@@ -1,4 +1,4 @@
-import m from '../vendor/mithril.mjs';
+import m from '../../vendor/mithril.mjs';
 
 import { CW } from './constants.mjs';
 

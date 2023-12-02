@@ -7,7 +7,6 @@ let completerArr;
 
 import { Board, WHITE } from './board.mjs';
 import { electNextMove } from './evaluate.mjs';
-import { moveToString, validMoves } from './moves.mjs';
 
 const BOT_VS_BOT = true;
 const HUMAN_SIDE = WHITE;
@@ -22,7 +21,7 @@ const rl = createInterface({
     completer: (line) => [completerArr.filter(it => it.includes(line)), line],
 });
 
-while (true) {
+while (b._moves.length < 300) {
     console.log('\n\n');
     console.log(b.toPrettyString({
         //details: true,
@@ -50,3 +49,6 @@ while (true) {
     console.log(`best move: ${move}`);
     b = b.applyMove(move, true);
 }
+
+console.log(`killed game: wasn't going anywhere...`);
+rl.close();

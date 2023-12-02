@@ -3,6 +3,11 @@
 Write a bot that plays the same way I and learns as I learn chess.
 Machine algos not super relevant, this is just a cute origami for me to learn chess, notation and basic strategy.
 
+It can now be divided into 3 parts:
+- the engine itself, in vanilla JS, supporting FEN/PGN I/O and basic UCI interface (`src/*.mjs`)
+- the browser playing UI, using SVG and Mithril (`src/ui/*.mjs`)
+- a wrapper over stockfish.js 16, used for evaluating the board and as correcting benchmark (`src/main-stockfish-wrapper.mjs` + `stockfish-host.js` (to host a compliant web server))
+
 # Reference
 
 ## GUIs
@@ -86,8 +91,20 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
     - find checkmate in 1/2/3
     - support option to play against stockfish instead of my dumb bot
     - fix bot UCI compatibility
-    - add more common knowledge / heuristic (material + more)
-    - (low prio) minimax/alpha-beta
 - ui
-    - allow moving by dragging
     - animate pieces... (hard)
+
+# setup
+
+optional:
+    if you want to have stockfish:
+    - clone `https://github.com/nmrugg/stockfish.js/` into `vendors/stockfish.js`
+    - run `extract-minimal-stockfish.sh`
+    - host the game via `node stockfish-host.js` or adapt the recipe to your web server
+    - uncomment the stockfish `main-stockfish-wrapper.mjs` script line in `index.html` to use it
+
+to run the engine you need node 20.x or later / evergreen browsers
+    - `index.html` host and visit the index page to play
+    - `npm run botWithoutUci` to play bot vs bot or bot vs human in node/terminal
+    - `npm run bot` to host a UCI interface (tentative)
+    - `npm test` to run all tests (not amazing coverage)

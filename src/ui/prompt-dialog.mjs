@@ -1,3 +1,5 @@
+// my friendlier alternative to window.prompt
+
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
 export function promptDialog(question, alternatives, defaultAlt) {
     return new Promise((resolve, reject) => {

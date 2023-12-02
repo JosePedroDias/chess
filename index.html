@@ -8,7 +8,10 @@
         <link rel="stylesheet" href="main.css">
     </head>
     <body>
-        <script type="module" src="./stockfish-setup.mjs"></script>
-        <script type="module" src="./ui/ui.mjs"></script>
+        <!-- this script is optional. used to evaluate the board -->
+        <script type="module" src="./src/main-stockfish-wrapper.mjs"></script>
+
+        <!-- ui and game logic -->
+        <script type="module" src="./src/ui/main-ui.mjs"></script>
     </body>
 </html>

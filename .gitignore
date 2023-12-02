@@ -1,5 +1,6 @@
 .DS_Store
-wukongJS
-stockfish-js
 *.txt
 node_modules
+vendor/wukongJS
+vendor/stockfish-js
+vendor/stockfish-js-minimal

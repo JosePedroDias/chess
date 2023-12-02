@@ -1,4 +1,4 @@
-import m from '../vendor/mithril.mjs';
+import m from '../../vendor/mithril.mjs';
 
 import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
