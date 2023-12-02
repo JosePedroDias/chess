@@ -268,14 +268,28 @@ test('valid moves', (_t) => {
         equal(moves.some(m => m instanceof Array), true);
         equal(moves.length, 15);
     }
+    {
+        const b = Board.fromFen(`8/2P5/8/8/7k/8/8/7K w - - 0 1`);
+        const moves = validMoves(b);
+        deepEqual(moves, [
+            {
+                from: { pos: 'c7', piece: 'P', newPiece: 'Q' },
+                to: { pos: 'c8', piece: ' ' }
+            },
+            { from: { pos: 'h1', piece: 'K' }, to: { pos: 'g2', piece: ' ' } },
+            { from: { pos: 'h1', piece: 'K' }, to: { pos: 'h2', piece: ' ' } },
+            { from: { pos: 'h1', piece: 'K' }, to: { pos: 'g1', piece: ' ' } }
+        ])
+        //console.log(moves);
+    }
 });
 
 test('moveFromString', (_t) => {
     deepEqual(moveFromString('b4', Board.default()), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'b4', piece: EMPTY } }); // TODO
     deepEqual(moveFromString('bxc3', Board.fromFen(`8/8/8/8/8/2p5/1P6/8 w - - 0 1`)), { from: { pos: 'b2', piece: PAWN_W }, to: { pos: 'c3', piece: PAWN_B } }); // TODO
     deepEqual(moveFromString('O-O-O', Board.fromFen(`8/8/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1`)), [{ from: { piece: KING_W, pos: 'e1' }, to: { piece: EMPTY, pos: 'c1' } }, { from: { piece: ROOK_W, pos: 'a1' }, to: { piece: EMPTY, pos: 'd1' } }]);
-    deepEqual(moveFromString('c8=Q', Board.fromFen(`8/2P5/8/8/7k/8/8/7K w - - 0 1`)), { from: { piece: PAWN_W, newPiece: QUEEN_W, pos: 'c7' }, to: { piece: EMPTY, pos: 'c8'}});
-    deepEqual(moveFromString('c1=R', Board.fromFen(`7k/8/8/8/8/8/2p5/7K b - - 1 1`)), { from: { piece: PAWN_B, newPiece: ROOK_B, pos: 'c2' }, to: { piece: EMPTY, pos: 'c1'}});
+    deepEqual(moveFromString('c8=Q', Board.fromFen(`8/2P5/8/8/7k/8/8/7K w - - 0 1`)), { from: { piece: PAWN_W, newPiece: QUEEN_W, pos: 'c7' }, to: { piece: EMPTY, pos: 'c8' }});
+    deepEqual(moveFromString('c1=R', Board.fromFen(`7k/8/8/8/8/8/2p5/7K b - - 1 1`)), { from: { piece: PAWN_B, newPiece: ROOK_B, pos: 'c2' }, to: { piece: EMPTY, pos: 'c1' }});
 });
 
 test('moveToString', (_t) => {

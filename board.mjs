@@ -286,7 +286,7 @@ export class Board {
         return lines.join(NL);
     }
 
-    applyMove(move, isRealMove) {
+    applyMove(move) {
         const isSideWhite = this.isWhiteNext();
         
         let moveO, moveS;
@@ -296,11 +296,6 @@ export class Board {
         } else {
             moveO = move;
             moveS = moveToString(move);
-        }
-
-        if (isRealMove && isMoveCapture(moveO) && isKing(moveO.to.piece)) {
-            console.log(moveO);
-            throw new Error('king can not be captured!');
         }
 
         const b = this.clone();

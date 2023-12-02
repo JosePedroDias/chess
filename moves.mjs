@@ -238,6 +238,7 @@ export function isMoveCheck(move) {
     return isKing(move.to.piece); // TODO WRONG
 }
 
+// the objective of this function is to follow each direction and drop destinations which are blocked (more useful for Q,R,B)
 export function validMoves(board, relaxed) {
     const sideIsWhite = board.isWhiteNext();
     const isOk = sideIsWhite ? (p) => !isWhitePiece(p) : (p) => !isBlackPiece(p);
@@ -265,13 +266,27 @@ export function validMoves(board, relaxed) {
                         to: { pos: toRPos, piece: EMPTY},
                     }]);
                 } else {
+                    let promotedPiece = '';
+                    if (pos2.includes('=')) {
+                        const [a, b] = pos2.split('=');
+                        pos2 = a;
+                        promotedPiece = b;
+                    }
                     const piece2 = board.get(pos2);
                     const ok = isOk(piece2);
                     if (ok) {
-                        moves.push({
-                            from: { pos, piece },
-                            to: { pos: pos2, piece: piece2 },
-                        });
+                        if (promotedPiece) {
+                            moves.push({
+                                from: { pos, piece, newPiece: promotedPiece },
+                                to: { pos: pos2, piece: piece2 },
+                            });
+                        } else {
+                            moves.push({
+                                from: { pos, piece },
+                                to: { pos: pos2, piece: piece2 },
+                            });
+                        }
+                        
                         if (piece2 !== EMPTY) break dirLoop;
                     } else {
                         break dirLoop;
@@ -343,18 +358,11 @@ export function moveFromString(st, board) {
     // <piece?><fromPos><x?><toPos><+?>
 
     const isCapture = st.includes('x');
-    let potentialPiece = st[0];
     const isPromotion = st.includes('=');
     let promotedPiece = isPromotion ? st.split('=')[1][0] : '';
     if (!sideIsWhite && isPromotion) promotedPiece = promotedPiece.toLowerCase();
 
-    if (!isValidPosition(st.substring(1, 3)) ||
-           (!isKing(potentialPiece)
-        && !isQueen(potentialPiece)
-        && !isRook(potentialPiece)
-        && !isBishop(potentialPiece)
-        && !isKnight(potentialPiece))
-    ) {
+    if (!isValidPosition(st.substring(1, 3))) {
         // pawn
         const myPiece = sideIsWhite ? PAWN_W : PAWN_B;
         if (isCapture) {

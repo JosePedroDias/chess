@@ -1,9 +1,9 @@
 import test from 'node:test';
 import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
-import { log } from './testUtils.mjs';
 import { Board, WHITE, BLACK } from './board.mjs';
-import { isBlackPiece, isWhitePiece } from './pieces.mjs';
+
+const SKIP_THEMED = true;
 
 test('empty board', (_t) => {
     const b = Board.empty();
@@ -126,27 +126,27 @@ test('getPgn odd num of moves', (_t) => {
 });
 
 test('applyMove', (_t) => {
-    _t.todo();
-    const b = Board.default();
-    const b2 = b.applyMove('b4');
-    //equal(b2._params.next, BLACK); // TODO
-    //equal(b2._params.enPassantPos, 'b3'); // TODO
-    deepEqual(b2._params.castling.split('').toSorted(), 'KQkq'.split(''));
-    //b2._params.halfMoveClock
-    //b2._params.fullMoveNumber
-    deepEqual(b2._moves, ['b4']);
-    /*equal(b2.toString(),
-`r n b q k b n r
-p p p p p p p p
-               
-               
-  P            
-               
-P   P P P P P P
-R N B Q K B N R`);*/
+    {
+        // regular king move
+        const b = Board.fromFen(`k7/8/8/8/8/8/8/7K w - - 0 1`);
+        const b2 = b.applyMove('Kh1g1');
+        equal(b2.getFen(), `k7/8/8/8/8/8/8/6K1 b - - 1 1`);
+    }
+    {
+        // regular pawn move
+        const b = Board.fromFen(`k7/8/7P/8/8/8/8/7K w - - 0 1`);
+        const b2 = b.applyMove('h7');
+        equal(b2.getFen(), `k7/7P/8/8/8/8/8/7K b - - 1 1`);
+    }
+    {
+        // pawn move with promotion
+        const b = Board.fromFen(`8/7P/8/8/k7/8/8/7K w - - 0 1`);
+        const b2 = b.applyMove('h8=Q');
+        equal(b2.getFen(), `7Q/8/8/8/k7/8/8/7K b - - 1 1`);
+    }
 });
 
-test('toPrettyString simplest', { skip: true }, (_t) => {
+test('toPrettyString simplest', { skip: SKIP_THEMED }, (_t) => {
     const b = Board.default();
     equal(b.toPrettyString({}),
 ` 8 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
@@ -160,7 +160,7 @@ test('toPrettyString simplest', { skip: true }, (_t) => {
    a b c d e f g h`);
 });
 
-test('toPrettyString fromBlacks + details', { skip: true }, (_t) => {
+test('toPrettyString fromBlacks + details', { skip: SKIP_THEMED }, (_t) => {
     const b = Board.default();
     equal(b.toPrettyString({ fromBlacks: true, details: true }),
 ` 1 ♜ ♞ ♝ ♚ ♛ ♝ ♞ ♜
@@ -177,20 +177,3 @@ en passant: -
 castling: KQkq
 half: 0  move #: 1`);
 });
-
-// log(b.toString())
-
-
-//const b = Board.default();
-
-/* for (const [pos, piece] of b) {
-    console.log(`${pos}/${piece}`);
-} */
-
-/* log('a');
-//let it = b.cellsHaving(isBlackPiece);
-let it = b.cellsHaving();
-//let it = b.cellsHaving();
-for (const [pos, piece] of it) {
-    console.log(`${pos}/${piece}`);
-} */
