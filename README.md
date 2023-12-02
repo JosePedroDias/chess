@@ -79,11 +79,12 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 
 - logic
     - fix valid moves
-        - castling (check for no checks in kings way)
+        - properly test castling criteria
         - moveFromString pawns sometimes fail
 
     - detect repetition (3 sets of equal moves?)
     - find checkmate in 1/2/3
+    - support option to play against stockfish instead of my dumb bot
     - fix bot UCI compatibility
     - add more common knowledge / heuristic (material + more)
     - (low prio) minimax/alpha-beta

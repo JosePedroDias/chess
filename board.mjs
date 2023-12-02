@@ -152,6 +152,7 @@ export class Board {
         }
 
         next = next === 'w' ? WHITE : BLACK;
+        this._params.next = next; // to prevent mistakes later in this fn
 
         halfMoveClock = parseInt(halfMoveClock, 10);
         if (isNaN(halfMoveClock)) throw new Error('Incorrect halfMoveClock!');
@@ -159,6 +160,10 @@ export class Board {
         if (next === BLACK && halfMoveClock !== 1) throw new Error('Incorrect halfMoveClock!');
         fullMoveNumber = parseInt(fullMoveNumber, 10);
         if (isNaN(fullMoveNumber)) throw new Error('Incorrect fullMoveNumber!');
+
+        if (!this.isWhiteNext()) {
+            this._moves.push(undefined); // to even out move % 2 even if undefined is pushed
+        }
 
         this._params = {
             next,
@@ -173,6 +178,7 @@ export class Board {
         // 2... Nf4 3. Nxe6 d5 4. Bxf4 
         return Array.from(this._moves.entries())
         .map(([num, move]) => {
+            if (move === undefined) move = '?';
             if (num % 2 === 0) {
                 return `${num/2 + 1}. ${move}`;
             };
@@ -331,11 +337,10 @@ export class Board {
         }
 
         // increment move stats
-        const isEvenMove = b._moves.length % 2 === 0;
-        b._params.halfMoveClock = isEvenMove ? 0 : 1;
-        if (isEvenMove) ++b._params.fullMoveNumber;
-
         b._params.next = otherSide(b._params.next);
+        const isEvenMove = b._moves.length % 2 === 0;
+        if (isEvenMove) ++b._params.fullMoveNumber;
+        b._params.halfMoveClock = isEvenMove ? 0 : 1;
 
         b._pastBoards.push(this);
 

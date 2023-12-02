@@ -124,8 +124,8 @@ export function ui(
             }
         }
 
-        console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${move}\n`);
         try {
+            console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${move}\n`);
             board = board.applyMove(move, true);
             window.board = board; // TODO TEMP
         } catch (err) {
