@@ -96,8 +96,11 @@ It can now be divided into 3 parts:
     - fix bot UCI compatibility
     - introduce more tactical ideas to bot reasoning maybe?
     - (super secondary) support option to play against stockfish instead of my dumb bot
-- ui
-    - animate pieces... (hard)
+- UI
+    - keep board in page screen
+    - support touch move input
+    - export PGN button? (you can currently do `copy(board.getPgn())` and paste in sites such as http://lichess.org/paste )
+    - animate pieces... (hard with the current internal rep)
 
 # setup
 
