@@ -81,13 +81,6 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
     - fix valid moves
         - castling (check for no checks in kings way)
         - moveFromString pawns sometimes fail
-    - support promotions!
-        f8=Q(+)
-        f8=R(+)
-        f8=B(+)
-        f8=N(+)
-        for all pawn moving to last row, suffix with all these variants
-        detect these and prompt if one of them is chosen
 
     - detect repetition (3 sets of equal moves?)
     - find checkmate in 1/2/3

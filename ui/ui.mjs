@@ -4,7 +4,7 @@ import { Board, WHITE } from '../board.mjs';
 import { electNextMove, validMoves2 } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
-//import { promptDialog } from './prompt-dialog.mjs';
+import { promptDialog } from './prompt-dialog.mjs';
 import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
 const BOT_VS_BOT = false;
@@ -95,17 +95,22 @@ export function ui(
                 const [from, to] = await prom;
                 //console.log(`${from} -> ${to}`);
                 move = '';
+                const candidates = [];
                 for (const mvS of moves) {
                     try {
                         let mvO = moveFromString(mvS, board);
                         if (mvO instanceof Array) mvO = mvO[0];
                         if (from === mvO.from.pos && to === mvO.to.pos) {
-                            move = mvS;
+                            candidates.push(mvS);
                             //console.log('matched', mvS, 'to', mvO);
                         }
                     } catch (err) {
                         console.log(err);
                     }
+                }
+                if (candidates.length === 1) move = candidates[0];
+                else if (candidates.length > 1) {
+                    move = await promptDialog(`choose promotion for ${board._params.next}?`, candidates, '');
                 }
             } while (!moves.includes(move));
         } else {
