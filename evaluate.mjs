@@ -1,4 +1,4 @@
-import { isBoardChecked, isMoveStringCheck, moveToString, validMoves } from './moves.mjs';
+import { isBoardChecked, isMoveStringCheck, isMoveStringCapture, moveToString, validMoves } from './moves.mjs';
 import { isWhitePiece } from "./pieces.mjs";
 import { randomFromArr } from './utils.mjs';
 
@@ -51,6 +51,14 @@ export function electNextMove(board) {
     }
 
     const checkMoves = moves.filter(isMoveStringCheck);
+    const captureMoves = moves.filter(isMoveStringCapture);
 
-    return checkMoves.length > 0 ? randomFromArr(checkMoves) : randomFromArr(moves);
+    if (checkMoves && captureMoves) {
+        if (Math.random < 0.5) captureMoves = []; // when faced with both, capture 50% of the time
+    }
+
+    if (captureMoves.length > 0) return randomFromArr(captureMoves);
+    if (checkMoves.length > 0) return randomFromArr(checkMoves);
+
+    return randomFromArr(moves);
 }

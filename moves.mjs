@@ -304,7 +304,11 @@ export function isMoveStringCastle(s) {
 }
 
 export function isMoveStringCheck(moveS) {
-    return moveS.indexOf('+') !== -1;
+    return moveS.includes('+');
+}
+
+export function isMoveStringCapture(moveS) {
+    return moveS.includes('x');
 }
 
 export function moveToString(move) {
