@@ -1,6 +1,6 @@
 import { mount, redraw, default as m } from '../../vendor/mithril.mjs';
 
-import { Board, WHITE } from '../board.mjs';
+import { Board, BLACK, WHITE } from '../board.mjs';
 import { electNextMove, validMoves2 } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
@@ -106,6 +106,7 @@ export function ui(
                             //console.log('matched', mvS, 'to', mvO);
                         }
                     } catch (err) {
+                        console.log('moves', moves);
                         console.log(err);
                     }
                 }
@@ -185,6 +186,14 @@ export function ui(
             );
         }
     });
+}
+
+const u = new URL(location.href);
+const search = u.searchParams;
+
+if (search.get('botFirst')) {
+    FROM_BLACKS = true;
+    HUMAN_SIDE = BLACK;
 }
 
 let startBoard = Board.default();
