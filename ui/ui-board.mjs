@@ -51,9 +51,6 @@ export function UiBoard(
     const lastMove = board.getLastMove();
     const possibleMoves = validMoves(board, true);
     const riskedPositions = getThreatenedPositions(board);
-    //console.log('lastMove', lastMove);
-    //console.log('possibleMoves', possibleMoves);
-    //console.log('riskedPositions', riskedPositions);
 
     for (const pos of riskedPositions) {
         annotations.push(
@@ -102,53 +99,59 @@ export function UiBoard(
     const yToRank = (i) => fromBlacks ? i + 1 : 8 - i;
     const xToFile = (i) => String.fromCharCode( fromBlacks ? 104 - i : 97 + i );
 
-    return m('g', [
-        // bg
-        m('rect', { width: 9 * CW, height: 9 * CW, x: -0.5 * CW, y: -0.5 * CW, fill: GRAY }),
-        // cells
-        ...times(64).map((i) => {
-            const xi = i % 8;
-            const yi = Math.floor(i / 8);
-            const isEven = (xi + yi) % 2 === 0;
-            return m('rect', {
-                x: xi * CW,
-                y: yi * CW,
-                width:  CW,
-                height: CW,
-                fill: isEven ? LIGHT : DARK,
-            }, [
-                m('title', `${xToFile(xi)}${yToRank(yi)}`),
-            ]);
-        }),
-        // cell labels
-        ...times(8).map((i) => {
-            return m(
-                'text',
-                {
-                    x: -MARGIN * 0.75 * CW,
-                    y: (i - 0.5) * CW,
-                    dy: CW,
-                    fill: WHITE,
-                    'dominant-baseline': 'middle',
-                },
-                yToRank(i),
-            );
-        }),
-        ...times(8).map((i) => {
-            return m(
-                'text',
-                {
-                    x: (i + 0.5) * CW,
-                    y: (7 + MARGIN * 0.75) * CW,
-                    dy: CW,
-                    fill: WHITE,
-                    'text-anchor': 'middle',
-                },
-                xToFile(i),
-            );
-        }),
-        
-        ...pieces,
-        ...annotations,
+    return m('g', { 'x-comment' : 'chess board' }, [
+        m('g', { 'x-comment' : 'bg' }, [
+            m('rect', { width: 9 * CW, height: 9 * CW, x: -0.5 * CW, y: -0.5 * CW, fill: GRAY }),
+        ]),
+
+        m('g', { 'x-comment' : 'cells' }, [
+            times(64).map((i) => {
+                const xi = i % 8;
+                const yi = Math.floor(i / 8);
+                const isEven = (xi + yi) % 2 === 0;
+                return m('rect', {
+                    x: xi * CW,
+                    y: yi * CW,
+                    width:  CW,
+                    height: CW,
+                    fill: isEven ? LIGHT : DARK,
+                }, [
+                    m('title', `${xToFile(xi)}${yToRank(yi)}`),
+                ]);
+            }),
+        ]),
+
+        m('g', { 'x-comment' : 'labels' }, [
+            ...times(8).map((i) => {
+                return m(
+                    'text',
+                    {
+                        x: -MARGIN * 0.75 * CW,
+                        y: (i - 0.5) * CW,
+                        dy: CW,
+                        fill: WHITE,
+                        'dominant-baseline': 'middle',
+                    },
+                    yToRank(i),
+                );
+            }),
+            ...times(8).map((i) => {
+                return m(
+                    'text',
+                    {
+                        x: (i + 0.5) * CW,
+                        y: (7 + MARGIN * 0.75) * CW,
+                        dy: CW,
+                        fill: WHITE,
+                        'text-anchor': 'middle',
+                    },
+                    xToFile(i),
+                );
+            }),
+        ]),
+
+        m('g', { 'x-comment' : 'pieces' }, pieces),
+
+        m('g', { 'x-comment' : 'annotations' }, annotations),
     ]);
 };

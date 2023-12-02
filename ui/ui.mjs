@@ -17,8 +17,42 @@ export function ui(
     { rootEl },
     { board }
 ) {
+    let vnode;
+
+    const vb = [
+        -MARGIN * CW,
+        -MARGIN * CW,
+        (8 + 2 * MARGIN) * CW,
+        (8 + 2 * MARGIN) * CW,
+    ];
+
+    const moveIndices = [, ];
+
+    const onMouse = (i) => (ev) => {
+        const svgEl = vnode.dom;
+        const { top, left, width, height } = svgEl.getBoundingClientRect();
+        const xRatio = (ev.clientX - left) / width;
+        const yRatio = (ev.clientY - top)  / height;
+
+        const x = vb[0] + xRatio * vb[2];
+        const y = vb[1] + yRatio * vb[3];
+        //console.log(x, y);
+
+        if (x < 0 || x > CW * 8) return;
+        if (y < 0 || y > CW * 8) return;
+
+        const xi = Math.floor(x / CW);
+        const yi = Math.floor(y / CW);
+        //console.log(xi, yi);
+
+        moveIndices[i] = [xi, yi];
+        console.log(moveIndices);
+    };
+
     mount(rootEl, {
         oninit(_vnode) {
+            vnode = _vnode;
+
             // TODO HACKY TEMPORARY
             function undo() {
                 board = board.getLastBoard();
@@ -73,7 +107,6 @@ export function ui(
 
                 updateEval();
                 
-                //console.log(board.toPrettyString({ details: true, fromBlacks: FROM_BLACKS }));
                 redraw();
                 setTimeout(doNextMove, BOT_SPEED_MS);
             }
@@ -86,7 +119,9 @@ export function ui(
                 {
                     //width: 8 * CW,
                     //height: 8 * CW,
-                    viewBox: `${-MARGIN * CW} ${-MARGIN * CW} ${(8 + 2 * MARGIN) * CW} ${(8 + 2 * MARGIN) * CW}`,
+                    viewBox: `${vb[0]} ${vb[1]} ${vb[2]} ${vb[3]}`,
+                    onmousedown: onMouse(0),
+                    onmouseup: onMouse(1),
                 },
                 [
                     m('defs', [
