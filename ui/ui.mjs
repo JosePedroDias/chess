@@ -1,11 +1,11 @@
 import { mount, redraw, default as m } from '../vendor/mithril.mjs';
 
-import { sleep } from '../utils.mjs';
 import { Board, WHITE } from '../board.mjs';
 import { electNextMove, validMoves2 } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
+import { moveFromString } from '../moves.mjs';
 
 const BOT_VS_BOT = false;
 const HUMAN_VS_HUMAN = false;
@@ -26,7 +26,13 @@ export function ui(
         (8 + 2 * MARGIN) * CW,
     ];
 
-    const moveIndices = [, ];
+    const movePositions = [, ];
+
+    let resolveFn;
+
+    const xx = 'abcdefgh';
+    const yy = '87654321';
+    const indicesToPos = (x, y) => `${xx[x]}${yy[y]}`;
 
     const onMouse = (i) => (ev) => {
         const svgEl = vnode.dom;
@@ -36,82 +42,98 @@ export function ui(
 
         const x = vb[0] + xRatio * vb[2];
         const y = vb[1] + yRatio * vb[3];
-        //console.log(x, y);
 
-        if (x < 0 || x > CW * 8) return;
-        if (y < 0 || y > CW * 8) return;
+        if ((x < 0 || x > CW * 8) || (y < 0 || y > CW * 8)) {
+            moveIndices[i] = undefined;
+            if (i === 0) return;
+            resolveFn('', '');
+            return;
+        }
 
         const xi = Math.floor(x / CW);
         const yi = Math.floor(y / CW);
-        //console.log(xi, yi);
+        movePositions[i] = indicesToPos(xi, yi);
 
-        moveIndices[i] = [xi, yi];
-        console.log(moveIndices);
+        if (i === 1 && movePositions[0]) {
+            if (resolveFn) {
+                resolveFn(movePositions);
+                resolveFn = undefined;
+            }
+        }
     };
+
+    // TODO HACKY TEMPORARY
+    function undo() {
+        board = board.getLastBoard();
+        window.board = board;
+        redraw();
+    }
+    window.undo = undo;
+
+    const updateEval = () => window.evalBoard(board).then((e) => document.title = `chess eval: ${e}`);
+    
+    updateEval();
+
+    const doNextMove = async () => {
+        location.hash = board.getFen();
+
+        let move;
+        if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
+            const moves = validMoves2(board);
+            moves.sort();
+
+            if (moves.length === 0) {
+                window.alert(isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate');
+            }
+
+            do {
+                //move = await promptDialog(`next move for ${board._params.next}?`, moves, '');
+
+                const prom = new Promise((resolve) => {
+                    resolveFn = resolve;
+                });
+                const [from, to] = await prom;
+                //console.log(`${from} -> ${to}`);
+                move = '';
+                for (const mvS of moves) {
+                    let mvO = moveFromString(mvS, board);
+                    if (mvO instanceof Array) mvO = mvO[0];
+                    if (from === mvO.from.pos && to === mvO.to.pos) {
+                        move = mvS;
+                        //console.log('matched', mvS, 'to', mvO);
+                    }
+                }
+            } while (!moves.includes(move));
+        } else {
+            try {
+                move = electNextMove(board);
+            } catch (err) {
+                window.alert(err); // check mate / stale mate
+                console.error(err);
+                return;
+            }
+        }
+
+        console.log(`\nmove: ${move}\n`);
+        try {
+            board = board.applyMove(move, true);
+            window.board = board; // TODO TEMP
+        } catch (err) {
+            console.error(err);
+            return;
+        }
+
+        updateEval();
+        
+        redraw();
+        setTimeout(doNextMove, BOT_SPEED_MS);
+    }
+
+    setTimeout(doNextMove, BOT_SPEED_MS);
 
     mount(rootEl, {
         oninit(_vnode) {
             vnode = _vnode;
-
-            // TODO HACKY TEMPORARY
-            function undo() {
-                board = board.getLastBoard();
-                window.board = board;
-                redraw();
-            }
-            window.undo = undo;
-
-            const updateEval = () => window.evalBoard(board).then((e) => document.title = `chess eval: ${e}`);
-            
-            updateEval();
-
-            const doNextMove = async () => {
-                location.hash = board.getFen();
-
-                let move;
-                if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
-                    const moves = validMoves2(board);
-                    moves.sort();
-
-                    if (moves.length === 0) {
-                        window.alert(isMoveStringCheck(board.getLastMove()) ? 'check mate' : 'stale mate');
-                    }
-
-                    do {
-                        await sleep(200);
-                        move = await promptDialog(`next move for ${board._params.next}?`, moves, '');
-
-                        if (move === '') {
-                            setTimeout(doNextMove, 5 * BOT_SPEED_MS);
-                            return;
-                        }
-                    } while (!moves.includes(move));
-                } else {
-                    try {
-                        move = electNextMove(board);
-                    } catch (err) {
-                        window.alert(err); // check mate / stale mate
-                        console.error(err);
-                        return;
-                    }
-                }
-
-                console.log(`\nmove: ${move}\n`);
-                try {
-                    board = board.applyMove(move, true);
-                    window.board = board; // TODO TEMP
-                } catch (err) {
-                    console.error(err);
-                    return;
-                }
-
-                updateEval();
-                
-                redraw();
-                setTimeout(doNextMove, BOT_SPEED_MS);
-            }
-
-            setTimeout(doNextMove, BOT_SPEED_MS);
         },
         view() {
             return m(
