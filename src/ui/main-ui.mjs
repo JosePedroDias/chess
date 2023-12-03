@@ -32,10 +32,15 @@ export function ui(
     const indicesToPos = (x, y) => `${xx[x]}${yy[y]}`;
 
     const onMouse = (i) => (ev) => {
+        if (i === 1) {
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
         const svgEl = vnode.dom;
         const { top, left, width, height } = svgEl.getBoundingClientRect();
-        const xRatio = (ev.clientX - left) / width;
-        const yRatio = (ev.clientY - top)  / height;
+        const e = ev.changedTouches ? ev.changedTouches[0] : ev;
+        const xRatio = (e.clientX - left) / width;
+        const yRatio = (e.clientY - top)  / height;
 
         const x = vb[0] + xRatio * vb[2];
         const y = vb[1] + yRatio * vb[3];
@@ -163,6 +168,8 @@ export function ui(
                     viewBox: `${vb[0]} ${vb[1]} ${vb[2]} ${vb[3]}`,
                     onmousedown: onMouse(0),
                     onmouseup: onMouse(1),
+                    ontouchstart: onMouse(0),
+                    ontouchend: onMouse(1),
                 },
                 [
                     m('defs', [

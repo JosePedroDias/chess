@@ -1,10 +1,12 @@
-text {
-    font: 400 11px sans-serif;
-    user-select: none;
-}
+/* BODY + DIALOG */
 
 body {
     font-family: sans-serif;
+    margin: 0;
+    overflow: hidden;
+    background-color: #222;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 dialog {
@@ -28,4 +30,15 @@ dialog p {
 dialog form button {
     font-size: 16px;
     padding: 4px 8px;
+}
+
+/* SVG */
+
+svg {
+    max-height: 100vh;;
+}
+
+text {
+    font: 400 11px sans-serif;
+    user-select: none;
 }
