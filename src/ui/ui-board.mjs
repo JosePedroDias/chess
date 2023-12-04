@@ -14,8 +14,9 @@ import { Bishop } from './bishop.mjs';
 import { Rook } from './rook.mjs';
 import { Queen } from './queen.mjs';
 import { King } from './king.mjs';
-import { Dot } from './dot.mjs';
+import { Circle } from './circle.mjs';
 import { Arrow } from './arrow.mjs';
+import { add, mulScalar } from './geometry.mjs';
 
 export function UiBoard(
     { fromBlacks },
@@ -53,12 +54,18 @@ export function UiBoard(
     const possibleMoves = validMoves2(board);
     const riskedPositions = getThreatenedPositions(board);
 
+    const ARROW_SCALE = 1.33;
+    const ANNO_ALPHA = 0.75;
+
+    const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
+
     for (const pos of riskedPositions) {
         annotations.push(
-            Dot({}, {
-                pos: posToXY(pos),
+            Circle({}, {
+                center: toBoardCoords(pos),
+                radius: CW * 0.2,
                 color: 'red',
-                alpha: 0.5,
+                alpha: ANNO_ALPHA,
             }),
         );
     }
@@ -69,11 +76,13 @@ export function UiBoard(
             for (const { from, to } of moveArr) {
                 annotations.push(
                     Arrow({}, {
-                        from: posToXY(from.pos),
-                        to: posToXY(to.pos),
+                        from: toBoardCoords(from.pos),
+                        to: toBoardCoords(to.pos),
                         color: randomColor(),
-                        alpha: 0.5,
-                        length: 2.5,
+                        alpha: ANNO_ALPHA,
+                        width: ARROW_SCALE * 1,
+                        arrowW: ARROW_SCALE *  1.8,
+                        arrowH: ARROW_SCALE * 6,
                     }),
                 );
             }
@@ -88,11 +97,13 @@ export function UiBoard(
             for (const { from, to } of moveArr) {
                 annotations.push(
                     Arrow({}, {
-                        from: posToXY(from.pos),
-                        to: posToXY(to.pos),
+                        from: toBoardCoords(from.pos),
+                        to: toBoardCoords(to.pos),
                         color: '#333',
-                        alpha: 0.5,
-                        length: 5,
+                        alpha: ANNO_ALPHA,
+                        width: ARROW_SCALE * 1,
+                        arrowW: ARROW_SCALE * 1.8,
+                        arrowH: ARROW_SCALE * 6,
                     }),
                 );
             }
@@ -158,5 +169,6 @@ export function UiBoard(
         m('g', { 'x-comment' : 'pieces' }, pieces),
 
         m('g', { 'x-comment' : 'annotations' }, annotations),
+        //console.log(annotations)
     ]);
 };

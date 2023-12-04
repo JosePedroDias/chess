@@ -1,18 +1,49 @@
 import m from '../../vendor/mithril.mjs';
 
-import { CW } from './constants.mjs';
+import { getVersor, rotate90Degrees, dist, add, mulScalar } from './geometry.mjs';
 
-export function Arrow({  }, { from, to, color, alpha, length }) {
-    const x0 = (from[0] + 0.5) * CW;
-    const y0 = (from[1] + 0.5) * CW;
-    const x1 = (to[0]   + 0.5) * CW;
-    const y1 = (to[1]   + 0.5) * CW;
+// https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon
+// https://math.stackexchange.com/questions/2971970/create-an-arrow-shape-based-on-a-vector
+
+/*
+        6
+        .
+      /   \
+    /       \
+5 +---+ X +---+ 4
+    3 |   | 2
+      |   |
+      |   |
+      +-X-+
+     1     0
+*/
+
+export function Arrow({  }, { from, to, color, alpha, width, arrowW, arrowH, arrowDH }) {
+    arrowDH = arrowDH || arrowH/2;
+
+    const d = dist(from, to);
+    const v = getVersor(from, to);
+    const v_ = rotate90Degrees(v);
+    const vW = mulScalar(width, v_);
+
+    const p0 = add(from, vW);
+    const p1 = add(from, mulScalar(-1, vW));
+    
+    const vMain = mulScalar(d - arrowH + arrowDH, v);
+    const p2 = add(p0, vMain);
+    const p3 = add(p1, vMain);
+
+    const vArrowW = mulScalar(arrowW, v_);
+    const p4 = add(p2, vArrowW);
+    const p5 = add(p3, mulScalar(-1, vArrowW))
+    
+    const p6 = add(from, mulScalar(d + arrowDH, v));
 
     return m(
-        'path',
+        'polygon',
         {
-            d: `M${x0},${y0} ${x1},${y1}`,
-            style: `stroke:${ color || 'red' }; stroke-width:${ length || 3 }; opacity:${ alpha !== undefined ? alpha : 1 }; marker-end:url(#head)`,
+            points: [p0, p2, p4, p6, p5, p3, p1].map(p => p.join(',')).join(' '),
+            style: `fill:${ color || 'red' }; stroke:none; opacity:${ alpha !== undefined ? alpha : 1 }`,
         }
     );
 }

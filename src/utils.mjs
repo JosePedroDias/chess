@@ -12,6 +12,10 @@ export function zip3(arr1, arr2, arr3) {
     return arr1.map((el1, idx1) => [el1, arr2[idx1], arr3[idx1]]);
 }
 
+export function randomFloat(n) {
+    return n * Math.random();
+}
+
 export function randomInt(n) {
     return Math.floor( n * Math.random() );
 }
@@ -76,4 +80,5 @@ export const times = (n) => {
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const randomColor = () => `rgb(${randomInt(256)}, ${randomInt(256)}, ${randomInt(256)})`;
+// export const randomColor = () => `rgb(${randomInt(256)}, ${randomInt(256)}, ${randomInt(256)})`;
+export const randomColor = () => `hsl(${randomFloat(360)}, 80%, ${35 + randomFloat(30)}%)`;

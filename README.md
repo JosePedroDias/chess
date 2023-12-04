@@ -47,6 +47,8 @@ It can now be divided into 3 parts:
 ### PGN
 
 - https://en.wikipedia.org/wiki/Portable_Game_Notation
+- https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+- https://en.wikipedia.org/wiki/Chess_notation
 
     1. move move 2. move move...
 
@@ -56,6 +58,10 @@ It can now be divided into 3 parts:
     castling king-side O-O / o-o  (w/b)
     castling queen-side O-O-O / o-o-o (w/b)
     en passant ?
+
+### EPD?
+
+- https://www.chessprogramming.org/Extended_Position_Description
 
 
 ## terminal colors
@@ -97,6 +103,7 @@ It can now be divided into 3 parts:
     - introduce more tactical ideas to bot reasoning maybe?
     - (super secondary) support option to play against stockfish instead of my dumb bot
 - UI
+    - replace path + marker (which only firefox renders correctly) with polygon
     - buttons: new game / play on other side / export PGN
     - (you can currently do `copy(board.getPgn())` on the browser console and paste in sites such as http://lichess.org/paste )
     - animate pieces... (hard with the current internal rep)
@@ -115,3 +122,18 @@ to run the engine you need node 20.x or later / evergreen browsers
     - `npm run botWithoutUci` to play bot vs bot or bot vs human in node/terminal
     - `npm run bot` to host a UCI interface (tentative)
     - `npm test` to run all tests (not amazing coverage)
+
+
+# chess lingo
+
+- pin - your piece not only target an enemy piece but another one further in the line of sight. the other piece is generally more valuable.
+this situation prevents the opponent from moving his closer piece without losing the one further away
+- fork - move your piece in a way that it simultaneously attacks multiple pieces, forcing the opponent to sacrifice one of them
+- reveal - kinda the opposite of a pin. you move a piece out of the way, exposing a better attack behind it
+- win a tempo - create a situation which deflects the opponent from following their plan
+- trade - to willingly capture a piece which is defended and expected to be capture next
+- castling - move the king 2 cells to either left or right and have to opposing rook step over you and occupy the next cell (needs empty cells between them and all the journey of the king to be check-free. can only happen if both pieces haven't moved in the game)
+
+- opening - initial part of the game. there are countless well known variants. knowledgeable players have countermeasures to a popular opening
+- middle game - players are no longer following an opening/defense (a bit scripted) but following their own strategies. we haven't yet reached end game.
+- end game - last section of the game, when players are focused on checkmating the opponent. less material is often in the board at this later stage.
