@@ -97,6 +97,7 @@ export function UiBoard(
                         width: ARROW_SCALE * 1,
                         arrowW: ARROW_SCALE *  1.8,
                         arrowH: ARROW_SCALE * 6,
+                        title: mv,
                     }),
                 );
             }
@@ -118,6 +119,7 @@ export function UiBoard(
                         width: ARROW_SCALE_LAST * 1,
                         arrowW: ARROW_SCALE_LAST * 1.8,
                         arrowH: ARROW_SCALE_LAST * 6,
+                        title: lastMove,
                     }),
                 );
             }

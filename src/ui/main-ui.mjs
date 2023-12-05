@@ -8,7 +8,7 @@ import { promptDialog } from './prompt-dialog.mjs';
 import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
 const BOT_VS_BOT = false;
-const HUMAN_VS_HUMAN = true;
+const HUMAN_VS_HUMAN = false;
 let HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;

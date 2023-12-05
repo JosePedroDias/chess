@@ -18,7 +18,7 @@ import { getVersor, rotate90Degrees, dist, add, mulScalar } from './geometry.mjs
      1     0
 */
 
-export function Arrow({  }, { from, to, color, alpha, width, arrowW, arrowH, arrowDH }) {
+export function Arrow({  }, { from, to, color, alpha, width, arrowW, arrowH, arrowDH, title }) {
     arrowDH = arrowDH || arrowH/2;
 
     const d = dist(from, to);
@@ -39,11 +39,18 @@ export function Arrow({  }, { from, to, color, alpha, width, arrowW, arrowH, arr
     
     const p6 = add(from, mulScalar(d + arrowDH, v));
 
-    return m(
+    const polygon = m(
         'polygon',
         {
             points: [p0, p2, p4, p6, p5, p3, p1].map(p => p.join(',')).join(' '),
             style: `fill:${ color || 'red' }; stroke:none; opacity:${ alpha !== undefined ? alpha : 1 }`,
         }
     );
+
+    if (!title) return polygon;
+
+    return m('g', [
+        m('title', title),
+       polygon, 
+    ]);
 }
