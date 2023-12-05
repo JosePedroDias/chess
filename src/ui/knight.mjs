@@ -18,6 +18,7 @@ export function Knight({ isWhite }, { pos }) {
             style: `stroke:${stroke2}; stroke-width:${STROKE_WIDTH}; opacity:1; fill:none; fill-opacity:1; fill-rule:evenodd; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
         },
         [
+            m('title', `${isWhite ? 'white' : 'black'} knight`),
             m('path', {
                 d: `M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18`,
                 style: `fill:${fill}; stroke:${stroke}`,

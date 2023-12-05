@@ -8,7 +8,7 @@ import { promptDialog } from './prompt-dialog.mjs';
 import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
 const BOT_VS_BOT = false;
-const HUMAN_VS_HUMAN = false;
+const HUMAN_VS_HUMAN = true;
 let HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
@@ -171,33 +171,7 @@ export function ui(
                     ontouchstart: onMouse(0),
                     ontouchend: onMouse(1),
                 },
-                [
-                    m('defs', [
-                        // used by arrow.mjs
-                        m(
-                            'marker',
-                            {
-                                id: 'head',
-                                orient: 'auto',
-                                markerWidth: 3,
-                                markerHeight: 4,
-                                refX: 0.1,
-                                refY: 2,
-                                //markerUnits: 'strokeWidth',
-                            },
-                            [
-                                m(
-                                    'path',
-                                    {
-                                        d: 'M0,0 V4 L2,2 Z',
-                                        style: `fill:context-stroke`,
-                                    }
-                                ),
-                            ]
-                        ),
-                    ]),
-                    UiBoard({ fromBlacks }, { board }),
-                ],
+                UiBoard({ fromBlacks }, { board }),
             );
         }
     });

@@ -16,6 +16,7 @@ export function Queen({ isWhite }, { pos }) {
             style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; stroke-linejoin:round`,
         },
         [
+            m('title', `${isWhite ? 'white' : 'black'} queen`),
             m('path', {
                 d: `M 9,26 C 17.5,24.5 30,24.5 36,26 L 38.5,13.5 L 31,25 L 30.7,10.9 L 25.5,24.5 L 22.5,10 L 19.5,24.5 L 14.3,10.9 L 14,25 L 6.5,13.5 L 9,26 z`,
             }),

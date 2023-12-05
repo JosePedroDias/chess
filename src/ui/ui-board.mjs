@@ -14,7 +14,8 @@ import { Bishop } from './bishop.mjs';
 import { Rook } from './rook.mjs';
 import { Queen } from './queen.mjs';
 import { King } from './king.mjs';
-import { Circle } from './circle.mjs';
+//import { Circle } from './circle.mjs';
+import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
@@ -55,15 +56,28 @@ export function UiBoard(
     const riskedPositions = getThreatenedPositions(board);
 
     const ARROW_SCALE = 1.33;
+    const ARROW_SCALE_LAST = 1.5 * ARROW_SCALE;
     const ANNO_ALPHA = 0.75;
 
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
     for (const pos of riskedPositions) {
         annotations.push(
-            Circle({}, {
+            /* Circle({}, {
                 center: toBoardCoords(pos),
-                radius: CW * 0.2,
+                radius: CW * 0.25,
+                color: 'red',
+                alpha: ANNO_ALPHA,
+            }), */
+            Ring({}, {
+                center: toBoardCoords(pos),
+
+                //outerRadius: CW * 0.5,
+                //innerRadius: CW * 0.44,
+
+                radius: CW * 0.44,
+                strokeWidth: CW * 0.06,
+                
                 color: 'red',
                 alpha: ANNO_ALPHA,
             }),
@@ -99,11 +113,11 @@ export function UiBoard(
                     Arrow({}, {
                         from: toBoardCoords(from.pos),
                         to: toBoardCoords(to.pos),
-                        color: '#333',
+                        color: board.isWhiteNext() ? '#333' : '#CCC',
                         alpha: ANNO_ALPHA,
-                        width: ARROW_SCALE * 1,
-                        arrowW: ARROW_SCALE * 1.8,
-                        arrowH: ARROW_SCALE * 6,
+                        width: ARROW_SCALE_LAST * 1,
+                        arrowW: ARROW_SCALE_LAST * 1.8,
+                        arrowH: ARROW_SCALE_LAST * 6,
                     }),
                 );
             }

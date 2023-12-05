@@ -16,6 +16,7 @@ export function Rook({ isWhite }, { pos }) {
             style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; opacity:1; fill-opacity:1; fill-rule:evenodd; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
         },
         [
+            m('title', `${isWhite ? 'white' : 'black'} rook`),
             m('path', {
                 d: `M 9,39 L 36,39 L 36,36 L 9,36 L 9,39 z`,
                 style: `stroke-linecap:butt`,
