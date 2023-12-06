@@ -1,7 +1,7 @@
-import m from '../../vendor/mithril.mjs';
+import m from '../../../vendor/mithril.mjs';
 
-import { CW, STROKE_WIDTH } from './constants.mjs';
-import { BLACK, WHITE } from './colors.mjs';
+import { CW, STROKE_WIDTH } from '../constants.mjs';
+import { BLACK, WHITE } from '../colors.mjs';
 
 export function Pawn({ isWhite }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;

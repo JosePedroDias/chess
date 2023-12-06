@@ -8,12 +8,23 @@ import { validMoves2 } from '../evaluate.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW } from './constants.mjs';
-import { Pawn } from './pawn.mjs';
-import { Knight } from './knight.mjs';
-import { Bishop } from './bishop.mjs';
-import { Rook } from './rook.mjs';
-import { Queen } from './queen.mjs';
-import { King } from './king.mjs';
+
+/*
+import { Pawn } from './wiki/pawn.mjs';
+import { Knight } from './wiki/knight.mjs';
+import { Bishop } from './wiki/bishop.mjs';
+import { Rook } from './wiki/rook.mjs';
+import { Queen } from './wiki/queen.mjs';
+import { King } from './wiki/king.mjs';
+*/
+
+import { Pawn } from './neo/pawn.mjs';
+import { Knight } from './neo/knight.mjs';
+import { Bishop } from './neo/bishop.mjs';
+import { Rook } from './neo/rook.mjs';
+import { Queen } from './neo/queen.mjs';
+import { King } from './neo/king.mjs';
+
 //import { Circle } from './circle.mjs';
 import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
