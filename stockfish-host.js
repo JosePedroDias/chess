@@ -16,6 +16,8 @@ const mimeData = {
     ".jpg":  "image/jpeg",
     ".svg":  "image/svg+xml; charset=utf-8",
 
+    ".mp3": "audio/mpeg",
+
     ".ttf":  "application/x-font-ttf",
     ".woff": "application/x-font-woff",
     

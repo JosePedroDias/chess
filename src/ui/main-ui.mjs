@@ -7,11 +7,20 @@ import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
 import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
+import { initSfx, playSample } from '../sfx/sfx.mjs';
+
 const BOT_VS_BOT = false;
 const HUMAN_VS_HUMAN = false;
 let HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
+
+function playAppropriateSound(move) {
+    if      (move.includes('x')) playSample('move');
+    else if (move.includes('+')) playSample('notificationSound');
+    //else if (move.includes('+')) playSample('wrongAnswer');
+    else                         playSample('dragSlide');
+}
 
 export function ui(
     { rootEl, fromBlacks },
@@ -32,6 +41,8 @@ export function ui(
     const indicesToPos = (x, y) => `${xx[x]}${yy[y]}`;
 
     const onMouse = (i) => (ev) => {
+        if (i === 0) initSfx();
+
         if (i === 1) {
             ev.stopPropagation();
             ev.preventDefault();
@@ -141,6 +152,8 @@ export function ui(
         try {
             console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${move}\n`);
             board = board.applyMove(move, true);
+            playAppropriateSound(move);
+            
             window.board = board; // TODO TEMP
         } catch (err) {
             console.error(err);
