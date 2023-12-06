@@ -18,8 +18,18 @@ import { getVersor, rotate90Degrees, dist, add, mulScalar } from './geometry.mjs
      1     0
 */
 
-export function Arrow({  }, { from, to, color, alpha, width, arrowW, arrowH, arrowDH, title }) {
+export function Arrow({  }, { from, to, fill, stroke, width, arrowW, arrowH, arrowDH, title }) {
     arrowDH = arrowDH || arrowH/2;
+
+    if (!fill) fill = {};
+    if (!stroke) stroke = {};
+
+    const fColor = fill.color || 'black';
+    const fAlpha = fill.alpha || 1;
+
+    const sColor = stroke.color || 'black';
+    const sAlpha = stroke.alpha || 1;
+    const sWidth = stroke.width || 1;
 
     const d = dist(from, to);
     const v = getVersor(from, to);
@@ -43,7 +53,7 @@ export function Arrow({  }, { from, to, color, alpha, width, arrowW, arrowH, arr
         'polygon',
         {
             points: [p0, p2, p4, p6, p5, p3, p1].map(p => p.join(',')).join(' '),
-            style: `fill:${ color || 'red' }; stroke:none; opacity:${ alpha !== undefined ? alpha : 1 }`,
+            style: `fill:${fColor}; fill-opacity:${fAlpha}; stroke:${sColor}; stroke-opacity:${sAlpha}; stroke-width:${sWidth}`,
         }
     );
 

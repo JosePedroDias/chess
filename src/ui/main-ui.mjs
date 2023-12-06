@@ -41,6 +41,8 @@ export function ui(
     const indicesToPos = (x, y) => `${xx[x]}${yy[y]}`;
 
     const onMouse = (i) => (ev) => {
+        ev.redraw = false;
+        
         if (i === 0) initSfx();
 
         if (i === 1) {

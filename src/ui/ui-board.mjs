@@ -66,20 +66,14 @@ export function UiBoard(
     const possibleMoves = validMoves2(board);
     const riskedPositions = getThreatenedPositions(board);
 
-    const ARROW_SCALE = 1.33;
-    const ARROW_SCALE_LAST = 1.5 * ARROW_SCALE;
+    const ARROW_SCALE_LAST = 2;
+    const ANNO_STROKE_WIDTH = 0.33;
     const ANNO_ALPHA = 0.75;
 
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
     for (const pos of riskedPositions) {
         annotations.push(
-            /* Circle({}, {
-                center: toBoardCoords(pos),
-                radius: CW * 0.25,
-                color: 'red',
-                alpha: ANNO_ALPHA,
-            }), */
             Ring({}, {
                 center: toBoardCoords(pos),
 
@@ -99,15 +93,16 @@ export function UiBoard(
         try {
             const moveArr = moveToArr(moveFromString(mv, board));
             for (const { from, to } of moveArr) {
+                const color = randomColor();
                 annotations.push(
                     Arrow({}, {
                         from: toBoardCoords(from.pos),
                         to: toBoardCoords(to.pos),
-                        color: randomColor(),
-                        alpha: ANNO_ALPHA,
-                        width: ARROW_SCALE * 1,
-                        arrowW: ARROW_SCALE *  1.8,
-                        arrowH: ARROW_SCALE * 6,
+                        fill: { color, alpha: ANNO_ALPHA },
+                        stroke: { color, width: ANNO_STROKE_WIDTH },
+                        width: 1,
+                        arrowW: 1.8,
+                        arrowH: 6,
                         title: mv,
                     }),
                 );
@@ -121,14 +116,15 @@ export function UiBoard(
         try {
             const moveArr = moveToArr( moveFromString(lastMove, board.getLastBoard()) );
             for (const { from, to } of moveArr) {
+                const color = board.isWhiteNext() ? '#333' : '#CCC';
                 annotations.push(
                     Arrow({}, {
                         from: toBoardCoords(from.pos),
                         to: toBoardCoords(to.pos),
-                        color: board.isWhiteNext() ? '#333' : '#CCC',
-                        alpha: ANNO_ALPHA,
+                        fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
+                        stroke: { color },
                         width: ARROW_SCALE_LAST * 1,
-                        arrowW: ARROW_SCALE_LAST * 1.8,
+                        arrowW: ARROW_SCALE_LAST *  1.8,
                         arrowH: ARROW_SCALE_LAST * 6,
                         title: lastMove,
                     }),
