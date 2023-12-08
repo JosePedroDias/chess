@@ -9,10 +9,10 @@ const SKILL_LEVEL = 20; // 1-20 ?
 const ENGINE_ROOT_PATH = `/vendor/stockfish-js-minimal`;
 const ENGINE_COMMON_PREFIX = `stockfish-nnue-16`;
 
-const ENGINE_FLAVOR_SUFFIX = ``; // best, less compatible
-//const ENGINE_FLAVOR_SUFFIX = `-single`;
-//const ENGINE_FLAVOR_SUFFIX = `-no-simd`;
-//const ENGINE_FLAVOR_SUFFIX = `-no-Worker`;
+//const ENGINE_FLAVOR_SUFFIX = ``; // best, (needs: headers, simd, worker)
+//const ENGINE_FLAVOR_SUFFIX = `-no-simd`; //  (needs: headers, worker)
+//const ENGINE_FLAVOR_SUFFIX = `-no-Worker`; // (needs: headers, ?simd)
+const ENGINE_FLAVOR_SUFFIX = `-single`; // most compatible (needs: worker)
 
 /////////
 
