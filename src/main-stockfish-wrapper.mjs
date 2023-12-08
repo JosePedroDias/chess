@@ -43,6 +43,7 @@ function _fireLine(line) {
             if (stopCriteriaFn(line) || listener.linesLeft === 0) {
                 resolve(result.join('\n'));
                 _listeners.splice(i, 1);
+                return; // only 1 listener gets served
             }
         }
     }
@@ -124,7 +125,9 @@ async function getBoardFen() {
     return line.substring(5);
 }
 
-async function getValidMoves(depth = 1) {
+async function getValidMoves(fenString, depth = 1) {
+    uciCmd(_setBoardViaFen(fenString));
+    await _waitReady();
     uciCmd(`go perft ${depth}`);
     const result = await _waitOn({
         stopCriteriaFn: (l) => l.includes('Nodes searched: '),
