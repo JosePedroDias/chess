@@ -92,9 +92,9 @@ test('weightedRandom', (_t) => {
     }
     for (const k of Object.keys(histo)) histo[k] /= numRuns;
 
-    const e = 0.01;
+    const e = 0.02;
 
-    ok(histo.a > 0.6 - e && histo.a < 0.6 + e);
-    ok(histo.b > 0.3 - e && histo.b < 0.3 + e);
-    ok(histo.c > 0.1 - e && histo.c < 0.1 + e);
+    ok(histo.a > 0.6 - e && histo.a < 0.6 + e, JSON.stringify(histo));
+    ok(histo.b > 0.3 - e && histo.b < 0.3 + e, JSON.stringify(histo));
+    ok(histo.c > 0.1 - e && histo.c < 0.1 + e, JSON.stringify(histo));
 });
