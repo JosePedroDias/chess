@@ -27,6 +27,7 @@ export function randomFromArr(arr) {
 }
 
 // array of [outcome, weight]
+// TODO FIX BUG!!!
 export function weightedRandom(arr) {
     const outcomeCuts = [];
     let accum = 0;
