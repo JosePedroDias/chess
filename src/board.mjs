@@ -1,17 +1,7 @@
-import { pc } from '../vendor/colorette.mjs';
-
 import { isWhitePiece,isBlackPiece, isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
-import { LIGHT, DARK, ALWAYS_FILLED } from "./unicode_pieces.mjs";
 import { moveFromString, moveToString } from './moves.mjs';
 
-const BG_IS_LIGHT = true;
-
-//const CHARS_WIDTH = 1;
 const CHARS_WIDTH = 2;
-//const CHARS_WIDTH = 3;
-
-//const UNICODE_PIECES = {};
-const UNICODE_PIECES = pc.hasColors ? ALWAYS_FILLED : BG_IS_LIGHT ? LIGHT : DARK;
 
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
@@ -24,29 +14,9 @@ export const EMPTY = ` `;
 export const NOTHING = `-`;
 const NL = '\n';
 
-const darkBgCell = (v) => pc.bgBlackBright(v);
-const lightBgCell = (v) => pc.bgBlueBright(v);
-
 const sizeCell = (p) => {
     return CHARS_WIDTH === 1 ? p :
            CHARS_WIDTH === 2 ? ` ${p}`: ` ${p} `;
-}
-
-const getUnicodePiece = (p, fn, isWhiteCell) => {
-    const isWhite = isWhitePiece(p);
-    if (UNICODE_PIECES[p]) {
-        p = UNICODE_PIECES[p];
-    }
-    p = sizeCell(p);
-    p = isWhite ? pc.whiteBright(p) : pc.black(p);
-
-    if (fn) {
-        p = fn(p, isWhiteCell);
-    } else {
-        p = isWhiteCell ? lightBgCell(p) : darkBgCell(p);
-    }
-    
-    return p;
 }
 
 export function otherSide(side) {
@@ -70,8 +40,6 @@ export class Board {
 
     _moves = [];
     _pastBoards = [];
-
-    _cellTransformations = new Array(64);
 
     static empty() {
         const b = new Board();
@@ -194,16 +162,6 @@ export class Board {
         this._cells[ POSITIONS_TO_INDICES.get(pos) ] = v;
     }
 
-    setTransformation(pos, fn) {
-        const idx = POSITIONS_TO_INDICES.get(pos);
-        this._cellTransformations[idx] = fn;
-    }
-
-    clearTransformation(pos) {
-        const idx = POSITIONS_TO_INDICES.get(pos);
-        this._cellTransformations[idx] = undefined;
-    }
-
     clone() {
         const b = new Board();
         b._cells = Array.from(this._cells);
@@ -256,39 +214,6 @@ export class Board {
             }
             lines.push(line.join(''));
         }
-        return lines.join(NL);
-    }
-
-    toPrettyString({ fromBlacks, details, fen } = { fromBlacks: false, details: false, fen: false }) {
-        const lines = [];
-        for (let yi = 0; yi < 8; ++yi) {
-            const line = [];
-            line.push(sizeCell(RANKS[fromBlacks ? 7 - yi : yi]));
-            for (let xi = 0; xi < 8; ++xi) {
-                const idx = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
-                let p = this._cells[idx];
-                const fn = this._cellTransformations[idx];
-                const isWhiteCell = ((xi + yi) % 2 === 0);
-                p = getUnicodePiece(p, fn, isWhiteCell);
-                line.push(p);
-            }
-            lines.push(line.join(''))
-        }
-
-        lines.push(sizeCell(' ') + (fromBlacks ? FILES.toReversed() : FILES).map(sizeCell).join(''));
-        
-        if (details) {
-            lines.push(`next: ${this._params.next}`);
-            lines.push(`en passant: ${this._params.enPassantPos }`);
-            lines.push(`castling: ${this._params.castling }`);
-            lines.push(`half: ${this._params.halfMoveClock }  move #: ${this._params.fullMoveNumber}`);
-            lines.push();
-        }
-
-        if (fen) {
-            lines.push(`fen: ${this.getFen()}`);
-        }
-
         return lines.join(NL);
     }
 

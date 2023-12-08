@@ -275,10 +275,22 @@ test('valid moves', (_t) => {
                 from: { pos: 'c7', piece: 'P', newPiece: 'Q' },
                 to: { pos: 'c8', piece: ' ' }
             },
+            {
+                from: { pos: 'c7', piece: 'P', newPiece: 'R' },
+                to: { pos: 'c8', piece: ' ' }
+            },
+            {
+                from: { pos: 'c7', piece: 'P', newPiece: 'B' },
+                to: { pos: 'c8', piece: ' ' }
+            },
+            {
+                from: { pos: 'c7', piece: 'P', newPiece: 'N' },
+                to: { pos: 'c8', piece: ' ' }
+            },
             { from: { pos: 'h1', piece: 'K' }, to: { pos: 'g2', piece: ' ' } },
             { from: { pos: 'h1', piece: 'K' }, to: { pos: 'h2', piece: ' ' } },
             { from: { pos: 'h1', piece: 'K' }, to: { pos: 'g1', piece: ' ' } }
-        ])
+        ]);
         //console.log(moves);
     }
 });

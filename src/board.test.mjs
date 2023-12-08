@@ -3,8 +3,6 @@ import { equal, deepEqual, notDeepEqual } from 'node:assert/strict';
 
 import { Board, WHITE, BLACK } from './board.mjs';
 
-const SKIP_THEMED = true;
-
 test('empty board', (_t) => {
     const b = Board.empty();
     equal(b.toString(),
@@ -144,36 +142,4 @@ test('applyMove', (_t) => {
         const b2 = b.applyMove('h8=Q');
         equal(b2.getFen(), `7Q/8/8/8/k7/8/8/7K b - - 1 1`);
     }
-});
-
-test('toPrettyString simplest', { skip: SKIP_THEMED }, (_t) => {
-    const b = Board.default();
-    equal(b.toPrettyString({}),
-` 8 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
- 7 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
- 6                
- 5                
- 4                
- 3                
- 2 ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎
- 1 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
-   a b c d e f g h`);
-});
-
-test('toPrettyString fromBlacks + details', { skip: SKIP_THEMED }, (_t) => {
-    const b = Board.default();
-    equal(b.toPrettyString({ fromBlacks: true, details: true }),
-` 1 ♜ ♞ ♝ ♚ ♛ ♝ ♞ ♜
- 2 ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎
- 3                
- 4                
- 5                
- 6                
- 7 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
- 8 ♖ ♘ ♗ ♔ ♕ ♗ ♘ ♖
-   h g f e d c b a
-next: white
-en passant: -
-castling: KQkq
-half: 0  move #: 1`);
 });
