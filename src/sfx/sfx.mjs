@@ -12,12 +12,12 @@ export async function initSfx() {
     ac = new AudioContext();
 
     const nameUrlMap = {
-        boardStart:        '/sfx/board-start.mp3',        // START/RESET
-        dragSlide:         '/sfx/drag-slide.mp3',         // CRAPPY (REGULAR MOVE)
-        move:              '/sfx/move.mp3',               // CAPTURE
-        notificationSound: '/sfx/notification-sound.mp3', // CHECK
-        wrongAnswer:       '/sfx/wrong-answer.mp3',       // CHECK?
-        fanfareTrumpets:   '/sfx/fanfare-trumpets.mp3',   // CHECK MATE
+        boardStart:        './sfx/board-start.mp3',        // START/RESET
+        dragSlide:         './sfx/drag-slide.mp3',         // CRAPPY (REGULAR MOVE)
+        move:              './sfx/move.mp3',               // CAPTURE
+        notificationSound: './sfx/notification-sound.mp3', // CHECK
+        wrongAnswer:       './sfx/wrong-answer.mp3',       // CHECK?
+        fanfareTrumpets:   './sfx/fanfare-trumpets.mp3',   // CHECK MATE
     };
 
     samples = {};

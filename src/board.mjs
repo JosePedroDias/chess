@@ -1,4 +1,4 @@
-import { isWhitePiece,isBlackPiece, isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
+import { isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
 import { moveFromString, moveToString } from './moves.mjs';
 
 const CHARS_WIDTH = 2;
@@ -21,10 +21,6 @@ const sizeCell = (p) => {
 
 export function otherSide(side) {
     return side === WHITE ? BLACK : WHITE;
-}
-
-export function isPieceOfSide(piece, side) {
-    return side === WHITE ? isWhitePiece(piece) : isBlackPiece(piece);
 }
 
 export class Board {

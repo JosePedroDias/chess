@@ -6,7 +6,7 @@
 const LOG = false;
 const SKILL_LEVEL = 20; // 1-20 ?
 
-const ENGINE_ROOT_PATH = `/vendor/stockfish-js-minimal`;
+const ENGINE_ROOT_PATH = `./vendor/stockfish-js-minimal`;
 const ENGINE_COMMON_PREFIX = `stockfish-nnue-16`;
 
 //const ENGINE_FLAVOR_SUFFIX = ``; // best, (needs: headers, simd, worker)

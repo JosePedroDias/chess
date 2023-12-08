@@ -15,6 +15,8 @@ let HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
 
+const moveIndices = new Array(2);
+
 function playAppropriateSound(move) {
     if      (move.includes('x')) playSample('move');
     else if (move.includes('+')) playSample('notificationSound');
