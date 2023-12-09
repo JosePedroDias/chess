@@ -5,31 +5,51 @@
             "type": "node",
             "runtimeVersion": "20.10.0",
             "request": "launch",
+            "name": "run move",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/move.mjs"
+        },
+        {
+            "type": "node",
+            "runtimeVersion": "20.10.0",
+            "request": "launch",
+            "name": "run move.test",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/move.test.mjs"
+        },
+        {
+            "type": "node",
+            "runtimeVersion": "20.10.0",
+            "request": "launch",
             "name": "run moves.test",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/moves.test.mjs"
+            "program": "${workspaceFolder}/src/moves.test.mjs"
         },
         {
             "type": "node",
             "runtimeVersion": "20.10.0",
             "request": "launch",
-            "name": "run bot",
+            "name": "run main-bot-uci",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/bot.mjs"
+            "program": "${workspaceFolder}src/main-bot-uci.mjs"
         },
         {
             "type": "node",
             "runtimeVersion": "20.10.0",
             "request": "launch",
-            "name": "run botWithoutUci",
+            "name": "run main-bot-repl",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/botWithoutUci.mjs"
+            "program": "${workspaceFolder}/src/main-bot-repl.mjs"
         }
     ]
 }

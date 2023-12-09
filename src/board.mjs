@@ -291,6 +291,7 @@ export class Board {
     getInvertedBoard() {
         const board = this.clone();
         board._params.next = otherSide(this._params.next);
+        board._moves.push(null); // TODO?
         return board;
     }
 }
