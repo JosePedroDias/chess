@@ -1,8 +1,17 @@
 import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
-import { Board, EMPTY, POSITIONS } from './board.mjs';
+import { Board, POSITIONS } from './board.mjs';
 import { moveToObject, moveToPgn, validMoves } from './move.mjs';
+import { randomFromArr } from './utils.mjs';
+import { KING_W, KING_B } from './pieces.mjs';
+import { setup, getValidMoves, terminate } from './stockfish-node-wrapper.mjs';
+
+const USE_SF = true;
+
+if (USE_SF) {
+    await setup(20);
+}
 
 test('moveToObject not capturing', (_t) => {
     _t.todo('B, R, Q, K, O-O, O-O-O');
@@ -29,127 +38,93 @@ test('moveToPgn capturing', (_t) => {
 });
 
 const printBoard = (b, moves, pos) => {
-    for (const move of moves) b.set(move.substring(2, 4), '*');
+    //for (const move of moves) b.set(move.substring(2, 4), '*');
     console.log(b.toString() + `\n+---------------+ ${pos}`);
 };
+
+const getValidBoardWithPiece = (isWhite, piece, pos) => {
+    let b = new Board();
+    if (!isWhite) b = b.getInvertedBoard();
+
+    const positions = new Set(POSITIONS);
+    positions.delete(pos);
+
+    // set white king if not adding it later
+    if (piece !== KING_W) {
+        const wKPos = randomFromArr(Array.from(positions));
+        b.set(wKPos, KING_W);
+        const wkMoves = validMoves(b, true);
+        for (const mv of wkMoves) positions.delete(mv.substring(2, 4));
+    }
+    
+    // set black king if not adding it later
+    if (piece !== KING_B) {
+        const bKPos = randomFromArr(Array.from(positions));
+        b.set(bKPos, KING_B);
+        const bkMoves = validMoves(b, false);
+        for (const mv of bkMoves) positions.delete(mv.substring(2, 4));
+    }
+
+    // set piece
+    b.set(pos, piece);
+
+    b._params.castling = '-';
+
+    return b;
+}
 
 const customPositions = (xs, ys) => {
     const positions = [];
     for (const x of xs.split('')) {
-        for (const y of ys.split('')) {
-            positions.push(`${x}${y}`);
-        }
+        for (const y of ys.split('')) positions.push(`${x}${y}`);
     }
     return positions;
 }
 
-test('validMoves P', (_t) => {
-    for (const pos of customPositions('abcdefgh', '2345678')) {
-        const b = new Board();
-        b.set(pos, 'P');
+const valid = async (piece, isWhite, xs, ys) => {
+    const iter = xs ? customPositions(xs, ys) : POSITIONS;
+    for (const pos of iter) {
+        const b = getValidBoardWithPiece(isWhite, piece, pos);
         const moves = validMoves(b);
-        printBoard(b, moves, pos);
+        moves.sort();
+        if (USE_SF) {
+            const movesSF = await getValidMoves(b.getFen());
+            movesSF.sort();
+            try {
+                deepEqual(moves, movesSF);
+                //console.log('OK', piece, pos);
+            } catch (err) {
+                printBoard(b, moves, pos);
+                console.log('NOK', piece, pos);
+                console.log(`moves:     ${moves.join(',')}`);
+                console.log(`moves sf:  ${movesSF.join(',')}`);
+                //throw err;
+            }
+        }
     }
-});
+}
 
-test('validMoves p', (_t) => {
-    for (const pos of customPositions('abcdefgh', '1234567')) {
-        const b = new Board();
-        b.set(pos, 'p');
-        const moves = validMoves(b, false);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves P', async (_t) => await valid('P', true, 'abcdefgh', '2345678'));
+test('validMoves p', async (_t) => await valid('p', false, 'abcdefgh', '1234567'));
 
-test('validMoves R', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'R');
-        const moves = validMoves(b);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves R', async (_t) => await valid('R', true));
+test('validMoves r', async (_t) => await valid('r', false));
 
-test('validMoves R', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'r');
-        const moves = validMoves(b, false);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves B', async (_t) => await valid('B', true));
+test('validMoves b', async (_t) => await valid('b', false));
 
-test('validMoves B', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'B');
-        const moves = validMoves(b);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves N', async (_t) => await valid('N', true));
+test('validMoves n', async (_t) => await valid('n', false));
 
-test('validMoves b', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'b');
-        const moves = validMoves(b, false);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves N', async (_t) => await valid('N', true));
+test('validMoves n', async (_t) => await valid('n', false));
 
-test('validMoves N', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'N');
-        const moves = validMoves(b);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves Q', async (_t) => await valid('Q', true));
+test('validMoves q', async (_t) => await valid('q', false));
 
-test('validMoves n', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'n');
-        const moves = validMoves(b, false);
-        printBoard(b, moves, pos);
-    }
-});
+test('validMoves K', async (_t) => await valid('K', true));
+test('validMoves k', async (_t) => await valid('k', false));
 
-test('validMoves Q', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'Q');
-        const moves = validMoves(b);
-        printBoard(b, moves, pos);
-    }
-});
-
-test('validMoves q', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'q');
-        const moves = validMoves(b, false);
-        printBoard(b, moves, pos);
-    }
-});
-
-test('validMoves K', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'K');
-        const moves = validMoves(b);
-        printBoard(b, moves, pos);
-    }
-});
-
-test('validMoves k', (_t) => {
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'k');
-        const moves = validMoves(b, false);
-        printBoard(b, moves, pos);
-    }
-});
 
 // TODO PAWN TAKES ARE FILTERED IF NO ENEMY THERE OR HAS BEEN THERE (EN PASSANT)
 
@@ -157,3 +132,7 @@ test('validMoves k', (_t) => {
 // TODO KING CASTLING NOK BECAUSE FLAGS
 // TODO KING CASTLING NOK BECAUSE NON EMPTY
 // TODO KING CASTLING NOK BECAUSE POSITION CHECKED
+
+test('last', (_t) => {
+    USE_SF && terminate();
+});

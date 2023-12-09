@@ -131,11 +131,20 @@ export async function getValidMoves(fenString, depth = 1) {
     const result = await _waitOn({
         stopCriteriaFn: (l) => l.includes('Nodes searched: '),
     });
-    const moves = {};
+    
+    /* const moves = {};
     for (const line of result.split('\n')) {
         if (!line) return moves;
         const [a, b] = line.split(': ');
         moves[a] = parseFloat(b);
+    }
+    return moves; */
+
+    const moves = [];
+    for (const line of result.split('\n')) {
+        if (!line) return moves;
+        const [a] = line.split(': ');
+        if (a !== 'readyok') moves.push(a);
     }
     return moves;
 }

@@ -10,13 +10,13 @@ await setup(20);
 test('getBoardFen', async (_t) => {
     const b = Board.default();
     const fen = b.getFen();
-    const fen2 = await getBoardFen(fen);
+    const fen2 = await getBoardFen();
     equal(fen2, fen);
 });
 
 test('getBoard', async (_t) => {
     const b = Board.default();
-    const { board, fen } = await getBoard(b.getFen());
+    const { board, fen } = await getBoard();
     equal(board, ` +---+---+---+---+---+---+---+---+
  | r | n | b | q | k | b | n | r | 8
  +---+---+---+---+---+---+---+---+
@@ -46,8 +46,7 @@ test('evalBoard', async (_t) => {
 
 test('getValidMoves', async (_t) => {
     const b = Board.default();
-    const vm = await getValidMoves(b.getFen());
-    const moves = Object.keys(vm);
+    const moves = await getValidMoves(b.getFen());
     moves.sort();
     deepEqual(moves, [
         'a2a3', 'a2a4', 'b1a3',
