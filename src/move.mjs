@@ -264,15 +264,3 @@ export function validMoves(board, isWhiteOverride) {
 
     return moves;
 }
-
-/* 
-import { Board, POSITIONS } from './board.mjs';
-{
-    for (const pos of POSITIONS) {
-        const b = new Board();
-        b.set(pos, 'R');
-        const moves = validMoves(b);
-        //for (const move of moves) b.set(move.substring(2, 4), '*'); console.log(b.toString() + `\n+---------------+ ${pos}`);
-    }
-}
- */

@@ -6,7 +6,10 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 It can now be divided into 3 parts:
 - the engine itself, in vanilla JS, supporting FEN/PGN I/O and basic UCI interface (`src/*.mjs`)
 - the browser playing UI, using SVG and Mithril (`src/ui/*.mjs`)
-- a wrapper over stockfish.js 16, used for evaluating the board and as correcting benchmark (`src/main-stockfish-wrapper.mjs` + `stockfish-host.js` (to host a compliant web server))
+- a wrapper over stockfish.js 16, used for evaluating the board and as correct behavior reference
+    - `src/stockfish-browser-wrapper.mjs`
+    - `src/stockfish-node-wrapper.mjs`
+    - `stockfish-host.js` (to host a compliant web server)
 
 # Reference
 

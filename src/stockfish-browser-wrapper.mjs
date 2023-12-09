@@ -4,7 +4,6 @@
 // https://github.com/nmrugg/stockfish.js/blob/master/example/enginegame.js
 
 const LOG = false;
-const SKILL_LEVEL = 20; // 1-20 ?
 
 const ENGINE_ROOT_PATH = `./vendor/stockfish-js-minimal`;
 const ENGINE_COMMON_PREFIX = `stockfish-nnue-16`;
@@ -58,12 +57,12 @@ function _waitReady() {
 
 /////
 
-function uciCmd(cmd) {
+export function uciCmd(cmd) {
     LOG && console.log(`>> '${cmd}'`);
     _engine.postMessage(cmd);
 }
 
-function setSkillLevel(skill) {
+export function setSkillLevel(skill) {
     uciCmd(`setoption name Skill Level value ${skill}`);
 
     return _waitReady();
@@ -76,7 +75,7 @@ function _setBoardViaFen(fenString) {
     //return `position startpos moves ${board._moves.join(' ')}`;
 }
 
-async function evalBoard(fenString) {
+export async function evalBoard(fenString) {
     uciCmd(_setBoardViaFen(fenString));
     await _waitReady();
     uciCmd('eval');
@@ -92,7 +91,7 @@ async function evalBoard(fenString) {
     return finalEval;
 }
 
-async function playBoard(fenString) {
+export async function playBoard(fenString) {
     uciCmd(_setBoardViaFen(fenString));
     await _waitReady();
     uciCmd('go movetime 1000');
@@ -105,7 +104,7 @@ async function playBoard(fenString) {
     return { bestMove, ponder };
 }
 
-async function getBoard() {
+export async function getBoard() {
     uciCmd('d');
     const result = await _waitOn({
         startCriteriaFn: (l) => l.includes(' +---+---+---+---+---+---+---+---+'),
@@ -117,7 +116,7 @@ async function getBoard() {
     return { board, fen };
 }
 
-async function getBoardFen() {
+export async function getBoardFen() {
     uciCmd('d');
     const line = await _waitOn({
         startCriteriaFn: (l) => l.includes('Fen: '),
@@ -125,7 +124,7 @@ async function getBoardFen() {
     return line.substring(5);
 }
 
-async function getValidMoves(fenString, depth = 1) {
+export async function getValidMoves(fenString, depth = 1) {
     uciCmd(_setBoardViaFen(fenString));
     await _waitReady();
     uciCmd(`go perft ${depth}`);
@@ -143,17 +142,6 @@ async function getValidMoves(fenString, depth = 1) {
 
 /////
 
-window.uciCmd = uciCmd;
-window.setSkillLevel = setSkillLevel;
-window.evalBoard = evalBoard;
-window.playBoard = playBoard;
-window.getBoard = getBoard;
-window.getBoardFen = getBoardFen;
-window.getValidMoves = getValidMoves;
-
-
-/////
-
 export function setup(skillLevel) {
     _engine = new Worker(`${ENGINE_ROOT_PATH}/${ENGINE_COMMON_PREFIX}${ENGINE_FLAVOR_SUFFIX}.js#${ENGINE_COMMON_PREFIX}${ENGINE_FLAVOR_SUFFIX}.wasm`);
 
@@ -166,5 +154,3 @@ export function setup(skillLevel) {
     setSkillLevel(skillLevel)
     .then(() => console.log(`skill level ${skillLevel} set`));
 }
-
-setup(SKILL_LEVEL);

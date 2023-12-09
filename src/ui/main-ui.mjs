@@ -9,11 +9,17 @@ import { moveFromString, isMoveStringCheck } from '../moves.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
+import { setup as setupStockfish, evalBoard } from '../stockfish-browser-wrapper.mjs';
+
 const BOT_VS_BOT = false;
 const HUMAN_VS_HUMAN = false;
 let HUMAN_SIDE = WHITE;
 const BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
+
+const USE_STOCKFISH = true;
+
+if (USE_STOCKFISH) setupStockfish(20);
 
 const moveIndices = new Array(2);
 
@@ -89,8 +95,8 @@ export function ui(
     window.undo = undo;
 
     const updateEval = async () => {
-        if (!('evalBoard' in window)) return; // only used if stockfish was set up
-        let ev = await window.evalBoard(board.getFen());
+        if (!USE_STOCKFISH) return;
+        let ev = await evalBoard(board.getFen());
 
         // instead of centered on white, centered on who's the human player
         if (isFinite(ev) && HUMAN_SIDE === BLACK) ev = -ev;
