@@ -1,5 +1,5 @@
-import { EMPTY, INDICES_TO_POSITIONS, POSITIONS_TO_INDICES } from './board.mjs';
-import { isWhitePiece, isBlackPiece, isKing, isQueen, isRook, isBishop, isKnight, isPawn, ROOK_W, ROOK_B } from './pieces.mjs';
+import { EMPTY, INDICES_TO_POSITIONS, POSITIONS_TO_INDICES, CASTLING_MOVES } from './board.mjs';
+import { isWhitePiece, isBlackPiece, isKing, isQueen, isRook, isBishop, isKnight, isPawn, ROOK_W, ROOK_B, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
 import { memoFactory } from './utils.mjs';
 
 export const CASTLE_QUEENSIDE = 'O-O-O';
@@ -7,8 +7,6 @@ export const CASTLE_KINGSIDE = 'O-O';
 export const CASTLE_MOVES = [CASTLE_QUEENSIDE, CASTLE_KINGSIDE];
 
 const START_KING_POSITIONS = ['e1', 'e8'];
-
-const CASTLING_MOVES = ['e1g1', 'e1c1', 'e8g8', 'e8c8'];
 
 // 'a1' => [0, 7]
 function posToXY(pos) {
@@ -104,7 +102,7 @@ function _knightMoves(pos) {
 function _pawnMoves(pos, isWhite) {
     const [x, y] = posToXY(pos);
     const dy = isWhite ? -1 : 1;
-    const moves = [
+    let moves = [
         [x,   y+dy],
         [x-1, y+dy],
         [x+1, y+dy],
@@ -115,7 +113,17 @@ function _pawnMoves(pos, isWhite) {
         (isWhite && posRank === '2'))
         moves.push([x, y+2*dy]);
 
-    return moves.filter(isXYValid).map(posFromXY);
+    moves = moves.filter(isXYValid).map(posFromXY);
+
+    // promotions
+    const lastRank = isWhite ? '8' : '1';
+    return moves.reduce((prevMoves, mv) => {
+        if (mv[3] === lastRank) {
+            return [...prevMoves, `${mv}q`, `${mv}r`, `${mv}b`, `${mv}n`];
+        } else {
+            return [...prevMoves, mv];
+        }
+    }, []);
 }
 
 function _kingMoves(pos) {
@@ -131,6 +139,7 @@ function _kingMoves(pos) {
         [x+1, y+1],
     ].filter(isXYValid).map(posFromXY);
 
+    // add potential castling moves (will be filtered out according to board on validMoves)
     if (START_KING_POSITIONS.includes(pos)) {
         const posRank = pos[1];
         moves.push(`c${posRank}`);
@@ -183,12 +192,11 @@ const rookMoves   = memoFactory(_rookMoves,   rm);
 const bishopMoves = memoFactory(_bishopMoves, bm);
 const knightMoves = memoFactory(_knightMoves, nm);
 
-export function validMoves(board, isWhiteOverride) {
+export function validMoves(board, isWhiteOverride, skipCheckTests) {
     let moves = [];
     const isWhite = isWhiteOverride !== undefined ? isWhiteOverride : board.isWhiteNext();
     const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
     const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
-    //const positionsToCheckForThreats = [];
 
     for (const [from, piece] of board.cellsHaving(isMyPiece)) {
         let movesArr;
@@ -197,7 +205,7 @@ export function validMoves(board, isWhiteOverride) {
             movesArr = movesArr.filter((to) => {
                 const isCaptureMove = from[0] !== to[0];
                 if (!isCaptureMove) return true;
-                return isOpponentPiece(board.get(to)) || board._params.enPassantPos === to;
+                return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
             });
         } else if (isRook(piece)) {
             movesArr = rookMoves(from);
@@ -214,15 +222,22 @@ export function validMoves(board, isWhiteOverride) {
                 if (!CASTLING_MOVES.includes(move)) return true;
                 let mustBeEmpty, mustBeRook;
                 switch (move) {
-                    case 'e1g1': mustBeEmpty = ['f1', 'g1'];       mustBeRook = 'h1'; break;
-                    case 'e1c1': mustBeEmpty = ['d1', 'c1', 'b1']; mustBeRook = 'a1'; break;
-                    case 'e8g8': mustBeEmpty = ['f8', 'g8'];       mustBeRook = 'h8'; break;
-                    case 'e8c8': mustBeEmpty = ['d8', 'c8', 'b8']; mustBeRook = 'a8'; ;break;
+                    case 'e1g1':
+                        if (!board.hasCastlingFlag(KING_W)) return false;
+                        mustBeEmpty = ['f1', 'g1'];       mustBeRook = 'h1'; break;
+                    case 'e1c1':
+                        if (!board.hasCastlingFlag(QUEEN_W)) return false;
+                        mustBeEmpty = ['d1', 'c1', 'b1']; mustBeRook = 'a1'; break;
+                    case 'e8g8':
+                        if (!board.hasCastlingFlag(KING_B)) return false;
+                        mustBeEmpty = ['f8', 'g8'];       mustBeRook = 'h8'; break;
+                    case 'e8c8':
+                        if (!board.hasCastlingFlag(QUEEN_B)) return false;
+                        mustBeEmpty = ['d8', 'c8', 'b8']; mustBeRook = 'a8'; ;break;
                     default: throw new Error('should not happen');
                 }
                 if (!mustBeEmpty.every((pos) => board.get(pos) === EMPTY)) return false;
                 if (board.get(mustBeRook) !== (isWhite ? ROOK_W : ROOK_B)) return false;
-                // TODO: check king is not threatened? threatenedPositions
                 return true;
             });
         } else {
@@ -252,14 +267,23 @@ export function validMoves(board, isWhiteOverride) {
             movesArr.filter((to) => {
                 const v = board.get(to);
                 // w/ en passant
-                return (!isMyPiece(v) || isPawn_ && board._params.enPassantPos === to);
+                return (!isMyPiece(v) || isPawn_ && board._params.enPassant === to);
             });
         }
 
         movesArr = movesArr.map((to) => `${from}${to}`)
         moves = [...moves, ...movesArr];
 
-        // TODO check if king is in check after move
+        // check if king is in check after move
+        if (!skipCheckTests) {
+            const criteria = (v) => v === isWhite ? KING_W : KING_B;
+            moves.filter((mv) => {
+                const board2 = board.applyMove(mv);
+                const myKingPos = board2.find(criteria)[1];
+                return validMoves(board2, !isWhite, true)
+                    .every((mv) => myKingPos !== mv.substring(2, 4));
+            });
+        }
     }
 
     return moves;

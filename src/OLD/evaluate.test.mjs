@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
-import { Board } from './board.mjs';
+import { Board } from '../board.mjs';
 import { isBoardChecked } from './moves.mjs';
 import { material, electNextMove, validMoves2 } from './evaluate.mjs';
 

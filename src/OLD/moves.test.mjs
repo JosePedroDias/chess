@@ -1,8 +1,8 @@
 import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
-import { Board, EMPTY } from './board.mjs';
-import { flatten1Level } from './utils.mjs';
+import { Board, EMPTY } from '../board.mjs';
+import { flatten1Level } from '../utils.mjs';
 import {
     KING_W,
     QUEEN_W,
@@ -13,7 +13,7 @@ import {
     PAWN_B,
     PAWN_W,
     KING_B,
-} from './pieces.mjs';
+} from '../pieces.mjs';
 import {
     bishopMoves,
     kingMoves,

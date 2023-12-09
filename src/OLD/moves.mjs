@@ -4,7 +4,7 @@ import {
     INDICES_TO_POSITIONS,
     EMPTY,
     isValidPosition,
-} from './board.mjs';
+} from '../board.mjs';
 import {
     KING_W, KING_B,
     QUEEN_W, QUEEN_B,
@@ -14,8 +14,8 @@ import {
     PAWN_W, PAWN_B,
     isPiece, isWhitePiece, isBlackPiece,
     isKing, isQueen, isRook, isBishop, isKnight, isPawn,
-} from './pieces.mjs';
-import { intersection, subtraction } from './utils.mjs';
+} from '../pieces.mjs';
+import { intersection, subtraction } from '../utils.mjs';
 
 const CASTLE_QUEENSIDE = 'O-O-O';
 const CASTLE_KINGSIDE = 'O-O';

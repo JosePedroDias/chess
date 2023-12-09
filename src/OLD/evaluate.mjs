@@ -1,6 +1,6 @@
 import { isBoardChecked, isMoveStringCheck, isMoveStringCapture, moveToString, validMoves, isMoveStringPromotion } from './moves.mjs';
-import { isWhitePiece } from './pieces.mjs';
-import { randomFromArr, weightedRandom } from './utils.mjs';
+import { isWhitePiece } from '../pieces.mjs';
+import { randomFromArr, weightedRandom } from '../utils.mjs';
 
 const values = {
     'q': 9,

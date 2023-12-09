@@ -68,7 +68,7 @@ const getValidBoardWithPiece = (isWhite, piece, pos) => {
     // set piece
     b.set(pos, piece);
 
-    b._params.castling = '-';
+    b._params.castling = new Set();
 
     return b;
 }
@@ -98,7 +98,7 @@ const valid = async (piece, isWhite, xs, ys) => {
                 console.log('NOK', piece, pos);
                 console.log(`moves:     ${moves.join(',')}`);
                 console.log(`moves sf:  ${movesSF.join(',')}`);
-                //throw err;
+                throw err;
             }
         }
     }

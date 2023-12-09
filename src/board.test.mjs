@@ -15,8 +15,8 @@ test('empty board', (_t) => {
                 
                 `);
     equal(b._params.next, WHITE);
-    deepEqual(b._params.castling.split('').toSorted(), 'KQkq'.split(''));
-    equal(b._params.enPassantPos, '-');
+    deepEqual(b._params.castling, new Set(['K', 'Q', 'k', 'q']));
+    equal(b._params.enPassant, '-');
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
 });
@@ -33,8 +33,8 @@ test('default board', (_t) => {
  P P P P P P P P
  R N B Q K B N R`);
     equal(b._params.next, WHITE);
-    deepEqual(b._params.castling.split('').toSorted(), 'KQkq'.split(''));
-    equal(b._params.enPassantPos, '-');
+    deepEqual(b._params.castling, new Set(['K', 'Q', 'k', 'q']));
+    equal(b._params.enPassant, '-');
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
 });
@@ -52,8 +52,8 @@ test('setFen', (_t) => {
  P   P   K      
  q           b  `);
     equal(b._params.next, BLACK);
-    deepEqual(b._params.castling.split('').toSorted(), 'Kq'.split(''));
-    equal(b._params.enPassantPos, 'h2');
+    deepEqual(b._params.castling, new Set(['K', 'q']));
+    equal(b._params.enPassant, 'h2');
     equal(b._params.halfMoveClock, 1);
     equal(b._params.fullMoveNumber, 6);
 });

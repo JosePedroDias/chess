@@ -1,5 +1,4 @@
-import { isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from "./pieces.mjs";
-import { moveFromString, moveToString } from './moves.mjs';
+import { isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
 
 const CHARS_WIDTH = 2;
 
@@ -13,6 +12,10 @@ export const BLACK = 'black';
 export const EMPTY = ` `;
 export const NOTHING = `-`;
 const NL = '\n';
+
+export const QUEEN_SIDE_CASTLING_MOVES = ['e1c1', 'e8c8'];
+export const KING_SIDE_CASTLING_MOVES  = ['e1g1', 'e8g8'];
+export const CASTLING_MOVES = [...QUEEN_SIDE_CASTLING_MOVES, ...KING_SIDE_CASTLING_MOVES];
 
 const sizeCell = (p) => {
     return CHARS_WIDTH === 1 ? p :
@@ -28,8 +31,8 @@ export class Board {
 
     _params = {
         next: WHITE, // next to move
-        castling: 'QKqk', // whether white can castle queen and king-side (caps), same for black (lowers). otherwise -
-        enPassantPos: NOTHING, // if the last move was a pawn move 2 cells forward, the intermediate position should be set here, otherwise - is returned
+        castling: new Set([KING_W, QUEEN_W, KING_B, QUEEN_B]),
+        enPassant: undefined, // if the last move was a pawn move 2 cells forward, the intermediate position should be set here, otherwise - is returned
         halfMoveClock: 0, // whether white has played last (0, 1, 0, 1...)
         fullMoveNumber: 1, // full move number (a move is comprised of 1 white move + 1 black move, therefore 1, 1, 2, 2...)
     }
@@ -83,12 +86,16 @@ export class Board {
             if (empties) rank.push(empties);
             ranks.push(rank.join(''));
         }
+        const board = ranks.join('/');
+
         const p = this._params;
-        return `${ranks.join('/')} ${p.next === WHITE ? 'w' : 'b'} ${p.castling || NOTHING} ${p.enPassantPos} ${p.halfMoveClock} ${p.fullMoveNumber}`;
+        const next = p.next === WHITE ? 'w' : 'b';
+        const castling = Array.from(p.castling).join('') || NOTHING;
+        return `${board} ${next} ${castling} ${p.enPassant || NOTHING} ${p.halfMoveClock} ${p.fullMoveNumber}`;
     }
 
     setFen(fen) {
-        let [board, next, castling, enPassantPos, halfMoveClock, fullMoveNumber] = fen.split(' ');
+        let [board, next, castling, enPassant, halfMoveClock, fullMoveNumber] = fen.split(' ');
         const ranks = board.split('/');
         for (const [y, rank] of ranks.entries()) {
             let x = 0;
@@ -107,13 +114,16 @@ export class Board {
             if (x !== 8) throw new Error(`fen board rank ${y} does not sum up to 8 cells!`);
         }
 
-        if (castling !== '-' && !castling.split('').every((ch) => ['k', 'K', 'q', 'Q'].includes(ch))) {
-            throw new Error(`incorrect castling string: "${castling}`);
+        if (castling === NOTHING) {
+            castling = new Set();
+        } else {
+            castling = new Set(castling.split(''));
         }
 
-        if (enPassantPos !== '-' && !POSITIONS.has(enPassantPos)) {
-            throw new Error(`incorrect enPassantPos string: "${enPassantPos}`);
+        if (enPassant !== NOTHING && !POSITIONS.has(enPassant)) {
+            throw new Error(`incorrect enPassant string: "${enPassant}`);
         }
+        if (enPassant === NOTHING) enPassant = undefined;
 
         next = next === 'w' ? WHITE : BLACK;
         this._params.next = next; // to prevent mistakes later in this fn
@@ -132,7 +142,7 @@ export class Board {
         this._params = {
             next,
             castling,
-            enPassantPos,
+            enPassant,
             halfMoveClock,
             fullMoveNumber,
         };
@@ -160,10 +170,20 @@ export class Board {
 
     clone() {
         const b = new Board();
-        b._cells = Array.from(this._cells);
-        b._params = structuredClone(this._params);
-        b._moves = Array.from(this._moves);
+
+        b._cells      = Array.from(this._cells);
+        b._moves      = Array.from(this._moves);
         b._pastBoards = Array.from(this._pastBoards);
+
+        const p = this._params;
+        b._params = {
+            next:           p.next,
+            castling:       new Set(p.castling),
+            enPassant:      p.enPassant,
+            halfMoveClock:  p.halfMoveClock,
+            fullMoveNumber: p.fullMoveNumber,
+        };
+
         return b;
     }
 
@@ -199,6 +219,14 @@ export class Board {
         }
     }
 
+    find(criteria = () => true) {
+        for (const i = 0; i < 64; ++i) {
+            const pos = INDICES_TO_POSITIONS.get(i);
+            const v = this._cells[i];
+            if (criteria(v, pos)) return [v, pos];
+        }
+    }
+
     toString(fromBlacks) {
         const lines = [];
         for (let yi = 0; yi < 8; ++yi) {
@@ -213,56 +241,67 @@ export class Board {
         return lines.join(NL);
     }
 
-    applyMove(move) {
-        const isSideWhite = this.isWhiteNext();
-        
-        let moveO, moveS;
-        if (typeof move === 'string') {
-            moveO = moveFromString(move, this);
-            moveS = move;
-        } else {
-            moveO = move;
-            moveS = moveToString(move);
-        }
+    hasCastlingFlag(flag) {
+        return this._params.castling.has(flag);
+    }
 
+    unsetCastlingFlags(flagsToFilter) {
+        for (const flag of flagsToFilter) this._params.castling.delete(flag);
+    }
+
+    applyMove(mv) {
+        const isWhite = this.isWhiteNext();
+
+        const from = mv.substring(0, 2);
+        const to = mv.substring(2, 4);
+        const piece = this.get(from);
+        let promPiece = mv[5];
+        if (promPiece && isWhite) promPiece = promPiece.toUpperCase();
         const b = this.clone();
+        b.set(from, EMPTY);
+        b.set(to, promPiece || piece);
+        b._moves.push(mv);
 
-        b._moves.push(moveS);
-
-        const movesSteps = moveO instanceof Array ? moveO : [moveO];
-        for (const moveStep of movesSteps) {
-            const { from, to } = moveStep;
-            const piece = from.piece;
-            if (isPawn(piece)) { // set en passant flag
-                const y0 = parseInt(from.pos[1], 10);
-                const y1 = parseInt(to.pos[1], 10);
-                if (Math.abs(y1 - y0) === 2) {
-                    b._params.enPassantPos = from.pos[0] + ((y0 + y1)/2);
-                } else {
-                    b._params.enPassantPos = NOTHING;
-                }
-            } else if (isKing(piece)) { // set castling flag
-                const toFilter = isSideWhite ? [QUEEN_W, KING_W] : [QUEEN_B, KING_B];
-                b._params.castling = b._params.castling.split('').filter((p) => !toFilter.includes(p)).join('');
-            } else if (isRook(piece)) {
-                const relevantPositions = isSideWhite ? ['a1', 'h1'] : ['a8', 'h8'];
-                const toFilter = isSideWhite ? [QUEEN_W, KING_W] : [QUEEN_B, KING_B];
-                const indexOfPiece = relevantPositions.indexOf(from.pos);
-                if (indexOfPiece !== -1) {
-                    const toFilter2 = toFilter[indexOfPiece];
-                    b._params.castling = b._params.castling.split('').filter((p) => p !== toFilter2).join('');
-                }
+        if (isPawn(piece)) { // set en passant flag
+            const y0 = parseInt(from[1], 10);
+            const y1 = parseInt(to[1], 10);
+            if (Math.abs(y1 - y0) === 2) {
+                b._params.enPassant = from[0] + ((y0 + y1)/2);
+            } else {
+                b._params.enPassant = NOTHING;
             }
-            b.set(from.pos, EMPTY);
-            b.set(to.pos, from.newPiece || from.piece);
+        } else if (isKing(piece)) {
+            if (CASTLING_MOVES.includes(mv)) {
+                let from2, to2;
+                if (QUEEN_SIDE_CASTLING_MOVES.includes(mv) && b.hasCastlingFlag(isWhite ? QUEEN_W : QUEEN_B)) {
+                    from2 = isWhite ? 'a1' : 'a8';
+                    to2   = isWhite ? 'd1' : 'd8';
+                } else if (KING_SIDE_CASTLING_MOVES.includes(mv) && b.hasCastlingFlag(isWhite ? KING_W : KING_B)) {
+                    from2 = isWhite ? 'h1' : 'h8';
+                    to2   = isWhite ? 'f1' : 'f8';
+                } else {
+                    throw new Error('Unexpected');
+                }
+                b.set(to2, b.get(from2));
+                b.set(from2, EMPTY);
+            }
+            b.unsetCastlingFlags(isWhite ? [QUEEN_W, KING_W] : [QUEEN_B, KING_B]); // unset castling flag
+        } else if (isRook(piece)) {
+            const relevantPositions = isWhite ? ['a1', 'h1'] : ['a8', 'h8'];
+            const toFilter = isWhite ? [QUEEN_W, KING_W] : [QUEEN_B, KING_B];
+            const indexOfPiece = relevantPositions.indexOf(from);
+            if (indexOfPiece !== -1) { // unset castling flag
+                const toFilter2 = toFilter[indexOfPiece];
+                b.unsetCastlingFlags([toFilter2]);
+            }
         }
+        b.set(from.pos, EMPTY);
+        b.set(to.pos, from.newPiece || from.piece);
 
-        // increment move stats
         b._params.next = otherSide(b._params.next);
         const isEvenMove = b._moves.length % 2 === 0;
         if (isEvenMove) ++b._params.fullMoveNumber;
         b._params.halfMoveClock = isEvenMove ? 0 : 1;
-
         b._pastBoards.push(this);
 
         return b;
