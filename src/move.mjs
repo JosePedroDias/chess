@@ -278,6 +278,7 @@ export function validMoves(board, isWhiteOverride, skipCheckTests) {
         if (!skipCheckTests) {
             const criteria = (v) => v === isWhite ? KING_W : KING_B;
             moves.filter((mv) => {
+                // only keep moves where no enemy piece can target our king
                 const board2 = board.applyMove(mv);
                 const myKingPos = board2.find(criteria)[1];
                 return validMoves(board2, !isWhite, true)

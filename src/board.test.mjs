@@ -16,7 +16,7 @@ test('empty board', (_t) => {
                 `);
     equal(b._params.next, WHITE);
     deepEqual(b._params.castling, new Set(['K', 'Q', 'k', 'q']));
-    equal(b._params.enPassant, '-');
+    equal(b._params.enPassant, undefined);
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
 });
@@ -34,7 +34,7 @@ test('default board', (_t) => {
  R N B Q K B N R`);
     equal(b._params.next, WHITE);
     deepEqual(b._params.castling, new Set(['K', 'Q', 'k', 'q']));
-    equal(b._params.enPassant, '-');
+    equal(b._params.enPassant, undefined);
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
 });
@@ -127,19 +127,25 @@ test('applyMove', (_t) => {
     {
         // regular king move
         const b = Board.fromFen(`k7/8/8/8/8/8/8/7K w - - 0 1`);
-        const b2 = b.applyMove('Kh1g1');
+        const b2 = b.applyMove('h1g1');
         equal(b2.getFen(), `k7/8/8/8/8/8/8/6K1 b - - 1 1`);
     }
     {
         // regular pawn move
         const b = Board.fromFen(`k7/8/7P/8/8/8/8/7K w - - 0 1`);
-        const b2 = b.applyMove('h7');
+        const b2 = b.applyMove('h6h7');
         equal(b2.getFen(), `k7/7P/8/8/8/8/8/7K b - - 1 1`);
     }
     {
         // pawn move with promotion
         const b = Board.fromFen(`8/7P/8/8/k7/8/8/7K w - - 0 1`);
-        const b2 = b.applyMove('h8=Q');
+        const b2 = b.applyMove('h7h8q');
         equal(b2.getFen(), `7Q/8/8/8/k7/8/8/7K b - - 1 1`);
+    }
+    {
+        // castling move
+        const b = Board.fromFen(`rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQK2R w KQkq - 0 1`);
+        const b2 = b.applyMove('e1g1');
+        equal(b2.getFen(), `rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQ1RK1 b kq - 1 1`);
     }
 });

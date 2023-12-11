@@ -255,7 +255,7 @@ export class Board {
         const from = mv.substring(0, 2);
         const to = mv.substring(2, 4);
         const piece = this.get(from);
-        let promPiece = mv[5];
+        let promPiece = mv[4];
         if (promPiece && isWhite) promPiece = promPiece.toUpperCase();
         const b = this.clone();
         b.set(from, EMPTY);
