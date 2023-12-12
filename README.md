@@ -84,6 +84,7 @@ It can now be divided into 3 parts:
 - https://github.com/official-stockfish/Stockfish/wiki/UCI-%26-Commands
 - https://chesstempo.com/pgn-viewer/
 - https://lichess.org/paste
+- https://en.wikipedia.org/wiki/Draw_(chess)
 
 # TODO
 

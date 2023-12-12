@@ -34,7 +34,7 @@ export class Board {
         next: WHITE, // next to move
         castling: new Set([KING_W, QUEEN_W, KING_B, QUEEN_B]),
         enPassant: undefined, // if the last move was a pawn move 2 cells forward, the intermediate position should be set here, otherwise - is returned
-        halfMoveClock: 0, // whether white has played last (0, 1, 0, 1...)
+        halfMoveClock: 0, // how many half-moves ago pawn or captures took place (to enforce the 50 move rule)
         fullMoveNumber: 1, // full move number (a move is comprised of 1 white move + 1 black move, therefore 1, 1, 2, 2...)
     }
 
@@ -130,11 +130,9 @@ export class Board {
         this._params.next = next; // to prevent mistakes later in this fn
 
         halfMoveClock = parseInt(halfMoveClock, 10);
-        if (isNaN(halfMoveClock)) throw new Error('Incorrect halfMoveClock!');
-        if (next === WHITE && halfMoveClock !== 0) throw new Error('Incorrect halfMoveClock!');
-        if (next === BLACK && halfMoveClock !== 1) throw new Error('Incorrect halfMoveClock!');
+        if (isNaN(halfMoveClock || halfMoveClock < 0)) throw new Error('Incorrect halfMoveClock!');
         fullMoveNumber = parseInt(fullMoveNumber, 10);
-        if (isNaN(fullMoveNumber)) throw new Error('Incorrect fullMoveNumber!');
+        if (isNaN(fullMoveNumber) || fullMoveNumber < 1) throw new Error('Incorrect fullMoveNumber!');
 
         if (!this.isWhiteNext()) {
             this._moves.push(undefined); // to even out move % 2 even if undefined is pushed
@@ -265,12 +263,22 @@ export class Board {
         const piece = this.get(from);
         let promPiece = mv[4];
         if (promPiece && isWhite) promPiece = promPiece.toUpperCase();
+        
         const b = this.clone();
+
+        let isHMCReset = false;
+
+        const isCapture = this.get(to) !== EMPTY;
+        if (isCapture) isHMCReset = true;
+
         b.set(from, EMPTY);
         b.set(to, promPiece || piece);
         b._moves.push(mv);
 
-        if (isPawn(piece)) { // set en passant flag
+        if (isPawn(piece)) {
+            isHMCReset = true;
+
+            // set en passant flag
             const y0 = parseInt(from[1], 10);
             const y1 = parseInt(to[1], 10);
             if (Math.abs(y1 - y0) === 2) {
@@ -309,7 +317,9 @@ export class Board {
         b._params.next = otherSide(b._params.next);
         const isEvenMove = b._moves.length % 2 === 0;
         if (isEvenMove) ++b._params.fullMoveNumber;
-        b._params.halfMoveClock = isEvenMove ? 0 : 1;
+
+        b._params.halfMoveClock = isHMCReset ? 0 : this._params.halfMoveClock + 1;
+
         b._pastBoards.push(this);
 
         return b;

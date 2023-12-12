@@ -9,8 +9,10 @@ export const PIECE_VALUE = {
     'p': 1,
 };
 
-export const CHECKMATE = 'checkmate';
-export const STALEMATE = 'stalemate';
+export const CHECKMATE      = 'checkmate';
+export const DRAW_STALEMATE = 'draw: stalemate';
+export const DRAW_3FOLD     = 'draw: threefold repetition';
+export const DRAW_50MOVE    = 'draw: 50 moves wo/ captures or pawn moves';
 
 export function getPieceMaterial(piece) {
     return PIECE_VALUE[piece.toLowerCase()] || 0;
@@ -28,16 +30,30 @@ export function getBoardMaterial(board, isWhite) {
     return mat;
 }
 
+export function isTie(board) {
+    // threefold repetition
+    if (board._moves.length >= 6) {
+        const moves = Array.from(board._moves);
+        const a = [moves.pop(), moves.pop()].join('_');
+        const b = [moves.pop(), moves.pop()].join('_');
+        const c = [moves.pop(), moves.pop()].join('_');
+        if (a === b === c) return DRAW_3FOLD;
+    }
+
+    // fifty move rule
+    if (board._params.halfMoveClock === 100) return DRAW_50MOVE;
+}
+
 export function evaluate(board) {
     const isWhite = board.isWhiteNext();
     const moves = validMoves(board);
 
     const amIBeingChecked = isChecking(board, !isWhite);
 
-    if (moves.length === 0) throw (amIBeingChecked ? CHECKMATE : STALEMATE);
+    if (moves.length === 0) throw (amIBeingChecked ? CHECKMATE : DRAW_STALEMATE);
 
-    // TODO is repetition
-    // TODO is material poor enough for draw?
+    const drawReason = isTie(board);
+    if (drawReason) throw drawReason;
 
     const startMaterial = getBoardMaterial(board, isWhite);
 
