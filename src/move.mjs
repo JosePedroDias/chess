@@ -49,13 +49,13 @@ export function moveFromPgn(pgnMove, board) {
   
   schema:
     {
-        from:     [a-h][1-8]
-        to        [a-h][1-8]
-        piece     [PNBRQK]
-        from2?    [a-h][1-8]
-        to2?      [a-h][1-8]
-        //piece2? R
-        isCapture boolean
+        from:        [a-h][1-8]
+        to           [a-h][1-8]
+        piece        [PNBRQK]
+        from2?       [a-h][1-8]
+        to2?         [a-h][1-8]
+        isCapture    boolean
+        promoPiece?: [a-h][1-8]
     }
 */
 export function moveToObject(move, board) {
@@ -83,7 +83,7 @@ export function moveToObject(move, board) {
 export function moveToPgn(move, board) {
     const o = moveToObject(move, board);
     if (o.from2) return o.to[0] === 'g' ? CASTLE_KINGSIDE : CASTLE_QUEENSIDE;
-    if (o.piece === 'P') return o.isCapture ? 'x' + o.to : o.to;
+    if (o.piece === 'P') return o.isCapture ? `${o.from[0]}x${o.to}` : o.to;
     //const check = isChecking(board)
     return `${o.piece}${o.from}${o.isCapture ? 'x' : ''}${o.to}`;
 }
