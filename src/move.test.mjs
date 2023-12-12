@@ -2,7 +2,7 @@ import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
 import { Board, POSITIONS } from './board.mjs';
-import { moveToObject, moveToPgn, validMoves } from './move.mjs';
+import { isChecking, isCapture, moveToObject, moveToPgn, validMoves } from './move.mjs';
 import { randomFromArr } from './utils.mjs';
 import { KING_W, KING_B } from './pieces.mjs';
 import { setup, getValidMoves, terminate } from './stockfish-node-wrapper.mjs';
@@ -125,6 +125,28 @@ test('validMoves q', async (_t) => await valid('q', false));
 test('validMoves K', async (_t) => await valid('K', true));
 test('validMoves k', async (_t) => await valid('k', false));
 
+test('king moves without getting checked', (_t) => {
+    const b = Board.fromFen(`8/8/1k6/4b3/8/3K4/r7/8 w - - 0 1`);
+    const moves = validMoves(b, true);
+    deepEqual(moves, ['d3c4', 'd3e4', 'd3e3']);
+});
+
+test('isChecking', (_t) => {
+    {
+        const b = Board.fromFen(`8/4k3/8/8/8/5R2/8/1K6 w - - 0 1`);
+        equal(isChecking(b, true), false);
+    }
+    {
+        const b = Board.fromFen(`8/4k3/8/8/8/4R3/8/1K6 w - - 0 1`);
+        equal(isChecking(b, true), true);
+    }
+});
+
+test('isCapture', (_t) => {
+    const b = Board.fromFen(`8/8/1k6/4b3/8/3K1N2/r7/8 w - - 0 1`);
+    equal(isCapture(b, 'f3e5'), true);
+    equal(isCapture(b, 'f5g5'), false);
+});
 
 // TODO PAWN TAKES ARE FILTERED IF NO ENEMY THERE OR HAS BEEN THERE (EN PASSANT)
 

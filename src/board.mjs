@@ -219,11 +219,11 @@ export class Board {
         }
     }
 
-    find(criteria = () => true) {
-        for (const i = 0; i < 64; ++i) {
+    findPos(criteria) {
+        for (let i = 0; i < 64; ++i) {
             const pos = INDICES_TO_POSITIONS.get(i);
             const v = this._cells[i];
-            if (criteria(v, pos)) return [v, pos];
+            if (criteria(v)) return pos;
         }
     }
 

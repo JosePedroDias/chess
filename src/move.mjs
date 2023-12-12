@@ -273,19 +273,87 @@ export function validMoves(board, isWhiteOverride, skipCheckTests) {
 
         movesArr = movesArr.map((to) => `${from}${to}`)
         moves = [...moves, ...movesArr];
+    }
 
-        // check if king is in check after move
-        if (!skipCheckTests) {
-            const criteria = (v) => v === isWhite ? KING_W : KING_B;
-            moves.filter((mv) => {
-                // only keep moves where no enemy piece can target our king
-                const board2 = board.applyMove(mv);
-                const myKingPos = board2.find(criteria)[1];
-                return validMoves(board2, !isWhite, true)
-                    .every((mv) => myKingPos !== mv.substring(2, 4));
-            });
-        }
+    // check if king is in check after move
+    if (!skipCheckTests) {
+        moves = moves.filter((mv) => {
+            const board2 = board.applyMove(mv);
+            const checked = isChecking(board2, !isWhite);
+            //if (checked) console.log(`dropping ${mv}`)
+            return !checked;
+        });
     }
 
     return moves;
+}
+
+// check = at least one of my pieces can see the opposite king
+export function isChecking(board, isWhite) {
+    const isOpponentKing = (v) => v === (isWhite ? KING_B : KING_W);
+    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
+    const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
+    const opponentKingPos = board.findPos(isOpponentKing);
+
+    for (const [from, piece] of board.cellsHaving(isMyPiece)) {
+        let movesArr;
+
+        if (isPawn(piece)) {
+            movesArr = pawnMoves(from, isWhite);
+            movesArr = movesArr.filter((to) => {
+                const isCaptureMove = from[0] !== to[0];
+                if (!isCaptureMove) return true;
+                return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
+            });
+        } else if (isKnight(piece)) {
+            movesArr = knightMoves(from);
+        } else if (isBishop(piece)) {
+            movesArr = bishopMoves(from);
+        } else if (isRook(piece)) {
+            movesArr = rookMoves(from);
+        } else if (isQueen(piece)) {
+            movesArr = queenMoves(from);
+        } else if (isKing(piece)) {
+            movesArr = kingMoves(from);
+        }
+
+        // apply direction arrays to board (for Q, R, B)
+        if (movesArr[0] && movesArr[0] instanceof Array) {
+            const tmp = movesArr;
+            movesArr = [];
+            for (const dirPositions of tmp) {
+                dirL: for (const to of dirPositions) {
+                    const v = board.get(to);
+                    if (isMyPiece(v)) {
+                        break dirL;
+                    } else if (v !== EMPTY) {
+                        movesArr.push(to);
+                        break dirL;
+                    } else {
+                        movesArr.push(to);
+                    }
+                }
+            }
+        } else {
+            // check target is empty or opponent
+            const isPawn_ = isPawn(piece);
+            movesArr.filter((to) => {
+                const v = board.get(to);
+                // w/ en passant
+                return (!isMyPiece(v) || isPawn_ && board._params.enPassant === to);
+            });
+        }
+
+        if (movesArr.some((to) => to === opponentKingPos)) {
+            //console.log(`checked by ${piece} on ${from}`);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+export function isCapture(board, move) {
+    const v = board.get(move.substring(2, 4));
+    return v !== EMPTY;
 }
