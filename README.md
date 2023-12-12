@@ -94,19 +94,13 @@ It can now be divided into 3 parts:
 # TODO
 
 - logic
-    - game is buggy. review move object <-> string, maybe adopt simpler stockfish notation instead
-    - fix valid moves
-        - moveFromString pawns sometimes fail
-        - properly test castling criteria
-        - refactor validMoves/validMoves2 mess
-    - enforce repetition rule
+    - check toPgn is working
+    - to TODO tests
     - detect attacked pieces and whether they're defended in a simpler way
+    - enforce repetition rule
     - find checkmate in 1/2/3...
     - fix bot UCI compatibility
-    - introduce more tactical ideas to bot reasoning maybe?
-    - (super secondary) support option to play against stockfish instead of my dumb bot
 - UI
-    - replace path + marker (which only firefox renders correctly) with polygon
     - buttons: new game / play on other side / export PGN
     - (you can currently do `copy(board.getPgn())` on the browser console and paste in sites such as http://lichess.org/paste )
     - animate pieces... (hard with the current internal rep)

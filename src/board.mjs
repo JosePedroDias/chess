@@ -1,4 +1,5 @@
-import { isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
+import { isPiece, isPawn, isRook, isKing, isWhitePiece, isBlackPiece, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
+import { moveToPgn } from './move.mjs';
 
 const CHARS_WIDTH = 2;
 
@@ -152,7 +153,7 @@ export class Board {
         // 2... Nf4 3. Nxe6 d5 4. Bxf4 
         return Array.from(this._moves.entries())
         .map(([num, move]) => {
-            if (move === undefined) move = '?';
+            move = move ? moveToPgn(move, this._pastBoards[num]) : '?';
             if (num % 2 === 0) {
                 return `${num/2 + 1}. ${move}`;
             };
@@ -217,6 +218,13 @@ export class Board {
                 }
             }
         }
+    }
+
+    // array of [position, piece]
+    getSidePositions(isWhite) {
+        if (isWhite === undefined) isWhite = this.isWhiteNext();
+        const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
+        return Array.from(this.cellsHaving(isMyPiece));
     }
 
     findPos(criteria) {
@@ -309,14 +317,6 @@ export class Board {
 
     getLastMove() {
         return this._moves[ this._moves.length - 1 ];
-    }
-
-    makeLastMoveMate() {
-        const move = this.getLastMove();
-        if (!move) return;
-        const updatedMove = move.replace('+', '') + '#';
-        this._moves[ this._moves.length - 1 ] = updatedMove;
-        return updatedMove;
     }
 
     getLastBoard() {

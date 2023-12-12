@@ -61,9 +61,10 @@ export function moveFromPgn(pgnMove, board) {
 export function moveToObject(move, board) {
     const from = move.substring(0, 2);
     const to = move.substring(2, 4);
+    const promoPiece = move[4] && move[4].toUpperCase();
     const piece = board.get(from).toUpperCase();
     const isCapture = board.get(to) !== EMPTY;
-    const o = { piece, from, to, isCapture };
+    const o = { piece, from, to, isCapture, promoPiece };
 
     // castle
     if (isKing(piece) && Math.abs(deltaMovesXY(from, to)[0]) > 1) {
@@ -72,16 +73,18 @@ export function moveToObject(move, board) {
         const isKingSide = toFile === 'g';
         o.from2 = isKingSide ? `h${fromRank}` : `a${fromRank}`;
         o.to2 = isKingSide ? `f${fromRank}` : `d${fromRank}`;
-        //o.piece2 = 'R';
     }
     
     return o;
 }
 
+// TODO simplify non-pawn moves
+// TODO add check(+)/checkmate(#)/stalemate(???) suffixes
 export function moveToPgn(move, board) {
     const o = moveToObject(move, board);
     if (o.from2) return o.to[0] === 'g' ? CASTLE_KINGSIDE : CASTLE_QUEENSIDE;
     if (o.piece === 'P') return o.isCapture ? 'x' + o.to : o.to;
+    //const check = isChecking(board)
     return `${o.piece}${o.from}${o.isCapture ? 'x' : ''}${o.to}`;
 }
 
@@ -118,7 +121,7 @@ function _pawnMoves(pos, isWhite) {
     // promotions
     const lastRank = isWhite ? '8' : '1';
     return moves.reduce((prevMoves, mv) => {
-        if (mv[3] === lastRank) {
+        if (mv[1] === lastRank) {
             return [...prevMoves, `${mv}q`, `${mv}r`, `${mv}b`, `${mv}n`];
         } else {
             return [...prevMoves, mv];
@@ -202,9 +205,10 @@ export function validMoves(board, isWhiteOverride, skipCheckTests) {
         let movesArr;
         if (isPawn(piece)) {
             movesArr = pawnMoves(from, isWhite);
-            movesArr = movesArr.filter((to) => {
+            movesArr = movesArr.filter((to_) => {
+                const to = to_.substring(0, 2);
                 const isCaptureMove = from[0] !== to[0];
-                if (!isCaptureMove) return true;
+                if (!isCaptureMove) return board.get(to) === EMPTY;
                 return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
             });
         } else if (isRook(piece)) {
@@ -264,8 +268,8 @@ export function validMoves(board, isWhiteOverride, skipCheckTests) {
         } else {
             // check target is empty or opponent
             const isPawn_ = isPawn(piece);
-            movesArr.filter((to) => {
-                const v = board.get(to);
+            movesArr = movesArr.filter((to) => {
+                const v = board.get(to.substring(0, 2)); // can be promotion with 3 chars
                 // w/ en passant
                 return (!isMyPiece(v) || isPawn_ && board._params.enPassant === to);
             });
@@ -288,21 +292,19 @@ export function validMoves(board, isWhiteOverride, skipCheckTests) {
     return moves;
 }
 
-// check = at least one of my pieces can see the opposite king
-export function isChecking(board, isWhite) {
-    const isOpponentKing = (v) => v === (isWhite ? KING_B : KING_W);
-    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
-    const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
-    const opponentKingPos = board.findPos(isOpponentKing);
+export function isBeingAttacked(pos, board, byWhite) {
+    const isMyPiece = byWhite ? isWhitePiece : isBlackPiece;
+    const isOpponentPiece = byWhite ? isBlackPiece : isWhitePiece;
 
     for (const [from, piece] of board.cellsHaving(isMyPiece)) {
         let movesArr;
 
         if (isPawn(piece)) {
-            movesArr = pawnMoves(from, isWhite);
-            movesArr = movesArr.filter((to) => {
+            movesArr = pawnMoves(from, byWhite);
+            movesArr = movesArr.filter((to_) => {
+                const to = to_.substring(0, 2);
                 const isCaptureMove = from[0] !== to[0];
-                if (!isCaptureMove) return true;
+                if (!isCaptureMove) return board.get(to) === EMPTY;
                 return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
             });
         } else if (isKnight(piece)) {
@@ -344,7 +346,7 @@ export function isChecking(board, isWhite) {
             });
         }
 
-        if (movesArr.some((to) => to === opponentKingPos)) {
+        if (movesArr.some((to) => to === pos)) {
             //console.log(`checked by ${piece} on ${from}`);
             return true;
         }
@@ -353,7 +355,14 @@ export function isChecking(board, isWhite) {
     return false;
 }
 
-export function isCapture(board, move) {
+// check = at least one of my pieces can see the opposite king
+export function isChecking(board, isWhite) {
+    const isOpponentKing = (v) => v === (isWhite ? KING_B : KING_W);
+    const opponentKingPos = board.findPos(isOpponentKing);
+    return isBeingAttacked(opponentKingPos, board, isWhite);
+}
+
+export function isMoveCapture(board, move) {
     const v = board.get(move.substring(2, 4));
     return v !== EMPTY;
 }

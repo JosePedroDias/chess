@@ -112,15 +112,17 @@ test('clone', (_t) => {
 });
 
 test('getPgn', (_t) => {
-    const b = Board.default();
-    b._moves = ['e4', 'e5', 'Nc3', 'Qf6', 'f3', 'Bc5'];
-    equal(b.getPgn(), '1. e4 e5 2. Nc3 Qf6 3. f3 Bc5');
+    const moves = ['g1f3', 'b8a6', 'f3e5', 'h7h6', 'f2f4', 'f7f6', 'g2g3', 'f6e5', 'f1h3', 'e5f4', 'e1g1', 'f4g3', 'd1e1', 'g3h2', 'g1h2', 'h8h7', 'b2b4', 'a6b4', 'c2c3', 'b4a2', 'c1a3', 'a2c3', 'd2c3', 'c7c5'];
+    let b = Board.default();
+    for (const mv of moves) b = b.applyMove(mv);
+    equal(b.getPgn(), '1. Ng1f3 Nb8a6 2. Nf3e5 h6 3. f4 f6 4. g3 xe5 5. Bf1h3 xf4 6. O-O xg3 7. Qd1e1 xh2 8. Kg1xh2 Rh8h7 9. b4 Na6xb4 10. c3 Nb4xa2 11. Bc1a3 Na2xc3 12. xc3 c5');
 });
 
 test('getPgn odd num of moves', (_t) => {
-    const b = Board.default();
-    b._moves = ['e4', 'e5', 'Nc3', 'Qf6', 'f3'];
-    equal(b.getPgn(), '1. e4 e5 2. Nc3 Qf6 3. f3');
+    const moves = ['g1f3', 'b8a6', 'f3e5', 'h7h6', 'f2f4', 'f7f6', 'g2g3', 'f6e5', 'f1h3', 'e5f4', 'e1g1', 'f4g3', 'd1e1', 'g3h2', 'g1h2', 'h8h7', 'b2b4', 'a6b4', 'c2c3', 'b4a2', 'c1a3', 'a2c3', 'd2c3'];
+    let b = Board.default();
+    for (const mv of moves) b = b.applyMove(mv);
+    equal(b.getPgn(), '1. Ng1f3 Nb8a6 2. Nf3e5 h6 3. f4 f6 4. g3 xe5 5. Bf1h3 xf4 6. O-O xg3 7. Qd1e1 xh2 8. Kg1xh2 Rh8h7 9. b4 Na6xb4 10. c3 Nb4xa2 11. Bc1a3 Na2xc3 12. xc3');
 });
 
 test('applyMove', (_t) => {

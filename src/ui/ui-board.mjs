@@ -3,8 +3,7 @@ import m from '../../vendor/mithril.mjs';
 import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
 import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
-import { moveFromString, getThreatenedPositions } from '../moves.mjs';
-import { validMoves2 } from '../evaluate.mjs';
+import { moveToObject, validMoves, isBeingAttacked } from '../move.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW } from './constants.mjs';
@@ -43,8 +42,6 @@ export function UiBoard(
         return posXY;
     }
 
-    const moveToArr = (move) => move instanceof Array ? move : [move];
-
     const pieces = [];
     for (const [pos, piece] of board) {
         if (piece === EMPTY) continue;
@@ -63,8 +60,10 @@ export function UiBoard(
     const annotations = [];
 
     const lastMove = board.getLastMove();
-    const possibleMoves = validMoves2(board);
-    const riskedPositions = getThreatenedPositions(board);
+    const possibleMoves = validMoves(board);
+    const riskedPositions = board.getSidePositions().filter(([pos, _]) => {
+        return isBeingAttacked(pos, board, !board.isWhiteNext());
+    }).map(([a]) => a);
 
     const ARROW_SCALE_LAST = 2;
     const ANNO_STROKE_WIDTH = 0.33;
@@ -72,6 +71,7 @@ export function UiBoard(
 
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
+    // TODO
     for (const pos of riskedPositions) {
         annotations.push(
             Ring({}, {
@@ -90,49 +90,51 @@ export function UiBoard(
     }
 
     for (const mv of possibleMoves) {
-        try {
-            const moveArr = moveToArr(moveFromString(mv, board));
-            for (const { from, to } of moveArr) {
-                const color = randomColor();
-                annotations.push(
-                    Arrow({}, {
-                        from: toBoardCoords(from.pos),
-                        to: toBoardCoords(to.pos),
-                        fill: { color, alpha: ANNO_ALPHA },
-                        stroke: { color, width: ANNO_STROKE_WIDTH },
-                        width: 1,
-                        arrowW: 1.8,
-                        arrowH: 6,
-                        title: mv,
-                    }),
-                );
-            }
-        } catch (err) {
-            //console.error(err); // TODO WEIRD
+        const mvO = moveToObject(mv, board);
+        const color = randomColor();
+        annotations.push(
+            Arrow({}, {
+                from: toBoardCoords(mvO.from),
+                to: toBoardCoords(mvO.to),
+                fill: { color, alpha: ANNO_ALPHA },
+                stroke: { color, width: ANNO_STROKE_WIDTH },
+                width: 1,
+                arrowW: 1.8,
+                arrowH: 6,
+                title: mv,
+            }),
+        );
+        if (mvO.from2) {
+            annotations.push(
+                Arrow({}, {
+                    from: toBoardCoords(mvO.from2),
+                    to: toBoardCoords(mvO.to2),
+                    fill: { color, alpha: ANNO_ALPHA },
+                    stroke: { color, width: ANNO_STROKE_WIDTH },
+                    width: 1,
+                    arrowW: 1.8,
+                    arrowH: 6,
+                    title: mv,
+                })
+            );
         }
     }
 
     if (lastMove) {
-        try {
-            const moveArr = moveToArr( moveFromString(lastMove, board.getLastBoard()) );
-            for (const { from, to } of moveArr) {
-                const color = board.isWhiteNext() ? '#333' : '#CCC';
-                annotations.push(
-                    Arrow({}, {
-                        from: toBoardCoords(from.pos),
-                        to: toBoardCoords(to.pos),
-                        fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
-                        stroke: { color },
-                        width: ARROW_SCALE_LAST * 1,
-                        arrowW: ARROW_SCALE_LAST *  1.8,
-                        arrowH: ARROW_SCALE_LAST * 6,
-                        title: lastMove,
-                    }),
-                );
-            }
-        } catch (err) {
-            //console.error(err); // TODO WEIRD
-        }
+        const mvO = moveToObject(lastMove, board.getLastBoard());
+        const color = board.isWhiteNext() ? '#333' : '#CCC';
+        annotations.push(
+            Arrow({}, {
+                from: toBoardCoords(mvO.from),
+                to: toBoardCoords(mvO.to),
+                fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
+                stroke: { color },
+                width: ARROW_SCALE_LAST * 1,
+                arrowW: ARROW_SCALE_LAST *  1.8,
+                arrowH: ARROW_SCALE_LAST * 6,
+                title: lastMove,
+            }),
+        );
     }
 
     const yToRank = (i) => fromBlacks ? i + 1 : 8 - i;

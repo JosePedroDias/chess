@@ -1,6 +1,6 @@
-import { isWhitePiece } from '../pieces.mjs';
-import { randomFromArr, weightedRandom } from '../utils.mjs';
-import { validMoves, isCapture, isChecking } from './move.mjs';
+import { isWhitePiece } from './pieces.mjs';
+import { randomFromArr, weightedRandom } from './utils.mjs';
+import { validMoves, isMoveCapture, isChecking } from './move.mjs';
 
 const values = {
     'q': 9,
@@ -29,13 +29,13 @@ const promotionProbWeights = [
     ['n', 10],
 ];
 
-export function play(board) {
+export async function play(board) {
     const isWhite = board.isWhiteNext();
     const moves = validMoves(board);
 
     const promotionMoves = moves.filter((mv) => mv[4]);
     const checkMoves = moves.filter((mv) => isChecking(board.applyMove(mv), isWhite));
-    const captureMoves = moves.filter(isCapture(board, mv));
+    const captureMoves = moves.filter((mv) => isMoveCapture(board, mv));
 
     if (promotionMoves.length > 0) {
         const piecePart = weightedRandom(promotionProbWeights);

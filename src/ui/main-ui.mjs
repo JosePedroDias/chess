@@ -1,20 +1,21 @@
 import { mount, redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { electNextMove, validMoves2 } from '../evaluate.mjs';
+import { play } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
-import { moveFromString, isMoveStringCheck } from '../moves.mjs';
+import { validMoves, moveToPgn, moveToObject, isChecking } from '../move.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
 import { setup as setupStockfish, evalBoard } from '../stockfish-browser-wrapper.mjs';
+import { sleep } from '../utils.mjs';
 
-const BOT_VS_BOT = false;
-const HUMAN_VS_HUMAN = false;
+let BOT_VS_BOT = false;
+let HUMAN_VS_HUMAN = false;
 let HUMAN_SIDE = WHITE;
-const BOT_SPEED_MS = 1500;
+let BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
 
 const USE_STOCKFISH = true;
@@ -23,11 +24,12 @@ if (USE_STOCKFISH) setupStockfish(20);
 
 const moveIndices = new Array(2);
 
-function playAppropriateSound(move) {
-    if      (move.includes('x')) playSample('move');
-    else if (move.includes('+')) playSample('notificationSound');
-    //else if (move.includes('+')) playSample('wrongAnswer');
-    else                         playSample('dragSlide');
+function playAppropriateSound(move, resultingBoard) {
+    const moveO = moveToObject(move, resultingBoard.getLastBoard());
+    const isCheck = isChecking(resultingBoard, !resultingBoard.isWhiteNext());
+    if (isCheck)         playSample('notificationSound');
+    if (moveO.isCapture) playSample('move');
+    else                 playSample('dragSlide');
 }
 
 export function ui(
@@ -110,73 +112,63 @@ export function ui(
 
         let move;
         if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
-            const moves = validMoves2(board);
+            const moves = validMoves(board);
             moves.sort();
+            //console.log(moves);
 
             if (moves.length === 0) {
-                const isCheckMate = isMoveStringCheck(board.getLastMove());
+                /* const isCheckMate = isMoveStringCheck(board.getLastMove());
                 if (isCheckMate) board.makeLastMoveMate();
                 const outcome = isCheckMate ? 'check mate' : 'stale mate';
-                window.alert(outcome);
+                window.alert(outcome); */
+                window.alert('TODO');
                 return;
             }
 
             do {
-                //move = await promptDialog(`next move for ${board._params.next}?`, moves, '');
-
                 const prom = new Promise((resolve) => {
                     resolveFn = resolve;
                 });
                 const [from, to] = await prom;
+
+                //move = await promptDialog(`next move for ${board._params.next}?`, moves, '');
+
                 //console.log(`${from} -> ${to}`);
-                move = '';
+                move = `${from}${to}`;
                 const candidates = [];
-                for (const mvS of moves) {
-                    try {
-                        let mvO = moveFromString(mvS, board);
-                        if (mvO instanceof Array) mvO = mvO[0];
-                        if (from === mvO.from.pos && to === mvO.to.pos) {
-                            candidates.push(mvS);
-                            //console.log('matched', mvS, 'to', mvO);
-                        }
-                    } catch (err) {
-                        console.log('moves', moves);
-                        console.log(err);
-                    }
+                for (const mv of moves) {
+                    if (mv.indexOf(move) !== -1) candidates.push(mv);
                 }
-                if (candidates.length === 1) move = candidates[0];
-                else if (candidates.length > 1) {
+                if (candidates.length === 1) {
+                    move = candidates[0];
+                } else if (candidates.length > 1) {
                     move = await promptDialog(`choose promotion for ${board._params.next}?`, candidates, '');
                 }
             } while (!moves.includes(move));
         } else {
-            try {
-                move = electNextMove(board);
-            } catch (err) {
-                window.alert(err); // check mate / stale mate
-                console.error(err);
-                return;
-            }
+            await sleep(BOT_SPEED_MS);
+            move = await play(board);
+            //window.alert(err); // check mate / stale mate
+            //console.error(err);
+            // return
+            // window.alert('TODO');
         }
 
-        try {
-            console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${move}\n`);
-            board = board.applyMove(move, true);
-            playAppropriateSound(move);
-            
-            window.board = board; // TODO TEMP
-        } catch (err) {
-            console.error(err);
-            return;
-        }
+        const movePgn = moveToPgn(move, board);
+        console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${movePgn}\n`);
+        board = board.applyMove(move, true);
+        playAppropriateSound(move, board);
+        
+        window.board = board; // TODO TEMP
 
         updateEval();
         
         redraw();
-        setTimeout(doNextMove, BOT_SPEED_MS);
+
+        doNextMove();
     }
 
-    setTimeout(doNextMove, BOT_SPEED_MS);
+    setTimeout(doNextMove);
 
     mount(rootEl, {
         oninit(_vnode) {
@@ -206,6 +198,14 @@ const search = u.searchParams;
 if (search.get('botFirst')) {
     FROM_BLACKS = true;
     HUMAN_SIDE = BLACK;
+}
+
+if (search.get('only-bots')) BOT_VS_BOT = true;
+else if (search.get('only-humans')) HUMAN_VS_HUMAN = true;
+
+{
+    const speed = parseFloat(search.get('speed'));
+    if (speed && !isNaN(speed)) BOT_SPEED_MS = speed;
 }
 
 let startBoard = Board.default();
