@@ -1,7 +1,7 @@
 import { mount, redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { play } from '../evaluate.mjs';
+import { play, evaluate, heuristic1, sortDescByScore } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -112,17 +112,20 @@ export function ui(
 
         let move;
         if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
+            // HUMAN IS NOW PLAYING
+
             const moves = validMoves(board);
             moves.sort();
-            //console.log(moves);
 
-            if (moves.length === 0) {
-                /* const isCheckMate = isMoveStringCheck(board.getLastMove());
-                if (isCheckMate) board.makeLastMoveMate();
-                const outcome = isCheckMate ? 'check mate' : 'stale mate';
-                window.alert(outcome); */
-                window.alert('TODO');
-                return;
+            try {
+                const candidates = evaluate(board);
+                candidates.forEach(heuristic1);
+                sortDescByScore(candidates);
+                console.table(candidates);
+                const c0 = candidates[0];
+                console.log('bot would have played', c0.move, c0.pgn);
+            } catch (err) {
+                return window.alert(err); // checkmate or stalemate
             }
 
             do {
@@ -146,12 +149,16 @@ export function ui(
                 }
             } while (!moves.includes(move));
         } else {
+            // BOT IS NOW PLAYING
+
             await sleep(BOT_SPEED_MS);
-            move = await play(board);
-            //window.alert(err); // check mate / stale mate
-            //console.error(err);
-            // return
-            // window.alert('TODO');
+
+            try {
+                move = await play(board);
+            } catch (err) {
+                return window.alert(err); // checkmate or stalemate
+            }
+
         }
 
         const movePgn = moveToPgn(move, board);

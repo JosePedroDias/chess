@@ -48,11 +48,11 @@ export function UiBoard(
         const isWhite = isWhitePiece(piece);
 
         let Fn = Pawn;
-        if (isKnight(piece)) Fn = Knight;
+        if      (isKnight(piece)) Fn = Knight;
         else if (isBishop(piece)) Fn = Bishop;
-        else if (isRook(piece)) Fn = Rook;
-        else if (isQueen(piece)) Fn = Queen;
-        else if (isKing(piece)) Fn = King;
+        else if (isRook(piece))   Fn = Rook;
+        else if (isQueen(piece))  Fn = Queen;
+        else if (isKing(piece))   Fn = King;
 
         pieces.push(Fn({ isWhite }, { pos: posToXY(pos) }))
     }
