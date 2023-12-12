@@ -45,6 +45,17 @@ export function weightedRandom(arr) {
     return best;
 }
 
+export function diff(arr1, arr2) {
+    const onlyInA = subtraction(arr1, arr2);
+    const onlyInB = subtraction(arr2, arr1);
+    //const int = intersection(arr1, arr2);
+    const o = {};
+    //if (int.length     > 0) o.int     = int;
+    if (onlyInA.length > 0) o.onlyInA = onlyInA;
+    if (onlyInB.length > 0) o.onlyInB = onlyInB;
+    return o;
+}
+
 export function intersection(arr1, arr2) {
     const biggerArr = arr1.length >= arr2.length ? arr1 : arr2;
     const smallerArr = arr1.length < arr2.length ? arr1 : arr2;

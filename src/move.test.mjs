@@ -3,7 +3,7 @@ import { equal, deepEqual } from 'node:assert/strict';
 
 import { Board, POSITIONS } from './board.mjs';
 import { isChecking, isMoveCapture, moveToObject, moveToPgn, validMoves } from './move.mjs';
-import { randomFromArr } from './utils.mjs';
+import { diff, randomFromArr } from './utils.mjs';
 import { KING_W, KING_B } from './pieces.mjs';
 import { setup, getValidMoves, terminate } from './stockfish-node-wrapper.mjs';
 
@@ -96,8 +96,9 @@ const valid = async (piece, isWhite, xs, ys) => {
             } catch (err) {
                 printBoard(b, moves, pos);
                 console.log('NOK', piece, pos);
-                console.log(`moves:     ${moves.join(',')}`);
-                console.log(`moves sf:  ${movesSF.join(',')}`);
+                //console.log(`moves:     ${moves.join(',')}`);
+                //console.log(`moves sf:  ${movesSF.join(',')}`);
+                console.log('a:bot;b:sf: ', diff(moves, movesSF));
                 //throw err;
             }
         }
