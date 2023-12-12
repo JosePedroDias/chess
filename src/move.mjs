@@ -304,7 +304,14 @@ export function isBeingAttacked(pos, board, byWhite) {
             movesArr = movesArr.filter((to_) => {
                 const to = to_.substring(0, 2);
                 const isCaptureMove = from[0] !== to[0];
-                if (!isCaptureMove) return board.get(to) === EMPTY;
+                if (!isCaptureMove) {
+                    const y0 = parseInt(from[1], 10);
+                    const y1 = parseInt(to[1],   10);
+                    const avgY = (y0 + y1) / 2;
+                    const is2FilesMove = avgY % 1 === 0;
+                    if (is2FilesMove && board.get(`${to[0]}${avgY}`) !== EMPTY) return false;
+                    return board.get(to) === EMPTY;
+                }
                 return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
             });
         } else if (isKnight(piece)) {

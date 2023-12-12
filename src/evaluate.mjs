@@ -30,18 +30,36 @@ export function getBoardMaterial(board, isWhite) {
     return mat;
 }
 
+/*
+TODO: not enough mat
+K  vs k
+KB vs k
+KN vs k
+KBw vs KBw || KBb vs KBb
+*/
+
 export function isTie(board) {
     // threefold repetition
     if (board._moves.length >= 6) {
-        const moves = Array.from(board._moves);
-        const a = [moves.pop(), moves.pop()].join('_');
-        const b = [moves.pop(), moves.pop()].join('_');
-        const c = [moves.pop(), moves.pop()].join('_');
-        if (a === b === c) return DRAW_3FOLD;
+        const fenRepsMap = new Map();
+        const boards = [...board._pastBoards, board];
+        for (let b of boards) {
+            const [boardFen, sideFen] = b.getFen().split(' ');
+            const key = [boardFen, sideFen].join('_');
+            const v = fenRepsMap.get(key);
+            if (!v) fenRepsMap.set(key, 1);
+            else if (v === 2) {
+                console.log(b.toString()); // board which happened 3 times for the same side
+                return DRAW_3FOLD;
+            }
+            else fenRepsMap.set(key, v + 1);
+        }
     }
 
     // fifty move rule
     if (board._params.halfMoveClock === 100) return DRAW_50MOVE;
+
+    // TODO not enough material
 }
 
 export function evaluate(board) {
@@ -124,7 +142,7 @@ export async function play(board) {
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);
 
-    console.table(candidates);
+    //console.table(candidates);
 
     return candidates[0].move;
 }

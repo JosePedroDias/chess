@@ -136,13 +136,13 @@ test('applyMove', (_t) => {
         // regular pawn move
         const b = Board.fromFen(`k7/8/7P/8/8/8/8/7K w - - 0 1`);
         const b2 = b.applyMove('h6h7');
-        equal(b2.getFen(), `k7/7P/8/8/8/8/8/7K b - - 1 1`);
+        equal(b2.getFen(), `k7/7P/8/8/8/8/8/7K b - - 0 1`);
     }
     {
         // pawn move with promotion
         const b = Board.fromFen(`8/7P/8/8/k7/8/8/7K w - - 0 1`);
         const b2 = b.applyMove('h7h8q');
-        equal(b2.getFen(), `7Q/8/8/8/k7/8/8/7K b - - 1 1`);
+        equal(b2.getFen(), `7Q/8/8/8/k7/8/8/7K b - - 0 1`);
     }
     {
         // castling move
