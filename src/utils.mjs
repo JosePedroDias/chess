@@ -75,6 +75,15 @@ export function subtraction(arr1, arr2) {
     return Array.from(resSet);
 }
 
+export function histogram(arr) {
+    const res = {};
+    for (const it of arr) {
+        if (!res[it]) res[it] = 0;
+        res[it]++;
+    }
+    return res;
+}
+
 export const identity = (a) => a;
 
 export const memoFactory = (fn, map, keyFn = identity) => (a, b) => {

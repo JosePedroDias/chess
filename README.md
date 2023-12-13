@@ -11,6 +11,17 @@ It can now be divided into 3 parts:
     - `src/stockfish-node-wrapper.mjs`
     - `stockfish-host.js` (to host a compliant web server)
 
+# Show it running, please!
+
+- on GH:
+
+    - [bot vs bot  ](https://josepedrodias.github.io/chess/?only-bots=1&speed=1)
+    - [human vs bot](https://josepedrodias.github.io/chess/)
+
+- locally:
+    - [bot vs bot  ](http://localhost:8080/chess/?only-bots=1&speed=1)
+    - [human vs bot](http://localhost:8080/)
+
 # Reference
 
 ## GUIs

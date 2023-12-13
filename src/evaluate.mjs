@@ -1,4 +1,5 @@
 import { isWhitePiece } from './pieces.mjs';
+import { histogram } from './utils.mjs';
 import { validMoves, isMoveCapture, isChecking, isBeingAttacked, moveToPgn } from './move.mjs';
 
 export const PIECE_VALUE = {
@@ -30,13 +31,29 @@ export function getBoardMaterial(board, isWhite) {
     return mat;
 }
 
-/*
-TODO: not enough mat
-K  vs k
-KB vs k
-KN vs k
-KBw vs KBw || KBb vs KBb
-*/
+export function findMaterialDraws(board) {
+    const p1 = board.getSidePositions(true ).map(([_, piece]) => piece.toLowerCase());
+    const p2 = board.getSidePositions(false).map(([_, piece]) => piece.toLowerCase());
+    const h1 = histogram(p1);
+    const h2 = histogram(p2);
+
+    if (h1.p > 0 || h2.p > 0) return;
+    if (h1.r > 0 || h2.r > 0) return;
+    if (h1.q > 0 || h2.q > 0) return;
+
+    // K+B vs K
+    if (h1.n === 0 && h2.n === 0 && ((h1.b === 0 && h2.b === 1) || (h1.b === 1 && h2.b === 0))) return 'draw: K+B vs K';
+
+    // K+N vs K
+    if (h1.b === 0 && h2.b === 0 && ((h1.n === 0 && h2.n === 1) || (h1.n === 1 && h2.n === 0))) return 'draw: K+N vs K';
+
+    // TODO: KBw vs KBw || KBb vs KBb
+
+    // K vs K
+    if (h1.b > 0 || h2.b > 0) return;
+    if (h1.n > 0 && h2.n > 0) return;
+    return 'draw: K vs K';
+}
 
 export function isTie(board) {
     // threefold repetition
@@ -59,7 +76,7 @@ export function isTie(board) {
     // fifty move rule
     if (board._params.halfMoveClock === 100) return DRAW_50MOVE;
 
-    // TODO not enough material
+    return findMaterialDraws(board);
 }
 
 export function evaluate(board) {
