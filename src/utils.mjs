@@ -103,3 +103,14 @@ export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // export const randomColor = () => `rgb(${randomInt(256)}, ${randomInt(256)}, ${randomInt(256)})`;
 export const randomColor = () => `hsl(${randomFloat(360)}, 80%, ${35 + randomFloat(30)}%)`;
+
+//const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+export function randomString(n = 5) {
+    let str = '';
+    for (let i = 0; i < n; i++) {
+        str += ALPHABET[randomInt(ALPHABET.length)];
+    }
+    return str;
+}

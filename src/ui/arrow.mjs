@@ -18,7 +18,7 @@ import { getVersor, rotate90Degrees, dist, add, mulScalar } from './geometry.mjs
      1     0
 */
 
-export function Arrow({  }, { from, to, fill, stroke, width, arrowW, arrowH, arrowDH, title }) {
+export function Arrow({ id }, { from, to, fill, stroke, width, arrowW, arrowH, arrowDH, title }) {
     arrowDH = arrowDH || arrowH/2;
 
     if (!fill) fill = {};
@@ -57,10 +57,22 @@ export function Arrow({  }, { from, to, fill, stroke, width, arrowW, arrowH, arr
         }
     );
 
-    if (!title) return polygon;
+    if (!title) {
+        polygon.key = id;
+        return polygon;
+    }
 
-    return m('g', [
-        m('title', title),
-       polygon, 
-    ]);
+    return m('g.enter',
+        {
+            key: id,
+            onbeforeremove(vnode) {
+                vnode.dom.classList.add('leave');
+                return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
+            },
+        },
+        [
+            m('title', title),
+            polygon, 
+        ]
+    );
 }

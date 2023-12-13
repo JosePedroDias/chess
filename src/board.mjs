@@ -1,5 +1,6 @@
 import { isPiece, isPawn, isRook, isKing, isWhitePiece, isBlackPiece, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
 import { moveToPgn } from './move.mjs';
+import { randomString } from './utils.mjs';
 
 const CHARS_WIDTH = 2;
 
@@ -29,6 +30,7 @@ export function otherSide(side) {
 
 export class Board {
     _cells = new Array(64).fill(EMPTY);
+    _cellIds = new Array(64);
 
     _params = {
         next: WHITE, // next to move
@@ -104,10 +106,12 @@ export class Board {
                 const num = parseInt(char, 10);
                 if (isNaN(num)) {
                     this._cells[ x + y * 8 ] = char;
+                    this._cellIds[ x + y * 8 ] = randomString(8);
                     ++x;
                 } else {
                     for (let j = 0; j < num; ++j) {
                         this._cells[ x + y * 8 ] = EMPTY;
+                        this._cellIds[ x + y * 8 ] = undefined;
                         ++x;
                     }
                 }
@@ -163,14 +167,23 @@ export class Board {
         return this._cells[ POSITIONS_TO_INDICES.get(pos) ];
     }
 
+    getId(pos) {
+        return this._cellIds[ POSITIONS_TO_INDICES.get(pos) ];
+    }
+
     set(pos, v) {
         this._cells[ POSITIONS_TO_INDICES.get(pos) ] = v;
+    }
+
+    setId(pos, id) {
+        this._cellIds[ POSITIONS_TO_INDICES.get(pos) ] = id;
     }
 
     clone() {
         const b = new Board();
 
         b._cells      = Array.from(this._cells);
+        b._cellIds    = Array.from(this._cellIds);
         b._moves      = Array.from(this._moves);
         b._pastBoards = Array.from(this._pastBoards);
 
@@ -271,8 +284,11 @@ export class Board {
         const isCapture = this.get(to) !== EMPTY;
         if (isCapture) isHMCReset = true;
 
+        const id = b.getId(from);
         b.set(from, EMPTY);
+        b.setId(from, undefined);
         b.set(to, promPiece || piece);
+        b.setId(to, id);
         b._moves.push(mv);
 
         if (isPawn(piece)) {
@@ -298,8 +314,11 @@ export class Board {
                 } else {
                     throw new Error('Unexpected');
                 }
+                const id2 = b.getId(from2);
                 b.set(to2, b.get(from2));
+                b.setId(to2, id2);
                 b.set(from2, EMPTY);
+                b.setId(from2, undefined);
             }
             b.unsetCastlingFlags(isWhite ? [QUEEN_W, KING_W] : [QUEEN_B, KING_B]); // unset castling flag
         } else if (isRook(piece)) {

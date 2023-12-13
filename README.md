@@ -15,11 +15,11 @@ It can now be divided into 3 parts:
 
 - on GH:
 
-    - [bot vs bot  ](https://josepedrodias.github.io/chess/?only-bots=1&speed=1)
+    - [bot vs bot  ](https://josepedrodias.github.io/chess/?only-bots=1&speed=500)
     - [human vs bot](https://josepedrodias.github.io/chess/)
 
 - locally:
-    - [bot vs bot  ](http://localhost:8080/chess/?only-bots=1&speed=1)
+    - [bot vs bot  ](http://localhost:8080/chess/?only-bots=1&speed=500)
     - [human vs bot](http://localhost:8080/)
 
 # Reference
@@ -103,14 +103,11 @@ It can now be divided into 3 parts:
     - fix validMoves which SF finds invalid (moves.test.mjs)
     - complement TODO tests
     - detect attacked pieces and whether they're defended
-    - enforce repetition rule
-    - enforce criteria to deem game a draw (based on material?)
     - find checkmate in 1/2/3...
     - fix bot UCI compatibility
 - UI
     - buttons: new game / play on other side / export PGN
     - (you can currently do `copy(board.getPgn())` on the browser console and paste in sites such as http://lichess.org/paste )
-    - animate pieces...
 
 # setup
 

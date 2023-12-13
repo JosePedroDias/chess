@@ -51,7 +51,7 @@ export function findMaterialDraws(board) {
 
     // K vs K
     if (h1.b > 0 || h2.b > 0) return;
-    if (h1.n > 0 && h2.n > 0) return;
+    if (h1.n > 0 || h2.n > 0) return;
     return 'draw: K vs K';
 }
 
@@ -158,8 +158,6 @@ export async function play(board) {
     const candidates = evaluate(board);
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);
-
-    //console.table(candidates);
 
     return candidates[0].move;
 }

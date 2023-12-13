@@ -1,6 +1,6 @@
 import m from '../../vendor/mithril.mjs';
 
-export function Ring({  }, { center, outerRadius, innerRadius, radius, strokeWidth, color, alpha, title }) {
+export function Ring({ id }, { center, outerRadius, innerRadius, radius, strokeWidth, color, alpha, title }) {
     color = color || 'black';
     alpha = alpha || 1;
 
@@ -16,10 +16,22 @@ export function Ring({  }, { center, outerRadius, innerRadius, radius, strokeWid
         style: `fill:none; stroke:${color}; stroke-width:${strokeWidth}; opacity:${alpha}`,
     });
 
-    if (!title) return ring;
+    if (!title) {
+        ring.key = id;
+        return ring;
+    }
 
-    return m('g', [
-        m('title', title),
-        ring, 
-    ]);
+    return m('g.enter',
+        {
+            key: id,
+            onbeforeremove(vnode) {
+                vnode.dom.classList.add('leave');
+                return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
+            },
+        },
+        [
+            m('title', title),
+            ring, 
+        ]
+    );
 }

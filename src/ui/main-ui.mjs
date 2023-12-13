@@ -1,4 +1,4 @@
-import { mount, redraw, default as m } from '../../vendor/mithril.mjs';
+import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
 import { play, evaluate, heuristic1, sortDescByScore } from '../evaluate.mjs';
@@ -18,7 +18,7 @@ let HUMAN_SIDE = WHITE;
 let BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
 
-const USE_STOCKFISH = true;
+const USE_STOCKFISH = false;
 
 if (USE_STOCKFISH) setupStockfish(20);
 
@@ -29,7 +29,7 @@ function playAppropriateSound(move, resultingBoard) {
     const isCheck = isChecking(resultingBoard, !resultingBoard.isWhiteNext());
     if (isCheck)         playSample('notificationSound');
     if (moveO.isCapture) playSample('move');
-    else                 playSample('dragSlide');
+    else                 playSample('dragSlide', 0.33);
 }
 
 export function ui(
@@ -51,7 +51,7 @@ export function ui(
     const indicesToPos = (x, y) => `${xx[x]}${yy[y]}`;
 
     const onMouse = (i) => (ev) => {
-        ev.redraw = false;
+        //ev.redraw = false;
         
         if (i === 0) initSfx();
 
@@ -121,7 +121,7 @@ export function ui(
                 const candidates = evaluate(board);
                 candidates.forEach(heuristic1);
                 sortDescByScore(candidates);
-                console.table(candidates);
+                //console.table(candidates);
                 const c0 = candidates[0];
                 console.log('bot would have played', c0.move, c0.pgn);
             } catch (err) {
@@ -164,6 +164,7 @@ export function ui(
         const movePgn = moveToPgn(move, board);
         console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${movePgn}\n`);
         board = board.applyMove(move, true);
+        //redraw();
         playAppropriateSound(move, board);
         
         window.board = board; // TODO TEMP
@@ -177,7 +178,8 @@ export function ui(
 
     setTimeout(doNextMove);
 
-    mount(rootEl, {
+    m.mount(rootEl, {
+    //m.render(rootEl, m({
         oninit(_vnode) {
             vnode = _vnode;
         },
@@ -197,6 +199,7 @@ export function ui(
             );
         }
     });
+    //}));
 }
 
 const u = new URL(location.href);

@@ -1,6 +1,6 @@
 import m from '../../vendor/mithril.mjs';
 
-export function Circle({  }, { center, radius, color, alpha, title }) {
+export function Circle({ id }, { center, radius, color, alpha, title }) {
     color = color || 'black';
     alpha = alpha || 1;
 
@@ -11,10 +11,22 @@ export function Circle({  }, { center, radius, color, alpha, title }) {
         style: `fill:${color}; stroke:none; opacity:${alpha}`,
     });
 
-    if (!title) return circle;
+    if (!title) {
+        circle.key = id;
+        return circle;
+    }
 
-    return m('g', [
-        m('title', title),
-        circle, 
-    ]);
+    return m('g.enter',
+        {
+            key: id,
+            onbeforeremove(vnode) {
+                vnode.dom.classList.add('leave');
+                return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
+            },
+        },
+        [
+            m('title', title),
+            circle, 
+        ]
+    );
 }

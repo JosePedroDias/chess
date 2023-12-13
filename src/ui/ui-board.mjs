@@ -6,7 +6,7 @@ import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pi
 import { moveToObject, validMoves, isBeingAttacked } from '../move.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
-import { MARGIN, CW } from './constants.mjs';
+import { MARGIN, CW, DRAW_ANNOTATIONS } from './constants.mjs';
 
 /*
 import { Pawn } from './wiki/pawn.mjs';
@@ -46,6 +46,7 @@ export function UiBoard(
     for (const [pos, piece] of board) {
         if (piece === EMPTY) continue;
         const isWhite = isWhitePiece(piece);
+        const id = board.getId(pos);
 
         let Fn = Pawn;
         if      (isKnight(piece)) Fn = Knight;
@@ -54,16 +55,22 @@ export function UiBoard(
         else if (isQueen(piece))  Fn = Queen;
         else if (isKing(piece))   Fn = King;
 
-        pieces.push(Fn({ isWhite }, { pos: posToXY(pos) }))
+        pieces.push(Fn({ isWhite, id }, { pos: posToXY(pos) }))
     }
 
     const annotations = [];
 
-    const lastMove = board.getLastMove();
-    const possibleMoves = validMoves(board);
-    const riskedPositions = board.getSidePositions().filter(([pos, _]) => {
-        return isBeingAttacked(pos, board, !board.isWhiteNext());
-    }).map(([a]) => a);
+    let lastMove;
+    let possibleMoves = [];
+    let riskedPositions = [];
+    
+    if (DRAW_ANNOTATIONS) {
+        lastMove = board.getLastMove()
+        board.getSidePositions().filter(([pos, _]) => {
+            return isBeingAttacked(pos, board, !board.isWhiteNext());
+        }).map(([a]) => a);
+        possibleMoves = validMoves(board)
+    }
 
     const ARROW_SCALE_LAST = 2;
     const ANNO_STROKE_WIDTH = 0.33;
@@ -74,8 +81,10 @@ export function UiBoard(
     // TODO
     for (const pos of riskedPositions) {
         annotations.push(
-            Ring({}, {
+            Ring({ id: `ring-${board.getId(pos)}` }, {
                 center: toBoardCoords(pos),
+
+                title: 'risked',
 
                 //outerRadius: CW * 0.5,
                 //innerRadius: CW * 0.44,
@@ -93,7 +102,7 @@ export function UiBoard(
         const mvO = moveToObject(mv, board);
         const color = randomColor();
         annotations.push(
-            Arrow({}, {
+            Arrow({ id: `arrow-${board.getId(mvO.from)}-${board.getId(mvO.to)}` }, {
                 from: toBoardCoords(mvO.from),
                 to: toBoardCoords(mvO.to),
                 fill: { color, alpha: ANNO_ALPHA },
@@ -106,7 +115,7 @@ export function UiBoard(
         );
         if (mvO.from2) {
             annotations.push(
-                Arrow({}, {
+                Arrow({ id: `arrow-${board.getId(mvO.from2)}-${board.getId(mvO.to2)}` }, {
                     from: toBoardCoords(mvO.from2),
                     to: toBoardCoords(mvO.to2),
                     fill: { color, alpha: ANNO_ALPHA },
@@ -124,7 +133,7 @@ export function UiBoard(
         const mvO = moveToObject(lastMove, board.getLastBoard());
         const color = board.isWhiteNext() ? '#333' : '#CCC';
         annotations.push(
-            Arrow({}, {
+            Arrow({ id: `arrow-${board.getId(mvO.from)}-${board.getId(mvO.to)}-last` }, {
                 from: toBoardCoords(mvO.from),
                 to: toBoardCoords(mvO.to),
                 fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
