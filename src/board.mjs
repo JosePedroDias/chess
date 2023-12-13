@@ -30,7 +30,7 @@ export function otherSide(side) {
 
 export class Board {
     _cells = new Array(64).fill(EMPTY);
-    _cellIds = new Array(64);
+    _cellIds = new Array(64).fill(undefined);
 
     _params = {
         next: WHITE, // next to move
