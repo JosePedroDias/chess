@@ -66,6 +66,10 @@ export function moveToObject(move, board) {
     const isCapture = board.get(to) !== EMPTY;
     const o = { piece, from, to, isCapture, promoPiece };
 
+    //const isWhite = board.isWhiteNext();
+    //const isCheck = isChecking(board, isWhite);
+    // TODO is mate
+
     // castle
     if (isKing(piece) && Math.abs(deltaMovesXY(from, to)[0]) > 1) {
         const fromRank = from[1]; // '1'|'8' (whites, blacks)
@@ -195,7 +199,7 @@ const rookMoves   = memoFactory(_rookMoves,   rm);
 const bishopMoves = memoFactory(_bishopMoves, bm);
 const knightMoves = memoFactory(_knightMoves, nm);
 
-export function validMoves(board, isWhiteOverride, skipCheckTests) {
+export function validMoves(board, isWhiteOverride) {
     let moves = [];
     const isWhite = isWhiteOverride !== undefined ? isWhiteOverride : board.isWhiteNext();
     const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
@@ -280,14 +284,12 @@ export function validMoves(board, isWhiteOverride, skipCheckTests) {
     }
 
     // check if king is in check after move
-    if (!skipCheckTests) {
-        moves = moves.filter((mv) => {
-            const board2 = board.applyMove(mv);
-            const checked = isChecking(board2, !isWhite);
-            //if (checked) console.log(`dropping ${mv}`)
-            return !checked;
-        });
-    }
+    moves = moves.filter((mv) => {
+        const board2 = board.applyMove(mv);
+        const checked = isChecking(board2, !isWhite);
+        //if (checked) console.log(`dropping ${mv}`)
+        return !checked;
+    });
 
     return moves;
 }
@@ -352,6 +354,15 @@ export function isBeingAttacked(pos, board, byWhite) {
                 return (!isMyPiece(v) || isPawn_ && board._params.enPassant === to);
             });
         }
+
+        // recursive loop
+        /* movesArr = movesArr.filter((to) => {
+            const mv = `${from}${to}`;
+            const board2 = board.applyMove(mv);
+            const checked = isChecking(board2, byWhite, iterNum-1); // max call stack. byWhite or !byWhite?
+            //if (checked) console.log(`dropping ${mv}`)
+            return !checked;
+        }); */
 
         if (movesArr.some((to) => to === pos)) {
             //console.log(`checked by ${piece} on ${from}`);
