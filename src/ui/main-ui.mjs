@@ -1,11 +1,11 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { outcomes, play } from '../evaluate.mjs';
+import { computeOutcomes, play } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
-import { moveToObject, isChecking, moveToPgn } from '../move.mjs';
+import { moveToObject, isChecking } from '../move.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
@@ -36,6 +36,8 @@ export function ui(
     { rootEl, fromBlacks },
     { board }
 ) {
+    let out = {};
+
     const vb = [
         -MARGIN * CW,
         -MARGIN * CW,
@@ -71,7 +73,7 @@ export function ui(
         if ((x < 0 || x > CW * 8) || (y < 0 || y > CW * 8)) {
             moveIndices[i] = undefined;
             if (i === 0) return;
-            resolveFn('', '');
+            resolveFn([]);
             return;
         }
 
@@ -110,11 +112,14 @@ export function ui(
     const doNextMove = async () => {
         location.hash = board.getFen();
 
-        let out;
         try {
-            out = await outcomes(board);
+            out = await computeOutcomes(board);
+            redraw();
         } catch (err) {
-            return window.alert(err); // checkmate or draw
+            if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
+                return window.alert(err); // checkmate or draw
+            }
+            throw err;
         }
 
         let move;
@@ -125,12 +130,8 @@ export function ui(
             moves.sort();
 
             do {
-                const prom = new Promise((resolve) => {
-                    resolveFn = resolve;
-                });
+                const prom = new Promise((resolve) => { resolveFn = resolve; });
                 const [from, to] = await prom;
-
-                //move = await promptDialog(`next move for ${board._params.next}?`, moves, '');
 
                 //console.log(`${from} -> ${to}`);
                 move = `${from}${to}`;
@@ -151,10 +152,8 @@ export function ui(
             move = await play(board);
         }
 
-        const isCheckmate = out.checkmateMoves.includes(move);
-        const isCheck = out.checkMoves.includes(move);
-        const movePgn = moveToPgn(move, board) + (isCheckmate ? '#' : isCheck ? '+' : '');
-        console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${movePgn}\n`);
+        const moveAttrs = out.moveAttributesMap.get(move);
+        console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${moveAttrs.pgn}\n`);
         board = board.applyMove(move, true);
         //redraw();
         playAppropriateSound(move, board);
@@ -168,7 +167,7 @@ export function ui(
         doNextMove();
     }
 
-    setTimeout(doNextMove);
+    setTimeout(doNextMove); // ?
 
     m.mount(rootEl, {
     //m.render(rootEl, m({
@@ -187,7 +186,7 @@ export function ui(
                     ontouchstart: onMouse(0),
                     ontouchend: onMouse(1),
                 },
-                UiBoard({ fromBlacks }, { board }),
+                UiBoard({ fromBlacks }, { board, out }),
             );
         }
     });

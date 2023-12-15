@@ -2,21 +2,11 @@ import m from '../../vendor/mithril.mjs';
 
 import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
+import { moveToObject } from '../move.mjs';
 import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
-
-//import { moveToObject, validMoves, isBeingAttacked } from '../move.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW, DRAW_ANNOTATIONS } from './constants.mjs';
-
-/*
-import { Pawn } from './wiki/pawn.mjs';
-import { Knight } from './wiki/knight.mjs';
-import { Bishop } from './wiki/bishop.mjs';
-import { Rook } from './wiki/rook.mjs';
-import { Queen } from './wiki/queen.mjs';
-import { King } from './wiki/king.mjs';
-*/
 
 import { Pawn } from './neo/pawn.mjs';
 import { Knight } from './neo/knight.mjs';
@@ -25,14 +15,13 @@ import { Rook } from './neo/rook.mjs';
 import { Queen } from './neo/queen.mjs';
 import { King } from './neo/king.mjs';
 
-//import { Circle } from './circle.mjs';
-import { Ring } from './ring.mjs';
+//import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
 export function UiBoard(
     { fromBlacks },
-    { board },
+    { board, out },
 ) {
     const posToXY = (pos) => {
         const posXY = Array.from(POSITIONS_TO_XY.get(pos));
@@ -60,17 +49,16 @@ export function UiBoard(
     }
 
     const annotations = [];
+    //console.log('inner', out);
 
     let lastMove;
-    let possibleMoves = [];
-    let riskedPositions = [];
     
     if (DRAW_ANNOTATIONS) {
         lastMove = board.getLastMove()
-        board.getSidePositions().filter(([pos, _]) => {
+        /* board.getSidePositions().filter(([pos, _]) => {
             return isBeingAttacked(pos, board, !board.isWhiteNext());
         }).map(([a]) => a);
-        possibleMoves = validMoves(board)
+        possibleMoves = validMoves(board) */
     }
 
     const ARROW_SCALE_LAST = 2;
@@ -80,15 +68,12 @@ export function UiBoard(
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
     // TODO
-    for (const pos of riskedPositions) {
+    /* for (const pos of riskedPositions) {
         annotations.push(
             Ring({ id: `ring-${board.getId(pos)}` }, {
                 center: toBoardCoords(pos),
 
                 title: 'risked',
-
-                //outerRadius: CW * 0.5,
-                //innerRadius: CW * 0.44,
 
                 radius: CW * 0.44,
                 strokeWidth: CW * 0.06,
@@ -97,36 +82,50 @@ export function UiBoard(
                 alpha: ANNO_ALPHA,
             }),
         );
-    }
+    } */
 
-    for (const mv of possibleMoves) {
-        const mvO = moveToObject(mv, board);
-        const color = randomColor();
-        annotations.push(
-            Arrow({ id: `arrow-${board.getId(mvO.from)}-${board.getId(mvO.to)}` }, {
-                from: toBoardCoords(mvO.from),
-                to: toBoardCoords(mvO.to),
-                fill: { color, alpha: ANNO_ALPHA },
-                stroke: { color, width: ANNO_STROKE_WIDTH },
-                width: 1,
-                arrowW: 1.8,
-                arrowH: 6,
-                title: mv,
-            }),
-        );
-        if (mvO.from2) {
+    if (out?.moves) {
+        for (const [mv, attrs] of out.moveAttributesMap.entries()) {
+            const mvO = moveToObject(mv, board);
+
+            let color, title, width = 1.3;
+            if      (attrs.resultsInCheckmate) { title = 'checkmate';    color = 'green';       }
+            else if (attrs.resultsInStalemate) { title = 'stalemate';    color = 'brown';       }
+            else if (attrs.resultsInCheck) {     title = 'check';        color = 'purple';      }
+            else if (attrs.isSafeCapture) {      title = 'safe capture'; color = 'lime';        }
+            else if (attrs.isPromotion) {        title = 'promotion';    color = 'cyan';        }
+            else if (attrs.isCapture) {          title = 'capture';      color = 'yellow';      }
+            else {                               title = 'regular';      color = randomColor(); width = 0.8; }
+            // TODO CASTLE
+
+            title = `${attrs.pgn} (${title})`;
+
             annotations.push(
-                Arrow({ id: `arrow-${board.getId(mvO.from2)}-${board.getId(mvO.to2)}` }, {
-                    from: toBoardCoords(mvO.from2),
-                    to: toBoardCoords(mvO.to2),
-                    fill: { color, alpha: ANNO_ALPHA },
+                Arrow({ id: `arrow-${mvO.from}-${mvO.to}-${title}` }, {
+                    from: toBoardCoords(mvO.from),
+                    to:   toBoardCoords(mvO.to),
+                    fill:   { color, alpha: ANNO_ALPHA },
                     stroke: { color, width: ANNO_STROKE_WIDTH },
-                    width: 1,
                     arrowW: 1.8,
                     arrowH: 6,
-                    title: mv,
-                })
+                    width,
+                    title,
+                }),
             );
+            if (mvO.from2) {
+                annotations.push(
+                    Arrow({ id: `arrow-${mvO.from2}-${mvO.to2}-${title}` }, {
+                        from: toBoardCoords(mvO.from2),
+                        to:   toBoardCoords(mvO.to2),
+                        fill:   { color, alpha: ANNO_ALPHA },
+                        stroke: { color, width: ANNO_STROKE_WIDTH },
+                        arrowW: 1.8,
+                        arrowH: 6,
+                        width,
+                        title,
+                    })
+                );
+            }
         }
     }
 
@@ -134,7 +133,7 @@ export function UiBoard(
         const mvO = moveToObject(lastMove, board.getLastBoard());
         const color = board.isWhiteNext() ? '#333' : '#CCC';
         annotations.push(
-            Arrow({ id: `arrow-${board.getId(mvO.from)}-${board.getId(mvO.to)}-last` }, {
+            Arrow({ id: `arrow-${mvO.from}-${mvO.to}-last` }, {
                 from: toBoardCoords(mvO.from),
                 to: toBoardCoords(mvO.to),
                 fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },

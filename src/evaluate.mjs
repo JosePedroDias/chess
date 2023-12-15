@@ -1,7 +1,7 @@
 import { isWhitePiece } from './pieces.mjs';
 import { EMPTY } from './board.mjs';
-import { histogram } from './utils.mjs';
-import { isChecking } from './move.mjs';
+import { histogram, randomFloat } from './utils.mjs';
+import { isChecking, moveToPgn } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
 export const PIECE_VALUE = {
@@ -81,7 +81,7 @@ export function isTie(board) {
     return findMaterialDraws(board);
 }
 
-export async function outcomes(board) {
+export async function computeOutcomes(board) {
     const tieResult = isTie(board);
     if (tieResult) throw tieResult;
 
@@ -95,88 +95,71 @@ export async function outcomes(board) {
         throw (amIBeingChecked ? `${CHECKMATE} by ${board.getInvertedBoard()._params.next}` : DRAW_STALEMATE);
     }
 
-    const captureMoves = moves.filter((mv) => {
-        const to = mv.substring(2, 4);
-        return board.get(to) !== EMPTY;
-    });
+    const captureMoves     = new Set();
+    const saveCaptureMoves = new Set();
+    const promotionMoves   = new Set();
+    const checkMoves       = new Set();
+    const checkmateMoves   = new Set();
+    const stalemateMoves   = new Set();
 
-    const promotionMoves = [];
-    const checkMoves = [];
-    const checkmateMoves = [];
-    const stalemateMoves = [];
+    // TODO CASTLING MOVES
+    // TODO DEVELOPMENT MOVES
+    // TODO (UN)PROTECT OTHER PIECES OF MINE?
 
     for (const mv of moves) {
+        const to = mv.substring(2, 4);
         const prom = mv[4];
 
-        if (prom) promotionMoves.push(mv);
+        const isCapture = board.get(to) !== EMPTY;
+
+        if (prom) promotionMoves.add(mv);
         const board2 = board.applyMove(mv);
 
         const amIChecking = isChecking(board2, isWhite);
-        if (amIChecking) {
-            checkMoves.push(mv);
-        }
+        if (amIChecking) checkMoves.add(mv);
 
         const moves2 = await validMoves(board2);
+
+        if (isCapture) {
+            captureMoves.add(mv);
+            let isSafe = true;
+            for (const mv2 of moves2) {
+                const to2 = mv2.substring(2, 4);
+                if (to2 === to) {
+                    isSafe = false;
+                    break;
+                }
+            }
+            if (isSafe) saveCaptureMoves.add(mv);
+        }
 
         const numMoves = moves2.length;
 
         if (numMoves === 0) {
             const bag = amIChecking ? checkmateMoves : stalemateMoves;
-            bag.push(mv);
+            bag.add(mv);
         }
     }
 
-    const captureIsntTradedMoves = [];
-    outer: for (const mv of captureMoves) {
-        const to = mv.substring(2, 4);
-        const board2 = board.applyMove(mv);
-        const moves2 = await validMoves(board2);
-        
-        for (const mv2 of moves2) {
-            const to2 = mv2.substring(2, 4);
-            if (to2 === to) break outer;
-        }
-        captureIsntTradedMoves.push(mv);
-    }
+    const moveAttributesMap = new Map();
 
-    return {
-        moves,
-        amIBeingChecked,
-        checkMoves,
-        checkmateMoves,
-        stalemateMoves,
-        promotionMoves,
-        captureMoves,
-        captureIsntTradedMoves,
-    };
-}
-
-export async function evaluate(board) {
-    const {
-        moves,
-        checkMoves,
-        checkmateMoves,
-        stalemateMoves,
-        promotionMoves,
-        //captureMoves,
-        captureIsntTradedMoves,
-    } = await outcomes(board);
-
-    const candidates = [];
     for (const move of moves) {
+        const resultsInCheckmate = checkmateMoves.has(move);
+        const isSafeCapture = saveCaptureMoves.has(move);
+        const isCapture = captureMoves.has(move);
+        const resultsInCheck = checkMoves.has(move);
+        const isPromotion = promotionMoves.has(move);
         const rnd = Math.random();
+        const resultsInStalemate = stalemateMoves.has(move);
 
-        const isPromotion = promotionMoves.includes(move);
-        const resultsInCheck = checkMoves.includes(move);
-        const resultsInCheckmate = checkmateMoves.includes(move);
-        const resultsInStalemate = stalemateMoves.includes(move);
-        //const isCapture = captureMoves.includes(move);
-        const isGoodCapture = captureIsntTradedMoves.includes(move);
-
-        candidates.push({
+        const pgn = moveToPgn(move, board) + (resultsInCheckmate ? '#' : resultsInCheck ? '+' : '');
+        
+        moveAttributesMap.set(move, {
             move,
+            pgn,
             resultsInCheckmate,
-            isGoodCapture,
+            isSafeCapture,
+            isCapture,
             resultsInCheck,
             isPromotion,
             rnd,
@@ -184,7 +167,18 @@ export async function evaluate(board) {
         });
     }
 
-    return candidates;
+    return {
+        moves,
+        moveAttributesMap,
+        amIBeingChecked,
+
+        checkMoves,
+        checkmateMoves,
+        stalemateMoves,
+        promotionMoves,
+        captureMoves,
+        saveCaptureMoves,
+    };
 }
 
 export function sortDescByScore(arr) {
@@ -198,16 +192,16 @@ export function sortDescByScore(arr) {
 export function heuristic1(o) {
     o.score =   (o.resultsInCheckmate ? 100 : 0) +
                 (o.resultsInStalemate ? -5 : 0) +
-                (o.isGoodCapture ? 2 : 0) +
+                (o.isSafeCapture ? 2 : 0) +
+                (o.isCapture ? randomFloat(0.3) - 0.15 : 0) + // unsafe but fun. how reckless the bot is
                 (o.isPromotion ? 1 : 0) +
                  o.rnd * 0.01;
 }
 
 export async function play(board) {
-    const candidates = await evaluate(board);
+    const candidates = Array.from( (await computeOutcomes(board)).moveAttributesMap.values() );
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);
     //console.table(candidates);
-
     return candidates[0].move;
 }
