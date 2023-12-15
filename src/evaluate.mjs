@@ -1,4 +1,4 @@
-import { isWhitePiece } from './pieces.mjs';
+import { PAWN_B, PAWN_W, isKing, isWhitePiece, isBlackPiece } from './pieces.mjs';
 import { EMPTY } from './board.mjs';
 import { histogram } from './utils.mjs';
 import { isChecking, moveToPgn } from './move.mjs';
@@ -86,6 +86,8 @@ export async function computeOutcomes(board) {
     if (tieResult) throw tieResult;
 
     const isWhite = board.isWhiteNext();
+    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
+    const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
 
     const amIBeingChecked = isChecking(board, !isWhite);
 
@@ -102,16 +104,30 @@ export async function computeOutcomes(board) {
     const stalemateMoves     = new Set();
     const canBeCapturedMoves = new Set();
     const attackedPositions  = new Set();
+    const defendedPositions  = new Set();
 
     const initialMaterial = getBoardMaterial(board, isWhite);
 
     const materialDiff = new Map();
 
-    const myPiecePositions = board.getSidePositions(isWhite).map(([pos]) => pos); // [pos, piece]
+    const myPiecePositions = board.getSidePositions(isWhite).map(([pos]) => pos);
+
+    outerMPP: for (const pos of myPiecePositions) {
+        if (isKing(board.get(pos))) continue;
+        const board_ = board.clone();
+        board_.set(pos, isWhite ? PAWN_B : PAWN_W);
+        const moves_ = await validMoves(board_);
+        for (const mv_ of moves_) {
+            const to_ = mv_.substring(2, 4);
+            if (to_ === pos) {
+                defendedPositions.add(pos);
+                continue outerMPP;
+            }
+        }
+    }
 
     // TODO CASTLING MOVES
     // TODO DEVELOPMENT MOVES
-    // TODO (UN)PROTECT OTHER PIECES OF MINE?
 
     for (const mv of moves) {
         const to = mv.substring(2, 4);
@@ -138,11 +154,10 @@ export async function computeOutcomes(board) {
             if (endMaterial > bestEndMaterial)  bestEndMaterial  = endMaterial;
             if (endMaterial < worseEndMaterial) worseEndMaterial = endMaterial;
 
-            const myPiecePositions2 = board2.getSidePositions(isWhite).map(([pos]) => pos); // [pos, piece]
+            const myPiecePositions2 = board2.getSidePositions(isWhite).map(([pos]) => pos);
             const to2 = mv2.substring(2, 4);
 
             if (myPiecePositions.includes(to2) && board2.get(to2) !== EMPTY) attackedPositions.add(to2);
-
             if (myPiecePositions2.includes(to2)) canBeCapturedMoves.add(mv);
         }
 
@@ -193,6 +208,7 @@ export async function computeOutcomes(board) {
         moves,
         moveAttributesMap,
         attackedPositions,
+        defendedPositions,
         amIBeingChecked,
     };
 }

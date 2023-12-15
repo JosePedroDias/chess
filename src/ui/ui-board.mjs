@@ -61,16 +61,17 @@ export function UiBoard(
 
     // TODO
     for (const pos of Array.from(out?.attackedPositions || [])) {
+        const isDefended = out?.defendedPositions.has(pos);
         annotations.push(
             Ring({ id: `ring-${pos}` }, {
                 center: toBoardCoords(pos),
 
-                title: 'attacked',
+                title: isDefended ? 'attacked and defended' : 'attacked',
 
                 radius: CW * 0.44,
                 strokeWidth: CW * 0.06,
                 
-                color: 'red',
+                color: isDefended ? 'orange' : 'red',
                 alpha: ANNO_ALPHA,
             }),
         );
