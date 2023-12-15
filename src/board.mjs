@@ -21,6 +21,8 @@ export function otherSide(side) {
     return side === WHITE ? BLACK : WHITE;
 }
 
+const DEFAULT_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 export class Board {
     _cells = new Array(64).fill(EMPTY);
     _cellIds = new Array(64).fill(undefined);
@@ -45,7 +47,7 @@ export class Board {
 
     static default() {
         const b = new Board();
-        b.setFen(`rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`);
+        b.setFen(DEFAULT_FEN);
         return b;
     }
 
@@ -92,6 +94,7 @@ export class Board {
     }
 
     setFen(fen) {
+        if (fen !== DEFAULT_FEN) this._initialFen = fen;
         let [board, next, castling, enPassant, halfMoveClock, fullMoveNumber] = fen.split(' ');
         const ranks = board.split('/');
         for (const [y, rank] of ranks.entries()) {
@@ -147,13 +150,17 @@ export class Board {
 
     getPgn() {
         // 2... Nf4 3. Nxe6 d5 4. Bxf4 
-        return Array.from(this._movesPgn.entries())
+        const pgn = Array.from(this._movesPgn.entries())
         .map(([num, movePgn]) => {
             if (num % 2 === 0) {
                 return `${num/2 + 1}. ${movePgn}`;
             };
             return movePgn;
         }).join(' ');
+
+        if (this._initialFen)
+            return `[FEN "${this._initialFen}"] ${pgn}`;
+        return pgn;
     }
 
     get(pos) {
@@ -175,6 +182,7 @@ export class Board {
     clone() {
         const b = new Board();
 
+        b._initialFen = this._initialFen;
         b._cells      = Array.from(this._cells);
         b._cellIds    = Array.from(this._cellIds);
         b._moves      = Array.from(this._moves);

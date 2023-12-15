@@ -101,7 +101,6 @@ It can now be divided into 3 parts:
 
 - logic
     - fix validMoves (king is optimistic, has less valid moves in practice)
-    - if board is loaded from FEN, getPGN should output it being a resumed game
     - differentiate btw defended positions and undefended positions in visual annotations
     - complement TODO tests
     - fix bot UCI compatibility

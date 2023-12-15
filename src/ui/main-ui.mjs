@@ -219,17 +219,11 @@ else if (search.get('only-humans')) HUMAN_VS_HUMAN = true;
 let startBoard = Board.default();
 if (location.hash) {
     const hash = decodeURIComponent(location.hash.substring(1));
-    if (hash.substring(0, 2) === '1.') {
-        // from pgn
-        //startBoard = Board.fromPgn(hash); // TODO
-    } else {
-        // from fen
-        startBoard = Board.fromFen(hash);
-        HUMAN_SIDE = startBoard._params.next;
-        FROM_BLACKS = !startBoard.isWhiteNext();
-        window.board = startBoard; // TODO TEMP
-        //console.log(startBoard.toPrettyString({ details: true }));
-    }
+    startBoard = Board.fromFen(hash);
+    HUMAN_SIDE = startBoard._params.next;
+    FROM_BLACKS = !startBoard.isWhiteNext();
+    window.board = startBoard; // TODO TEMP
+    //console.log(startBoard.toPrettyString({ details: true }));
 } else {
     window.board = startBoard; // TODO TEMP
 }
