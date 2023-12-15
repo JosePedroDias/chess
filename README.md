@@ -22,6 +22,23 @@ It can now be divided into 3 parts:
     - [bot vs bot  ](http://localhost:8080/chess/?only-bots=1&speed=500)
     - [human vs bot](http://localhost:8080/)
 
+# stockfish usage
+
+I still have a bug in valid moves generation without stockfish. (I believe it has to do with king moves).
+`valid-moves.mjs` can use either employ my logic or SF's, and I'm using SFs for now so I can evolve the rest of the game.
+
+# annotations and bot behavior
+
+The `evaluate.mjs` module reasons about the upcoming moves.
+It will return back several data regarding positions and move estimated outcomes.
+That information is used for both applying a heuristic function on the annotated moves and drawing auxiliary overlays to help play the game (and debug my chess logic).
+
+If you keep the console open, you'll get the list of ordered moves and relevant parameters. The topmost move (having the highest score) is used by the bot.
+
+As part of the overlays to the chess game, both arrows and circles can be drawn.
+- Circles mark pieces of ours which can be attacked during the next players's move. If that position is not defended by another piece of ours, its marked with a red circle, otherwise its marked with an orange circle.
+- Arrows are drawn for all valid moves. You can hover to read the arrow description. These are the colors and their meaning: https://github.com/JosePedroDias/chess/blob/main/src/ui/ui-board.mjs#L84
+
 # Reference
 
 ## GUIs
