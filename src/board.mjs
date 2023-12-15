@@ -34,6 +34,7 @@ export class Board {
     }
 
     _moves = [];
+    _movesPgn = [];
     _pastBoards = [];
 
     static empty() {
@@ -146,13 +147,12 @@ export class Board {
 
     getPgn() {
         // 2... Nf4 3. Nxe6 d5 4. Bxf4 
-        return Array.from(this._moves.entries())
-        .map(([num, move]) => {
-            move = move ? moveToPgn(move, this._pastBoards[num]) : '?';
+        return Array.from(this._movesPgn.entries())
+        .map(([num, movePgn]) => {
             if (num % 2 === 0) {
-                return `${num/2 + 1}. ${move}`;
+                return `${num/2 + 1}. ${movePgn}`;
             };
-            return move;
+            return movePgn;
         }).join(' ');
     }
 
@@ -178,6 +178,7 @@ export class Board {
         b._cells      = Array.from(this._cells);
         b._cellIds    = Array.from(this._cellIds);
         b._moves      = Array.from(this._moves);
+        b._movesPgn   = Array.from(this._movesPgn);
         b._pastBoards = Array.from(this._pastBoards);
 
         const p = this._params;
@@ -262,7 +263,7 @@ export class Board {
         for (const flag of flagsToFilter) this._params.castling.delete(flag);
     }
 
-    applyMove(mv) {
+    applyMove(mv, movePgn) {
         const isWhite = this.isWhiteNext();
 
         const from = mv.substring(0, 2);
@@ -284,6 +285,7 @@ export class Board {
         b.set(to, promPiece || piece);
         b.setId(to, id);
         b._moves.push(mv);
+        b._movesPgn.push(movePgn || mv)
 
         if (isPawn(piece)) {
             isHMCReset = true;

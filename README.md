@@ -100,10 +100,10 @@ It can now be divided into 3 parts:
 # TODO
 
 - logic
-    - fix validMoves which SF finds invalid (moves.test.mjs)
+    - fix validMoves (king is optimistic, has less valid moves in practice)
+    - if board is loaded from FEN, getPGN should output it being a resumed game
+    - differentiate btw defended positions and undefended positions in visual annotations
     - complement TODO tests
-    - detect attacked pieces and whether they're defended
-    - find checkmate in 1/2/3...
     - fix bot UCI compatibility
 - UI
     - buttons: new game / play on other side / export PGN

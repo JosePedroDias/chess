@@ -6,7 +6,7 @@ import { moveToObject } from '../move.mjs';
 import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
-import { MARGIN, CW, DRAW_ANNOTATIONS } from './constants.mjs';
+import { MARGIN, CW } from './constants.mjs';
 
 import { Pawn } from './neo/pawn.mjs';
 import { Knight } from './neo/knight.mjs';
@@ -15,7 +15,7 @@ import { Rook } from './neo/rook.mjs';
 import { Queen } from './neo/queen.mjs';
 import { King } from './neo/king.mjs';
 
-//import { Ring } from './ring.mjs';
+import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
@@ -51,15 +51,7 @@ export function UiBoard(
     const annotations = [];
     //console.log('inner', out);
 
-    let lastMove;
-    
-    if (DRAW_ANNOTATIONS) {
-        lastMove = board.getLastMove()
-        /* board.getSidePositions().filter(([pos, _]) => {
-            return isBeingAttacked(pos, board, !board.isWhiteNext());
-        }).map(([a]) => a);
-        possibleMoves = validMoves(board) */
-    }
+    const lastMove = board.getLastMove()
 
     const ARROW_SCALE_LAST = 2;
     const ANNO_STROKE_WIDTH = 0.33;
@@ -68,12 +60,12 @@ export function UiBoard(
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
     // TODO
-    /* for (const pos of riskedPositions) {
+    for (const pos of Array.from(out?.attackedPositions || [])) {
         annotations.push(
-            Ring({ id: `ring-${board.getId(pos)}` }, {
+            Ring({ id: `ring-${pos}` }, {
                 center: toBoardCoords(pos),
 
-                title: 'risked',
+                title: 'attacked',
 
                 radius: CW * 0.44,
                 strokeWidth: CW * 0.06,
@@ -82,20 +74,21 @@ export function UiBoard(
                 alpha: ANNO_ALPHA,
             }),
         );
-    } */
+    }
 
     if (out?.moves) {
         for (const [mv, attrs] of out.moveAttributesMap.entries()) {
             const mvO = moveToObject(mv, board);
 
-            let color, title, width = 1.3;
-            if      (attrs.resultsInCheckmate) { title = 'checkmate';    color = 'green';       }
-            else if (attrs.resultsInStalemate) { title = 'stalemate';    color = 'brown';       }
-            else if (attrs.resultsInCheck) {     title = 'check';        color = 'purple';      }
-            else if (attrs.isSafeCapture) {      title = 'safe capture'; color = 'lime';        }
-            else if (attrs.isPromotion) {        title = 'promotion';    color = 'cyan';        }
-            else if (attrs.isCapture) {          title = 'capture';      color = 'yellow';      }
-            else {                               title = 'regular';      color = randomColor(); width = 0.8; }
+            let color, title, width = 0.9;
+            if      (attrs.isCheckmate) {                       title = 'checkmate';       color = 'green';   width = 1.3; }
+            else if (attrs.isStalemate) {                       title = 'stalemate';       color = 'brown';   width = 1.3; }
+            else if (attrs.isCheck) {                           title = 'check';           color = 'purple';               }
+            else if (attrs.isCapture && !attrs.canBeCaptured) { title = 'safe capture';    color = 'lime';    width = 1.3; }
+            else if (attrs.isCapture) {                         title = 'capture';         color = 'yellow';               }
+            else if (attrs.canBeCaptured) {                     title = 'can be captured'; color = 'orchid';               }
+            else if (attrs.isPromotion) {                       title = 'promotion';       color = 'cyan';                 }
+            else {                                              title = 'regular';         color = randomColor();          }
             // TODO CASTLE
 
             title = `${attrs.pgn} (${title})`;

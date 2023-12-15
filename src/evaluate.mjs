@@ -1,6 +1,6 @@
 import { isWhitePiece } from './pieces.mjs';
 import { EMPTY } from './board.mjs';
-import { histogram, randomFloat } from './utils.mjs';
+import { histogram } from './utils.mjs';
 import { isChecking, moveToPgn } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
@@ -95,12 +95,19 @@ export async function computeOutcomes(board) {
         throw (amIBeingChecked ? `${CHECKMATE} by ${board.getInvertedBoard()._params.next}` : DRAW_STALEMATE);
     }
 
-    const captureMoves     = new Set();
-    const saveCaptureMoves = new Set();
-    const promotionMoves   = new Set();
-    const checkMoves       = new Set();
-    const checkmateMoves   = new Set();
-    const stalemateMoves   = new Set();
+    const captureMoves       = new Set();
+    const promotionMoves     = new Set();
+    const checkMoves         = new Set();
+    const checkmateMoves     = new Set();
+    const stalemateMoves     = new Set();
+    const canBeCapturedMoves = new Set();
+    const attackedPositions  = new Set();
+
+    const initialMaterial = getBoardMaterial(board, isWhite);
+
+    const materialDiff = new Map();
+
+    const myPiecePositions = board.getSidePositions(isWhite).map(([pos]) => pos); // [pos, piece]
 
     // TODO CASTLING MOVES
     // TODO DEVELOPMENT MOVES
@@ -110,7 +117,11 @@ export async function computeOutcomes(board) {
         const to = mv.substring(2, 4);
         const prom = mv[4];
 
-        const isCapture = board.get(to) !== EMPTY;
+        let bestEndMaterial  = -100000;
+        let worseEndMaterial =  100000;
+        materialDiff.set(mv, [0, 0]);
+
+        if (board.get(to) !== EMPTY) captureMoves.add(mv);
 
         if (prom) promotionMoves.add(mv);
         const board2 = board.applyMove(mv);
@@ -120,17 +131,19 @@ export async function computeOutcomes(board) {
 
         const moves2 = await validMoves(board2);
 
-        if (isCapture) {
-            captureMoves.add(mv);
-            let isSafe = true;
-            for (const mv2 of moves2) {
-                const to2 = mv2.substring(2, 4);
-                if (to2 === to) {
-                    isSafe = false;
-                    break;
-                }
-            }
-            if (isSafe) saveCaptureMoves.add(mv);
+        for (const mv2 of moves2) {
+            const board3 =  board2.applyMove(mv2);
+            const endMaterial = getBoardMaterial(board3, isWhite);
+
+            if (endMaterial > bestEndMaterial)  bestEndMaterial  = endMaterial;
+            if (endMaterial < worseEndMaterial) worseEndMaterial = endMaterial;
+
+            const myPiecePositions2 = board2.getSidePositions(isWhite).map(([pos]) => pos); // [pos, piece]
+            const to2 = mv2.substring(2, 4);
+
+            if (myPiecePositions.includes(to2) && board2.get(to2) !== EMPTY) attackedPositions.add(to2);
+
+            if (myPiecePositions2.includes(to2)) canBeCapturedMoves.add(mv);
         }
 
         const numMoves = moves2.length;
@@ -138,46 +151,49 @@ export async function computeOutcomes(board) {
         if (numMoves === 0) {
             const bag = amIChecking ? checkmateMoves : stalemateMoves;
             bag.add(mv);
+        } else {
+            materialDiff.set(
+                mv, [
+                    worseEndMaterial - initialMaterial,
+                    bestEndMaterial  - initialMaterial,
+                ]);
         }
     }
 
     const moveAttributesMap = new Map();
 
     for (const move of moves) {
-        const resultsInCheckmate = checkmateMoves.has(move);
-        const isSafeCapture = saveCaptureMoves.has(move);
-        const isCapture = captureMoves.has(move);
-        const resultsInCheck = checkMoves.has(move);
-        const isPromotion = promotionMoves.has(move);
+        const isCheck        = checkMoves.has(move);
+        const isCheckmate    = checkmateMoves.has(move);
+        const isStalemate    = stalemateMoves.has(move);
+        const isCapture      = captureMoves.has(move);
+        const canBeCaptured  = canBeCapturedMoves.has(move);
+        const isPromotion    = promotionMoves.has(move);
         const rnd = Math.random();
-        const resultsInStalemate = stalemateMoves.has(move);
-
-        const pgn = moveToPgn(move, board) + (resultsInCheckmate ? '#' : resultsInCheck ? '+' : '');
+        const [worseMatDiff, bestMatDiff] = materialDiff.get(move);
+        
+        const pgn = moveToPgn(move, board) + (isCheckmate ? '#' : isCheck ? '+' : '');
         
         moveAttributesMap.set(move, {
             move,
             pgn,
-            resultsInCheckmate,
-            isSafeCapture,
+            isCheck,
+            isCheckmate,
+            isStalemate,
             isCapture,
-            resultsInCheck,
+            canBeCaptured,
             isPromotion,
+            worseMatDiff,
+            bestMatDiff,
             rnd,
-            resultsInStalemate,
         });
     }
 
     return {
         moves,
         moveAttributesMap,
+        attackedPositions,
         amIBeingChecked,
-
-        checkMoves,
-        checkmateMoves,
-        stalemateMoves,
-        promotionMoves,
-        captureMoves,
-        saveCaptureMoves,
     };
 }
 
@@ -190,12 +206,12 @@ export function sortDescByScore(arr) {
 }
 
 export function heuristic1(o) {
-    o.score =   (o.resultsInCheckmate ? 100 : 0) +
-                (o.resultsInStalemate ? -5 : 0) +
-                (o.isSafeCapture ? 2 : 0) +
-                (o.isCapture ? randomFloat(0.3) - 0.15 : 0) + // unsafe but fun. how reckless the bot is
-                (o.isPromotion ? 1 : 0) +
-                 o.rnd * 0.01;
+    o.score =   (o.isCheckmate  ?  100 : 0)      +
+                (o.isStalemate  ?   -5 : 0)      +
+                (o.bestMatDiff + o.worseMatDiff) +
+                (o.isPromotion   ?  0.5 : 0)     +
+                (o.canBeCaptured ? -1.1 : 0)     +
+                 o.rnd * 0.05;
 }
 
 export async function play(board) {

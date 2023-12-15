@@ -1,7 +1,7 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { computeOutcomes, play } from '../evaluate.mjs';
+import { computeOutcomes, play, heuristic1, sortDescByScore } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -114,9 +114,17 @@ export function ui(
 
         try {
             out = await computeOutcomes(board);
+            {
+                const candidates = Array.from(out.moveAttributesMap.values());
+                candidates.forEach(heuristic1);
+                sortDescByScore(candidates);
+                console.table(candidates);
+            } 
             redraw();
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
+                redraw();
+                await sleep(100);
                 return window.alert(err); // checkmate or draw
             }
             throw err;
@@ -154,8 +162,7 @@ export function ui(
 
         const moveAttrs = out.moveAttributesMap.get(move);
         console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${moveAttrs.pgn}\n`);
-        board = board.applyMove(move, true);
-        //redraw();
+        board = board.applyMove(move, moveAttrs.pgn);
         playAppropriateSound(move, board);
         
         window.board = board; // TODO TEMP
