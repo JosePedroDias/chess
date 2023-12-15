@@ -1,12 +1,11 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { play } from '../evaluate.mjs';
+import { outcomes, play } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
 import { moveToObject, isChecking, moveToPgn } from '../move.mjs';
-import { outcomes } from '../all-with-sf.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 

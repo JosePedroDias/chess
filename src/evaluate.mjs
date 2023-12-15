@@ -1,7 +1,8 @@
 import { isWhitePiece } from './pieces.mjs';
+import { EMPTY } from './board.mjs';
 import { histogram } from './utils.mjs';
-import { moveToPgn } from './move.mjs';
-import { outcomes } from './all-with-sf.mjs';
+import { isChecking } from './move.mjs';
+import { validMoves } from './valid-moves.mjs';
 
 export const PIECE_VALUE = {
     'q': 9,
@@ -78,6 +79,76 @@ export function isTie(board) {
     if (board._params.halfMoveClock === 100) return DRAW_50MOVE;
 
     return findMaterialDraws(board);
+}
+
+export async function outcomes(board) {
+    const tieResult = isTie(board);
+    if (tieResult) throw tieResult;
+
+    const isWhite = board.isWhiteNext();
+
+    const amIBeingChecked = isChecking(board, !isWhite);
+
+    const moves = await validMoves(board);
+
+    if (moves.length === 0) {
+        throw (amIBeingChecked ? `${CHECKMATE} by ${board.getInvertedBoard()._params.next}` : DRAW_STALEMATE);
+    }
+
+    const captureMoves = moves.filter((mv) => {
+        const to = mv.substring(2, 4);
+        return board.get(to) !== EMPTY;
+    });
+
+    const promotionMoves = [];
+    const checkMoves = [];
+    const checkmateMoves = [];
+    const stalemateMoves = [];
+
+    for (const mv of moves) {
+        const prom = mv[4];
+
+        if (prom) promotionMoves.push(mv);
+        const board2 = board.applyMove(mv);
+
+        const amIChecking = isChecking(board2, isWhite);
+        if (amIChecking) {
+            checkMoves.push(mv);
+        }
+
+        const moves2 = await validMoves(board2);
+
+        const numMoves = moves2.length;
+
+        if (numMoves === 0) {
+            const bag = amIChecking ? checkmateMoves : stalemateMoves;
+            bag.push(mv);
+        }
+    }
+
+    const captureIsntTradedMoves = [];
+    outer: for (const mv of captureMoves) {
+        const to = mv.substring(2, 4);
+        const board2 = board.applyMove(mv);
+        const moves2 = await validMoves(board2);
+        
+        for (const mv2 of moves2) {
+            const to2 = mv2.substring(2, 4);
+            if (to2 === to) break outer;
+        }
+        captureIsntTradedMoves.push(mv);
+    }
+
+    return {
+        moves,
+        amIBeingChecked,
+        checkMoves,
+        checkmateMoves,
+        stalemateMoves,
+        promotionMoves,
+        captureMoves,
+        captureIsntTradedMoves,
+    };
 }
 
 export async function evaluate(board) {
