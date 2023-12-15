@@ -2,8 +2,6 @@ import { isPiece, isPawn, isRook, isKing, isWhitePiece, isBlackPiece, KING_W, KI
 import { moveToPgn } from './move.mjs';
 import { randomString } from './utils.mjs';
 
-const CHARS_WIDTH = 2;
-
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
 export const POSITIONS_TO_XY = new Map();
@@ -18,11 +16,6 @@ const NL = '\n';
 export const QUEEN_SIDE_CASTLING_MOVES = ['e1c1', 'e8c8'];
 export const KING_SIDE_CASTLING_MOVES  = ['e1g1', 'e8g8'];
 export const CASTLING_MOVES = [...QUEEN_SIDE_CASTLING_MOVES, ...KING_SIDE_CASTLING_MOVES];
-
-const sizeCell = (p) => {
-    return CHARS_WIDTH === 1 ? p :
-           CHARS_WIDTH === 2 ? ` ${p}`: ` ${p} `;
-}
 
 export function otherSide(side) {
     return side === WHITE ? BLACK : WHITE;
@@ -246,14 +239,15 @@ export class Board {
         }
     }
 
-    toString(fromBlacks) {
+    toString(fromBlacks, dotEmpties) {
         const lines = [];
         for (let yi = 0; yi < 8; ++yi) {
             const line = [];
             for (let xi = 0; xi < 8; ++xi) {
                 const idx = fromBlacks ? (7-xi) + 8 * (7 - yi) : xi + 8 * yi;
                 const p = this._cells[idx];
-                line.push(sizeCell(p));
+                const content = dotEmpties ? ` ${p === EMPTY ? '.' : p}` : ` ${p}`;
+                line.push(content);
             }
             lines.push(line.join(''));
         }

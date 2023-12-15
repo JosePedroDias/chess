@@ -3,7 +3,8 @@ import m from '../../vendor/mithril.mjs';
 import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
 import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
-import { moveToObject, validMoves, isBeingAttacked } from '../move.mjs';
+
+//import { moveToObject, validMoves, isBeingAttacked } from '../move.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW, DRAW_ANNOTATIONS } from './constants.mjs';

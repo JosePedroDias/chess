@@ -1,11 +1,12 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { play, evaluate, heuristic1, sortDescByScore } from '../evaluate.mjs';
+import { play } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
-import { validMoves, moveToPgn, moveToObject, isChecking } from '../move.mjs';
+import { moveToObject, isChecking, moveToPgn } from '../move.mjs';
+import { outcomes } from '../all-with-sf.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
@@ -18,7 +19,7 @@ let HUMAN_SIDE = WHITE;
 let BOT_SPEED_MS = 1500;
 let FROM_BLACKS = false;
 
-const USE_STOCKFISH = false;
+const USE_STOCKFISH = true;
 
 if (USE_STOCKFISH) setupStockfish(20);
 
@@ -110,23 +111,19 @@ export function ui(
     const doNextMove = async () => {
         location.hash = board.getFen();
 
+        let out;
+        try {
+            out = await outcomes(board);
+        } catch (err) {
+            return window.alert(err); // checkmate or draw
+        }
+
         let move;
         if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
             // HUMAN IS NOW PLAYING
 
-            const moves = validMoves(board);
+            const moves = out.moves;
             moves.sort();
-
-            try {
-                const candidates = evaluate(board);
-                candidates.forEach(heuristic1);
-                sortDescByScore(candidates);
-                //console.table(candidates);
-                const c0 = candidates[0];
-                console.log('bot would have played', c0.move, c0.pgn);
-            } catch (err) {
-                return window.alert(err); // checkmate or stalemate
-            }
 
             do {
                 const prom = new Promise((resolve) => {
@@ -152,16 +149,12 @@ export function ui(
             // BOT IS NOW PLAYING
 
             await sleep(BOT_SPEED_MS);
-
-            try {
-                move = await play(board);
-            } catch (err) {
-                return window.alert(err); // checkmate or stalemate
-            }
-
+            move = await play(board);
         }
 
-        const movePgn = moveToPgn(move, board);
+        const isCheckmate = out.checkmateMoves.includes(move);
+        const isCheck = out.checkMoves.includes(move);
+        const movePgn = moveToPgn(move, board) + (isCheckmate ? '#' : isCheck ? '+' : '');
         console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${movePgn}\n`);
         board = board.applyMove(move, true);
         //redraw();

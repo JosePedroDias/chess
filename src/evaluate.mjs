@@ -1,6 +1,7 @@
 import { isWhitePiece } from './pieces.mjs';
 import { histogram } from './utils.mjs';
-import { validMoves, isMoveCapture, isChecking, isBeingAttacked, moveToPgn } from './move.mjs';
+import { moveToPgn } from './move.mjs';
+import { outcomes } from './all-with-sf.mjs';
 
 export const PIECE_VALUE = {
     'q': 9,
@@ -79,58 +80,36 @@ export function isTie(board) {
     return findMaterialDraws(board);
 }
 
-export function evaluate(board) {
-    const isWhite = board.isWhiteNext();
-    const moves = validMoves(board);
-
-    const amIBeingChecked = isChecking(board, !isWhite);
-
-    if (moves.length === 0) throw (amIBeingChecked ? CHECKMATE : DRAW_STALEMATE);
-
-    const drawReason = isTie(board);
-    if (drawReason) throw drawReason;
-
-    const startMaterial = getBoardMaterial(board, isWhite);
+export async function evaluate(board) {
+    const {
+        moves,
+        checkMoves,
+        checkmateMoves,
+        stalemateMoves,
+        promotionMoves,
+        //captureMoves,
+        captureIsntTradedMoves,
+    } = await outcomes(board);
 
     const candidates = [];
-
     for (const move of moves) {
-        const pgn = moveToPgn(move, board);
-
-        const isPromotion = Boolean(move[4]);
-        const isCapture = isMoveCapture(board, move);
-
-        const board2 = board.applyMove(move);
-
-        const isCheck = isChecking(board2, isWhite);
-
-        const resultingMaterial = getBoardMaterial(board2, isWhite);
-        const diffMaterial = resultingMaterial - startMaterial;
-
-        const numMovesWeGet = validMoves(board2).length;
-
-        const ourPositions = board2.getSidePositions(isWhite);
-        const theirPositions = board2.getSidePositions(!isWhite);
-
-        const whatWeCanLose =   ourPositions.filter((pair) => isBeingAttacked(pair[0], board2, !isWhite)).map(pair => pair[1]);
-        const whatWeCanWin  = theirPositions.filter((pair) => isBeingAttacked(pair[0], board2,  isWhite)).map(pair => pair[1]);
-
-        const maxLoss = whatWeCanLose.reduce((prev, curr) => Math.min(prev, -1 * getPieceMaterial(curr)), 0);
-        const maxWin  = whatWeCanWin.reduce( (prev, curr) => Math.max(prev,      getPieceMaterial(curr)), 0);
-
-        // TODO value forks
-        // TODO check if maxLoss is defended
-        // TODO check if maxWin  is defended
-
         const rnd = Math.random();
 
+        const isPromotion = promotionMoves.includes(move);
+        const resultsInCheck = checkMoves.includes(move);
+        const resultsInCheckmate = checkmateMoves.includes(move);
+        const resultsInStalemate = stalemateMoves.includes(move);
+        //const isCapture = captureMoves.includes(move);
+        const isGoodCapture = captureIsntTradedMoves.includes(move);
+
         candidates.push({
-            move, pgn,
+            move,
+            resultsInCheckmate,
+            isGoodCapture,
+            resultsInCheck,
+            isPromotion,
             rnd,
-            numMovesWeGet,
-            isPromotion, isCapture, isCheck,
-            diffMaterial,
-            maxWin, maxLoss,
+            resultsInStalemate,
         });
     }
 
@@ -146,18 +125,18 @@ export function sortDescByScore(arr) {
 }
 
 export function heuristic1(o) {
-    o.score =   o.diffMaterial + 
-                0.1 * o.maxWin + 0.12 * o.maxLoss +
-                (o.isCheck ? 2 : 0) +
-                o.numMovesWeGet * 0.02 +
-                o.rnd * 0.01;
-                0;
+    o.score =   (o.resultsInCheckmate ? 100 : 0) +
+                (o.resultsInStalemate ? -5 : 0) +
+                (o.isGoodCapture ? 2 : 0) +
+                (o.isPromotion ? 1 : 0) +
+                 o.rnd * 0.01;
 }
 
 export async function play(board) {
-    const candidates = evaluate(board);
+    const candidates = await evaluate(board);
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);
+    //console.table(candidates);
 
     return candidates[0].move;
 }

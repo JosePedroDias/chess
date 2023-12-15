@@ -128,8 +128,16 @@ test('validMoves k', async (_t) => await valid('k', false));
 
 test('king moves without getting checked', (_t) => {
     const b = Board.fromFen(`8/8/1k6/4b3/8/3K4/r7/8 w - - 0 1`);
+    console.log(b.toString(false, true));
     const moves = validMoves(b, true);
-    deepEqual(moves, ['d3c4', 'd3e4', 'd3e3']);
+    moves.sort();
+    deepEqual(moves, ['d3c4', 'd3e3', 'd3e4']);
+});
+
+test('king moves without getting checked SF', async (_t) => {
+    const moves = await getValidMoves('8/8/1k6/4b3/8/3K4/r7/8 w - - 0 1');
+    moves.sort();
+    deepEqual(moves, ['d3c4', 'd3e3', 'd3e4']);
 });
 
 test('isChecking', (_t) => {

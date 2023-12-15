@@ -133,9 +133,10 @@ function _pawnMoves(pos, isWhite) {
     }, []);
 }
 
-function _kingMoves(pos) {
+// pos2 is opposite king pos
+function _kingMoves(pos, pos2) {
     const [x, y] = posToXY(pos);
-    const moves = [
+    let moves = [
         [x-1, y-1],
         [x,   y-1],
         [x+1, y-1],
@@ -152,6 +153,12 @@ function _kingMoves(pos) {
         moves.push(`c${posRank}`);
         moves.push(`g${posRank}`);
     }
+
+    // they can't be checking each other
+    moves = moves.filter((to) => {
+        const [dx, dy] = deltaMovesXY(to, pos2);
+        return !((Math.abs(dx) < 2) || (Math.abs(dy) < 2));
+    });
 
     return moves;
 }
@@ -192,7 +199,7 @@ const rm = new Map();
 const bm = new Map();
 const nm = new Map();
 
-const kingMoves   = memoFactory(_kingMoves ,  km);
+const kingMoves   = memoFactory(_kingMoves ,  km, (a, b) => `${a}:${b}`);
 const queenMoves  = memoFactory(_queenMoves,  qm);
 const pawnMoves   = memoFactory(_pawnMoves,   pm, (a, b) => `${b ? 'w' : 'b'}${a}`);
 const rookMoves   = memoFactory(_rookMoves,   rm);
@@ -204,6 +211,9 @@ export function validMoves(board, isWhiteOverride) {
     const isWhite = isWhiteOverride !== undefined ? isWhiteOverride : board.isWhiteNext();
     const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
     const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
+    
+    const isOpponentKing = (v) => v === (isWhite ? KING_B : KING_W);
+    const opponentKingPos = board.findPos(isOpponentKing);
 
     for (const [from, piece] of board.cellsHaving(isMyPiece)) {
         let movesArr;
@@ -224,7 +234,7 @@ export function validMoves(board, isWhiteOverride) {
         } else if (isQueen(piece)) {
             movesArr = queenMoves(from);
         } else if (isKing(piece)) {
-            movesArr = kingMoves(from);
+            movesArr = kingMoves(from, opponentKingPos);
             movesArr = movesArr.filter((to) => {
                 const move = `${from}${to}`;
                 if (!CASTLING_MOVES.includes(move)) return true;
@@ -297,6 +307,9 @@ export function validMoves(board, isWhiteOverride) {
 export function isBeingAttacked(pos, board, byWhite) {
     const isMyPiece = byWhite ? isWhitePiece : isBlackPiece;
     const isOpponentPiece = byWhite ? isBlackPiece : isWhitePiece;
+    
+    const isOpponentKing = (v) => v === (byWhite ? KING_B : KING_W);
+    const opponentKingPos = board.findPos(isOpponentKing);
 
     for (const [from, piece] of board.cellsHaving(isMyPiece)) {
         let movesArr;
@@ -325,7 +338,7 @@ export function isBeingAttacked(pos, board, byWhite) {
         } else if (isQueen(piece)) {
             movesArr = queenMoves(from);
         } else if (isKing(piece)) {
-            movesArr = kingMoves(from);
+            movesArr = kingMoves(from, opponentKingPos);
         }
 
         // apply direction arrays to board (for Q, R, B)
