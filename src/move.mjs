@@ -289,14 +289,15 @@ export function isBeingAttacked(pos, board, byWhite) {
         } else {
             // check target is empty or opponent
             const isPawn_ = isPawn(piece);
-            movesArr.filter((to) => {
+            movesArr.filter((toWithPotentialProm) => {
+                const to = toWithPotentialProm.substring(0, 2); // can have 3rd character defining promoted piece
                 const v = board.get(to);
                 // w/ en passant
-                return (!isMyPiece(v) || isPawn_ && board._params.enPassant === to);
+                return (!isMyPiece(v) || isPawn_);
             });
         }
 
-        if (movesArr.some((to) => to === pos)) {
+        if (movesArr.some((to) => to.substring(0, 2) === pos)) {
             //console.log(`checked by ${piece} on ${from}`);
             return true;
         }

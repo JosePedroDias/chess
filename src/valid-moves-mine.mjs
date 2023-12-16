@@ -6,7 +6,7 @@ import {
 } from './pieces.mjs';
 import {
     pawnMoves, knightMoves, bishopMoves, rookMoves, queenMoves, kingMoves,
-    isChecking,
+    isChecking, isBeingAttacked,
 } from './move.mjs';
 
 export function validMoves(board, isWhiteOverride) {
@@ -66,6 +66,7 @@ export function validMoves(board, isWhiteOverride) {
                     default: throw new Error('should not happen');
                 }
                 if (!mustBeEmpty.every((pos) => board.get(pos) === EMPTY)) return false;
+                if (mustBeEmpty.some((pos) => isBeingAttacked(pos, board, !isWhite))) return false;
                 if (board.get(mustBeRook) !== (isWhite ? ROOK_W : ROOK_B)) return false;
                 return true;
             });

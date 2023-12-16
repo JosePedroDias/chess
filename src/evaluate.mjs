@@ -1,4 +1,4 @@
-import { PAWN_B, PAWN_W, isKing, isWhitePiece, isBlackPiece } from './pieces.mjs';
+import { PAWN_B, PAWN_W, isKing, isWhitePiece } from './pieces.mjs';
 import { EMPTY } from './board.mjs';
 import { histogram, randomFloat } from './utils.mjs';
 import { isChecking, moveToPgn } from './move.mjs';

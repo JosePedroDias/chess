@@ -1,6 +1,7 @@
 import { Board } from './board.mjs';
 import { diff, randomFromArr } from './utils.mjs';
-import { isChecking } from './move.mjs';
+//import { isChecking } from './move.mjs';
+import { isTie } from './evaluate.mjs';
 import { setup, terminate } from './stockfish-node-wrapper.mjs';
 import { validMoves as validMovesMine } from './valid-moves-mine.mjs';
 import { validMoves as validMovesSF } from './valid-moves-sf.mjs';
@@ -10,8 +11,8 @@ await setup(20);
 let b = Board.default();
 
 while (true) {
-    console.log('BOARD', b.getFen());
-    console.log('am i in check?', isChecking(b, !b.isWhiteNext()));
+    //console.log('BOARD', b.getFen());
+    //console.log('am i in check?', isChecking(b, !b.isWhiteNext()));
 
     const vm1 = await validMovesMine(b);
     vm1.sort();
@@ -20,7 +21,7 @@ while (true) {
     vm2.sort();
 
     if (vm1.join('_') !== vm2.join('_')) {
-        //console.log(`FEN: ${b.getFen()}`);
+        console.log(`FEN: ${b.getFen()}`);
         console.log(b.toString());
 
         // console.log(`\na) zpBot:`);     console.log(vm1);
@@ -50,6 +51,12 @@ while (true) {
     const move = randomFromArr(vm1);
     console.log(move);
     b = b.applyMove(move);
+
+    let tieReason = isTie(b);
+    if (tieReason) {
+        console.log(tieReason);
+        break;
+    }
 }
 
 console.log('all done');

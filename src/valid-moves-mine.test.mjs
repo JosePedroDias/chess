@@ -3,8 +3,6 @@ import { equal, deepEqual } from 'node:assert/strict';
 
 import { validMoves } from './valid-moves-mine.mjs';
 import { Board } from './board.mjs';
-//import { isChecking, isBeingAttacked, isMoveCapture, moveToObject, moveToPgn } from './move.mjs';
-//import { computeOutcomes } from './evaluate.mjs';
 
 test('validMoves start pos', async (_t) => {
     const b = Board.default();
@@ -27,4 +25,20 @@ test('validMoves checkmate', async (_t) => {
     const moves = await validMoves(b);
     moves.sort();
     deepEqual(moves, []);
+});
+
+test('validMoves castling impossible under check', async (_t) => {
+    const b = Board.fromFen(`1nb2b2/1ppp1kr1/r4ppp/p3p2B/P6P/N2qPPN1/1P1P2P1/2BQK2R w K - 0 19`);
+    const moves = await validMoves(b);
+    moves.sort();
+    deepEqual(moves, [
+        'a3b1', 'a3b5', 'a3c2',
+        'a3c4', 'b2b3', 'b2b4',
+        'd1b3', 'd1c2', 'd1e2',
+        'e1f2', /*'e1g1',*/ 'e3e4',
+        'f3f4', 'g3e2', 'g3e4',
+        'g3f1', 'g3f5', 'h1f1',
+        'h1g1', 'h1h2', 'h1h3',
+        'h5g4', 'h5g6'
+      ]);
 });
