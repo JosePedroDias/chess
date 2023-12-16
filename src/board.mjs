@@ -289,10 +289,8 @@ export class Board {
         
         const b = this.clone();
 
-        let isHMCReset = false;
-
         const isCapture = this.get(to) !== EMPTY;
-        if (isCapture) isHMCReset = true;
+        let isHMCReset = isCapture;
 
         const id = b.getId(from);
         b.set(from, EMPTY);
@@ -302,17 +300,15 @@ export class Board {
         b._moves.push(mv);
         b._movesPgn.push(movePgn || mv); // TODO MEH
 
+        // update en passant flag
+        if (!isPawn(piece)) b._params.enPassant = undefined;
+
         if (isPawn(piece)) {
             isHMCReset = true;
-
-            // set en passant flag
             const y0 = parseInt(from[1], 10);
             const y1 = parseInt(to[1], 10);
-            if (Math.abs(y1 - y0) === 2) {
-                b._params.enPassant = from[0] + ((y0 + y1)/2);
-            } else {
-                b._params.enPassant = NOTHING;
-            }
+            const isJump2 = Math.abs(y1 - y0) === 2;
+            b._params.enPassant = isJump2 ? from[0] + ((y0 + y1)/2) : undefined;
         } else if (isKing(piece)) {
             if (CASTLING_MOVES.includes(mv)) {
                 let from2, to2;

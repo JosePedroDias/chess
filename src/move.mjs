@@ -243,10 +243,12 @@ export function isBeingAttacked(pos, board, byWhite) {
 
         if (isPawn(piece)) {
             movesArr = pawnMoves(from, byWhite);
-            movesArr = movesArr.filter((to_) => {
-                const to = to_.substring(0, 2);
+            movesArr = movesArr.filter((toWithPotentialProm) => {
+                const to = toWithPotentialProm.substring(0, 2); // can have 3rd character defining promoted piece
                 const isCaptureMove = from[0] !== to[0];
-                if (!isCaptureMove) {
+                if (isCaptureMove) {
+                    return (isOpponentPiece(board.get(to)) || board._params.enPassant === to);
+                } else {
                     const y0 = parseInt(from[1], 10);
                     const y1 = parseInt(to[1],   10);
                     const avgY = (y0 + y1) / 2;
@@ -254,7 +256,6 @@ export function isBeingAttacked(pos, board, byWhite) {
                     if (is2FilesMove && board.get(`${to[0]}${avgY}`) !== EMPTY) return false;
                     return board.get(to) === EMPTY;
                 }
-                return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
             });
         } else if (isKnight(piece)) {
             movesArr = knightMoves(from);
@@ -294,15 +295,6 @@ export function isBeingAttacked(pos, board, byWhite) {
                 return (!isMyPiece(v) || isPawn_ && board._params.enPassant === to);
             });
         }
-
-        // recursive loop
-        /* movesArr = movesArr.filter((to) => {
-            const mv = `${from}${to}`;
-            const board2 = board.applyMove(mv);
-            const checked = isChecking(board2, byWhite, iterNum-1); // max call stack. byWhite or !byWhite?
-            //if (checked) console.log(`dropping ${mv}`)
-            return !checked;
-        }); */
 
         if (movesArr.some((to) => to === pos)) {
             //console.log(`checked by ${piece} on ${from}`);

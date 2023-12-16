@@ -22,11 +22,19 @@ export function validMoves(board, isWhiteOverride) {
         let movesArr;
         if (isPawn(piece)) {
             movesArr = pawnMoves(from, isWhite);
-            movesArr = movesArr.filter((to_) => {
-                const to = to_.substring(0, 2);
+            movesArr = movesArr.filter((toWithPotentialProm) => {
+                const to = toWithPotentialProm.substring(0, 2); // can have 3rd character defining promoted piece
                 const isCaptureMove = from[0] !== to[0];
-                if (!isCaptureMove) return board.get(to) === EMPTY;
-                return isOpponentPiece(board.get(to)) || board._params.enPassant === to;
+                if (isCaptureMove) {
+                    return (isOpponentPiece(board.get(to)) || board._params.enPassant === to);
+                } else {
+                    const y0 = parseInt(from[1], 10);
+                    const y1 = parseInt(to[1],   10);
+                    const avgY = (y0 + y1) / 2;
+                    const is2FilesMove = avgY % 1 === 0;
+                    if (is2FilesMove && board.get(`${to[0]}${avgY}`) !== EMPTY) return false;
+                    return board.get(to) === EMPTY;
+                }
             });
         } else if (isRook(piece)) {
             movesArr = rookMoves(from);

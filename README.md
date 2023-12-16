@@ -24,7 +24,7 @@ It can now be divided into 3 parts:
 
 # stockfish usage
 
-I still have a bug in valid moves generation without stockfish. (I believe it has to do with king moves).
+~~I still have a bug in valid moves generation without stockfish. (I believe it has to do with king moves).~~
 `valid-moves.mjs` can use either employ my logic or SF's, and I'm using SFs for now so I can evolve the rest of the game.
 
 # annotations and bot behavior
@@ -118,8 +118,6 @@ As part of the overlays to the chess game, both arrows and circles can be drawn.
 # TODO
 
 - logic
-    - fix validMoves (king is optimistic, has less valid moves in practice)
-    - differentiate btw defended positions and undefended positions in visual annotations
     - complement TODO tests
     - fix bot UCI compatibility
 - UI
