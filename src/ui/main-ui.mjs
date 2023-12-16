@@ -12,8 +12,8 @@ import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { setup, evalBoard } from '../stockfish-browser-wrapper.mjs';
 import { sleep } from '../utils.mjs';
 
-const USE_STOCKFISH_EVAL = false;
-//setup(20);
+const USE_STOCKFISH_EVAL = true;
+setup(20);
 
 const moveIndices = new Array(2);
 
@@ -154,7 +154,7 @@ export function ui(
         const playFn = playFunctions[board.isWhiteNext() ? 0 : 1];
         
         const t0 = Date.now();
-        console.log(`${playFn.name}...`);
+        console.log(`${playFn.name.substring(4)}...`);
         const move = await playFn(board);
         const dt = Date.now() - t0;
         console.log(`after ${dt} ms got ${move}`);

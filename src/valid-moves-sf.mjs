@@ -12,5 +12,6 @@ setup(20);
 export async function validMoves(board, isWhiteOverride) {
     const isWhite = board.isWhiteNext();
     if (isWhiteOverride && !isWhite) board = board.getInvertedBoard();
-    return await getValidMoves(board.getFen());
+    const moves = await getValidMoves(board.getFen());
+    return Array.from( new Set(moves) ); // remove duplicates? maybe irrelevant on most scenarios
 }

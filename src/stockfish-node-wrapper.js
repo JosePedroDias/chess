@@ -141,8 +141,16 @@ async function getValidMoves(fenString, depth = 1) {
     return moves;
 }
 
+const onLine = (line) => {
+    LOG && console.log(`<< '${line}'`);
+    _fireLine(line);
+};
+
 function terminate() {
+    //_engine.removeEventListener(onLine); // TODO HOW?
+    //console.log(_engine);
     _engine.terminate();
+    setTimeout(() => process.exit(0), 0); // hackish
 }
 
 /////
@@ -164,13 +172,10 @@ async function setup(skillLevel) {
     
     // console.log(Object.keys(_engine));
     
-    _engine.addMessageListener((line) => {
-        LOG && console.log(`<< '${line}'`);
-        _fireLine(line);
-    });
+    _engine.addMessageListener(onLine);
 
-    setSkillLevel(skillLevel)
-    .then(() => console.log(`skill level ${skillLevel} set`));
+    setSkillLevel(skillLevel);
+    //.then(() => console.log(`skill level ${skillLevel} set`));
 }
 
 module.exports = {
