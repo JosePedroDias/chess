@@ -15,12 +15,12 @@ It can now be divided into 3 parts:
 
 - on GH:
 
-    - [bot vs bot  ](https://josepedrodias.github.io/chess/?only-bots=1&speed=500)
-    - [human vs bot](https://josepedrodias.github.io/chess/)
+    - [bot vs bot, seen from blacks](https://josepedrodias.github.io/chess/?only-bots=1&from-blacks=1)
+    - [human vs bot w/ hints       ](https://josepedrodias.github.io/chess/?hints=1)
 
 - locally:
-    - [bot vs bot  ](http://localhost:8080/chess/?only-bots=1&speed=500)
-    - [human vs bot](http://localhost:8080/)
+    - [bot vs bot, seen from blacks](http://localhost:8080/chess/?only-bots=1&from-blacks=1)
+    - [human vs bot w/ hints       ](http://localhost:8080/chess/?hints=1)
 
 # stockfish usage
 

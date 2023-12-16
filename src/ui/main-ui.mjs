@@ -1,7 +1,7 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
-import { Board, BLACK, WHITE } from '../board.mjs';
-import { computeOutcomes, playZpBot, playSF, heuristic1, sortDescByScore } from '../evaluate.mjs';
+import { Board } from '../board.mjs';
+import { computeOutcomes, playZpBot, playSF } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -9,18 +9,10 @@ import { moveToObject, isChecking } from '../move.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
-import { setup as setupStockfish, evalBoard } from '../stockfish-browser-wrapper.mjs';
+import { evalBoard } from '../stockfish-browser-wrapper.mjs';
 import { sleep } from '../utils.mjs';
 
-let BOT_VS_BOT = false;
-let HUMAN_VS_HUMAN = false;
-let HUMAN_SIDE = WHITE;
-let BOT_SPEED_MS = 550;
-let FROM_BLACKS = false;
-
 const USE_STOCKFISH = true;
-
-if (USE_STOCKFISH) setupStockfish(20);
 
 const moveIndices = new Array(2);
 
@@ -33,16 +25,12 @@ function playAppropriateSound(move, resultingBoard) {
 }
 
 export function ui(
-    { rootEl, fromBlacks, drawAnnotations },
+    { rootEl, playMs, fromBlacks, drawAnnotations, onlyBots, onlyHumans },
     { board }
 ) {
-    let out = {};
-
     const playHuman = async (board) => {
         let move;
-
         const out = await computeOutcomes(board);
-
         do {
             const prom = new Promise((resolve) => { resolveFn = resolve; });
             const [from, to] = await prom;
@@ -63,15 +51,10 @@ export function ui(
         return move;
     }
 
-    const playFunctions = [ // white, black
-        playSF,
-        playZpBot
-    ];
-
-    const areWhitesHuman = BOT_VS_BOT ? false : HUMAN_VS_HUMAN ? true : HUMAN_SIDE === WHITE;
-    const areBlacksHuman = BOT_VS_BOT ? false : HUMAN_VS_HUMAN ? true : HUMAN_SIDE === BLACK;
-    if (areWhitesHuman) playFunctions[0] = playHuman;
-    if (areBlacksHuman) playFunctions[1] = playHuman;
+    // white, black
+    const playFunctions = [ playHuman, playZpBot ];
+    if      (onlyBots)   playFunctions[0] = playSF;
+    else if (onlyHumans) playFunctions[1] = playHuman;
 
     const playingWhite = playFunctions[0].name;
     const playingBlack = playFunctions[1].name;
@@ -127,7 +110,7 @@ export function ui(
         }
     };
 
-    // TODO HACKY TEMPORARY
+    // TODO
     function undo() {
         board = board.getLastBoard();
         board = board.getLastBoard();
@@ -140,19 +123,17 @@ export function ui(
 
     const title = `${playingWhite} v ${playingBlack}`;
 
+    let out;
+
     const updateEval = async () => {
         if (!USE_STOCKFISH) return;
         let ev = await evalBoard(board.getFen());
-
-        // instead of centered on white, centered on who's the human player
-        if (isFinite(ev) && HUMAN_SIDE === BLACK) ev = -ev;
         document.title = `eval: ${ev} | ${title}`;
     }
     updateEval();
 
     const doNextMove = async () => {
         location.hash = board.getFen();
-
         try {
             out = await computeOutcomes(board);
             redraw();
@@ -177,7 +158,7 @@ export function ui(
         const dt = Date.now() - t0;
         console.log(`after ${dt} ms got ${move}`);
 
-        const remainingMs = BOT_SPEED_MS - dt;
+        const remainingMs = playMs - dt;
         if (remainingMs > 0) {
             console.log(`sleep for ${remainingMs} ms`)
             await sleep(remainingMs);
@@ -197,7 +178,6 @@ export function ui(
     setTimeout(doNextMove); // ?
 
     m.mount(rootEl, {
-    //m.render(rootEl, m({
         oninit(_vnode) {
             vnode = _vnode;
         },
@@ -205,8 +185,6 @@ export function ui(
             return m(
                 'svg',
                 {
-                    //width: 8 * CW,
-                    //height: 8 * CW,
                     viewBox: `${vb[0]} ${vb[1]} ${vb[2]} ${vb[3]}`,
                     onmousedown: onMouse(0),
                     onmouseup: onMouse(1),
@@ -217,43 +195,30 @@ export function ui(
             );
         }
     });
-    //}));
 }
-
-const u = new URL(location.href);
-const search = u.searchParams;
-
-if (search.get('botFirst')) {
-    FROM_BLACKS = true;
-    HUMAN_SIDE = BLACK;
-}
-
-if (search.get('only-bots')) BOT_VS_BOT = true;
-else if (search.get('only-humans')) HUMAN_VS_HUMAN = true;
 
 {
-    const speed = parseFloat(search.get('speed'));
-    if (speed && !isNaN(speed)) BOT_SPEED_MS = speed;
-}
+    const u = new URL(location.href);
+    const search = u.searchParams;
 
-let startBoard = Board.default();
-if (location.hash) {
-    const hash = decodeURIComponent(location.hash.substring(1));
-    startBoard = Board.fromFen(hash);
-    HUMAN_SIDE = startBoard._params.next;
-    FROM_BLACKS = !startBoard.isWhiteNext();
-    window.board = startBoard; // TODO TEMP
-    //console.log(startBoard.toPrettyString({ details: true }));
-} else {
-    window.board = startBoard; // TODO TEMP
-}
-ui(
-    {
-        rootEl: document.body,
-        fromBlacks: FROM_BLACKS,
-        drawAnnotations: search.get('hints'),
-    },
-    {
-        board: startBoard,
+    let startBoard = Board.default();
+    if (location.hash) {
+        const hash = decodeURIComponent(location.hash.substring(1));
+        startBoard = Board.fromFen(hash);
     }
-);
+    window.board = startBoard;
+
+    ui(
+        {
+            rootEl:          document.body,
+            playMs:          550,
+            fromBlacks:      search.get('from-blacks'),
+            drawAnnotations: search.get('hints'),
+            onlyBots:        search.get('only-bots'),
+            onlyHumans:      search.get('only-humans'),
+        },
+        {
+            board: startBoard,
+        }
+    );
+}
