@@ -38,16 +38,43 @@ export function ui(
 ) {
     let out = {};
 
-    const botFunctions = [ // white, black
+    const playHuman = async (board) => {
+        let move;
+
+        const out = await computeOutcomes(board);
+
+        do {
+            const prom = new Promise((resolve) => { resolveFn = resolve; });
+            const [from, to] = await prom;
+
+            //console.log(`${from} -> ${to}`);
+            move = `${from}${to}`;
+            const candidates = [];
+            for (const mv of out.moves) {
+                if (mv.indexOf(move) !== -1) candidates.push(mv);
+            }
+            if (candidates.length === 1) {
+                move = candidates[0];
+            } else if (candidates.length > 1) {
+                move = await promptDialog(`choose promotion for ${board._params.next}?`, candidates, '');
+            }
+        } while (!out.moves.includes(move));
+
+        return move;
+    }
+
+    const playFunctions = [ // white, black
         playSF,
         playZpBot
     ];
 
-    const whiteBotName = botFunctions[0].name;
-    const blackBotName = botFunctions[1].name;
+    const areWhitesHuman = BOT_VS_BOT ? false : HUMAN_VS_HUMAN ? true : HUMAN_SIDE === WHITE;
+    const areBlacksHuman = BOT_VS_BOT ? false : HUMAN_VS_HUMAN ? true : HUMAN_SIDE === BLACK;
+    if (areWhitesHuman) playFunctions[0] = playHuman;
+    if (areBlacksHuman) playFunctions[1] = playHuman;
 
-    const playingWhite = BOT_VS_BOT ? whiteBotName : HUMAN_VS_HUMAN ? 'human' : HUMAN_SIDE === WHITE ? 'human' : whiteBotName;
-    const playingBlack = BOT_VS_BOT ? blackBotName : HUMAN_VS_HUMAN ? 'human' : HUMAN_SIDE === BLACK ? 'human' : blackBotName;
+    const playingWhite = playFunctions[0].name;
+    const playingBlack = playFunctions[1].name;
 
     const vb = [
         -MARGIN * CW,
@@ -143,45 +170,18 @@ export function ui(
             throw err;
         }
 
-        let move;
-        if (HUMAN_VS_HUMAN || (!BOT_VS_BOT && board._params.next === HUMAN_SIDE)) {
-            // HUMAN IS NOW PLAYING
+        const playFn = playFunctions[board.isWhiteNext() ? 0 : 1];
+        
+        const t0 = Date.now();
+        console.log(`${playFn.name}...`);
+        const move = await playFn(board);
+        const dt = Date.now() - t0;
+        console.log(`after ${dt} ms got ${move}`);
 
-            const moves = out.moves;
-            moves.sort();
-
-            do {
-                const prom = new Promise((resolve) => { resolveFn = resolve; });
-                const [from, to] = await prom;
-
-                //console.log(`${from} -> ${to}`);
-                move = `${from}${to}`;
-                const candidates = [];
-                for (const mv of moves) {
-                    if (mv.indexOf(move) !== -1) candidates.push(mv);
-                }
-                if (candidates.length === 1) {
-                    move = candidates[0];
-                } else if (candidates.length > 1) {
-                    move = await promptDialog(`choose promotion for ${board._params.next}?`, candidates, '');
-                }
-            } while (!moves.includes(move));
-        } else {
-            // BOT IS NOW PLAYING
-
-            const playFn = botFunctions[board.isWhiteNext() ? 0 : 1];
-            
-            const t0 = Date.now();
-            console.log(`${playFn.name}...`);
-            move = await playFn(board);
-            const dt = Date.now() - t0;
-            console.log(`after ${dt} ms got ${move}`);
-
-            const remainingMs = BOT_SPEED_MS - dt;
-            if (remainingMs > 0) {
-                console.log(`sleep for ${remainingMs} ms`)
-                await sleep(remainingMs);
-            }
+        const remainingMs = BOT_SPEED_MS - dt;
+        if (remainingMs > 0) {
+            console.log(`sleep for ${remainingMs} ms`)
+            await sleep(remainingMs);
         }
 
         const moveAttrs = out.moveAttributesMap.get(move);
