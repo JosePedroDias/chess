@@ -20,3 +20,11 @@ test('validMoves check', async (_t) => {
     moves.sort();
     deepEqual(moves, ['e1d1', 'e1e2']);
 });
+
+test('validMoves checkmate', async (_t) => {
+    let b = Board.fromFen(`4k1r1/4P3/3Q2P1/5K2/7p/2b5/7P/8 w - - 5 46`);
+    b = b.applyMove('d6d8');
+    const moves = await validMoves(b);
+    moves.sort();
+    deepEqual(moves, []);
+});
