@@ -1,5 +1,5 @@
-// import { validMoves as _validMoves } from './valid-moves-mine.mjs';
-import { validMoves as _validMoves } from './valid-moves-sf.mjs';
+import { validMoves as _validMoves } from './valid-moves-mine.mjs';
+// import { validMoves as _validMoves } from './valid-moves-sf.mjs';
 
 const vm = new Map();
 export async function validMoves(board) {

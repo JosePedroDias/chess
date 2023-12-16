@@ -25,11 +25,11 @@
             "type": "node",
             "runtimeVersion": "20.10.0",
             "request": "launch",
-            "name": "run moves.test",
+            "name": "run valid-moves-mine.test",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/moves.test.mjs"
+            "program": "${workspaceFolder}/src/valid-moves-mine.test.mjs"
         },
         {
             "type": "node",

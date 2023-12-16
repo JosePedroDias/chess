@@ -1,6 +1,13 @@
 import { EMPTY, CASTLING_MOVES } from './board.mjs';
-import { isWhitePiece, isBlackPiece, isKing, isQueen, isRook, isBishop, isKnight, isPawn, ROOK_W, ROOK_B, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
-import { isChecking, pawnMoves, knightMoves, bishopMoves, rookMoves, queenMoves, kingMoves } from './move.mjs';
+import {
+    isWhitePiece, isBlackPiece,
+    isKing, isQueen,isRook, isBishop, isKnight, isPawn,
+    ROOK_W, ROOK_B, KING_W, KING_B, QUEEN_W, QUEEN_B,
+} from './pieces.mjs';
+import {
+    pawnMoves, knightMoves, bishopMoves, rookMoves, queenMoves, kingMoves,
+    isChecking,
+} from './move.mjs';
 
 export function validMoves(board, isWhiteOverride) {
     let moves = [];

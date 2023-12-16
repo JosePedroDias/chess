@@ -9,10 +9,11 @@ import { moveToObject, isChecking } from '../move.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
-import { evalBoard } from '../stockfish-browser-wrapper.mjs';
+import { setup, evalBoard } from '../stockfish-browser-wrapper.mjs';
 import { sleep } from '../utils.mjs';
 
-const USE_STOCKFISH_EVAL = true;
+const USE_STOCKFISH_EVAL = false;
+//setup(20);
 
 const moveIndices = new Array(2);
 

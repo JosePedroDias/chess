@@ -80,6 +80,7 @@ export function moveToObject(move, board) {
 }
 
 // check(+)/checkmate(#) is added by evaluate's computeOutcomes()
+// if moves argument is passed, disambiguate rook and knight need of from
 export function moveToPgn(move, board, moves) {
     const o = moveToObject(move, board);
 
@@ -97,15 +98,19 @@ export function moveToPgn(move, board, moves) {
             return `${o.piece}${o.isCapture ? 'x' : ''}${o.to}`;
     }
 
+    let needsFrom = true;
+
     // N, R...
     // filter only pieces of this kind
-    moves = moves.filter((mv) => {
-        const from = mv.substring(0, 2);
-        const to = mv.substring(2, 4);
-        const ch = board.get(from);
-        return ch === o.pieceChar && to === o.to;
-    });
-    const needsFrom = moves.length > 1;
+    if (moves) {
+        moves = moves.filter((mv) => {
+            const from = mv.substring(0, 2);
+            const to = mv.substring(2, 4);
+            const ch = board.get(from);
+            return ch === o.pieceChar && to === o.to;
+        });
+        needsFrom = moves.length > 1;
+    }
     return `${o.piece}${needsFrom ? o.from : ''}${o.isCapture ? 'x' : ''}${o.to}`;
 }
 
@@ -174,7 +179,7 @@ function _kingMoves(pos, pos2) {
     // they can't be checking each other
     moves = moves.filter((to) => {
         const [dx, dy] = deltaMovesXY(to, pos2);
-        return !((Math.abs(dx) < 2) || (Math.abs(dy) < 2));
+        return !((Math.abs(dx) < 2) && (Math.abs(dy) < 2));
     });
 
     return moves;
