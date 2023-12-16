@@ -113,6 +113,7 @@ As part of the overlays to the chess game, both arrows and circles can be drawn.
 - https://chesstempo.com/pgn-viewer/
 - https://lichess.org/paste
 - https://en.wikipedia.org/wiki/Draw_(chess)
+- http://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm
 
 # TODO
 

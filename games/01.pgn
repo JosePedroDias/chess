@@ -1,0 +1,18 @@
+[Event "Import"]
+[Site "https://lichess.org/o0cVN9uP"]
+[Date "2023.12.16"]
+[White "zp"]
+[Black "bot"]
+[Result "1-0"]
+[UTCDate "2023.12.16"]
+[UTCTime "10:31:01"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[Variant "Standard"]
+[TimeControl "-"]
+[ECO "B00"]
+[Opening "Nimzowitsch Defense"]
+[Termination "Normal"]
+[Annotator "lichess.org"]
+
+1. e4 Nc6 { B00 Nimzowitsch Defense } 2. Nc3 Rb8 3. Nf3 Nh6 4. d4 Ng8 5. Bb5 Nxd4 6. Nxd4 g5 7. Bxg5 h6 8. Bf4 Bg7 9. Qd3 Bxd4 10. Qxd4 f6 11. Qxa7 Rh7 12. Qxb8 Kf7 13. O-O Qe8 14. Qxc7 Kg7 15. Rfd1 Qh5 16. f3 Kh8 17. Bc4 d6 18. Qxc8 Qh4 19. Qxg8# { White wins by checkmate. } 1-0

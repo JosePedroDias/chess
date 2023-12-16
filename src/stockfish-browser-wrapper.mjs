@@ -70,9 +70,7 @@ export function setSkillLevel(skill) {
 
 
 function _setBoardViaFen(fenString) {
-    //setTimeout(() => uciCmd('d'), 0); // display board in ascii art
     return `position fen ${fenString}`;
-    //return `position startpos moves ${board._moves.join(' ')}`;
 }
 
 export async function evalBoard(fenString) {
@@ -91,14 +89,17 @@ export async function evalBoard(fenString) {
     return finalEval;
 }
 
-export async function playBoard(fenString) {
+export async function playBoard(fenString, ms = 1000) {
     uciCmd(_setBoardViaFen(fenString));
     await _waitReady();
-    uciCmd('go movetime 1000');
+    uciCmd(`go movetime ${ms}`);
     const line = await _waitOn({
         startCriteriaFn: (l) => l.includes('bestmove'),
     });
-    const m = /bestmove (\S+) ponder (\S+)/.exec(line);
+    let m = /bestmove (\S+) ponder (\S+)/.exec(line);
+    if (!m) {
+        m = /bestmove (\S+)/.exec(line);
+    }
     const bestMove = m[1];
     const ponder = m[2];
     return { bestMove, ponder };
@@ -131,14 +132,6 @@ export async function getValidMoves(fenString, depth = 1) {
     const result = await _waitOn({
         stopCriteriaFn: (l) => l.includes('Nodes searched: '),
     });
-    
-    /* const moves = {};
-    for (const line of result.split('\n')) {
-        if (!line) return moves;
-        const [a, b] = line.split(': ');
-        moves[a] = parseFloat(b);
-    }
-    return moves; */
 
     const moves = [];
     for (const line of result.split('\n')) {
