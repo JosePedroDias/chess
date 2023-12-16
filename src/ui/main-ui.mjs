@@ -1,7 +1,7 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { computeOutcomes, play, heuristic1, sortDescByScore } from '../evaluate.mjs';
+import { computeOutcomes, play, playSF, heuristic1, sortDescByScore } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -157,7 +157,15 @@ export function ui(
             // BOT IS NOW PLAYING
 
             await sleep(BOT_SPEED_MS);
-            move = await play(board);
+
+            //if (!board.isWhiteNext()) {
+            if (false) {
+                console.log('stockfish...');
+                move = await playSF(board);
+            } else {
+                console.log('my bot...');
+                move = await play(board);
+            }
         }
 
         const moveAttrs = out.moveAttributesMap.get(move);

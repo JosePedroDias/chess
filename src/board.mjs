@@ -1,5 +1,4 @@
 import { isPiece, isPawn, isRook, isKing, isWhitePiece, isBlackPiece, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
-import { moveToPgn } from './move.mjs';
 import { randomString } from './utils.mjs';
 
 export const POSITIONS_TO_INDICES = new Map();
@@ -148,9 +147,8 @@ export class Board {
         };
     }
 
-    getPgn() {
-        // 2... Nf4 3. Nxe6 d5 4. Bxf4 
-        const pgn = Array.from(this._movesPgn.entries())
+    getPgn(tags = {}) { // { White: 'zp', Black: 'bot' }
+        const movesPGN = Array.from(this._movesPgn.entries())
         .map(([num, movePgn]) => {
             if (num % 2 === 0) {
                 return `${num/2 + 1}. ${movePgn}`;
@@ -158,9 +156,15 @@ export class Board {
             return movePgn;
         }).join(' ');
 
-        if (this._initialFen)
-            return `[FEN "${this._initialFen}"] ${pgn}`;
-        return pgn;
+        if (this._initialFen) {
+            tags.FEN = this._initialFen;
+        }
+
+        const tagsPGN = (Object.entries(tags)).reduce((prev, [key, value]) => {
+            return `${prev}\n[${key} "${value}"]`;
+        }, '');
+
+        return `${tagsPGN}\n${movesPGN}`;
     }
 
     get(pos) {
@@ -182,7 +186,7 @@ export class Board {
     clone() {
         const b = new Board();
 
-        if (b._initialFen) {
+        if (this._initialFen) {
             b._initialFen = this._initialFen;
         }
         

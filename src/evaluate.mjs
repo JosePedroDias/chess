@@ -3,6 +3,7 @@ import { EMPTY } from './board.mjs';
 import { histogram } from './utils.mjs';
 import { isChecking, moveToPgn } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
+import { playBoard } from './stockfish-browser-wrapper.mjs';
 
 export const PIECE_VALUE = {
     'q': 9,
@@ -236,4 +237,13 @@ export async function play(board) {
     sortDescByScore(candidates);
     //console.table(candidates);
     return candidates[0].move;
+}
+
+export async function playSF(board) {
+    //console.log(board.toString());
+    const fen = board.getFen();
+    //console.log(`sf in: ${fen}`);
+    const { bestMove } = await playBoard(fen);
+    //console.log(`sf out: ${bestMove}`);
+    return bestMove;
 }
