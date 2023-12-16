@@ -87,8 +87,6 @@ export async function computeOutcomes(board) {
     if (tieResult) throw tieResult;
 
     const isWhite = board.isWhiteNext();
-    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
-    const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
 
     const amIBeingChecked = isChecking(board, !isWhite);
 

@@ -62,13 +62,10 @@ export function moveToObject(move, board) {
     const from = move.substring(0, 2);
     const to = move.substring(2, 4);
     const promoPiece = move[4] && move[4].toUpperCase();
-    const piece = board.get(from).toUpperCase();
+    const pieceChar = board.get(from);
+    const piece = pieceChar.toUpperCase();
     const isCapture = board.get(to) !== EMPTY;
-    const o = { piece, from, to, isCapture, promoPiece };
-
-    //const isWhite = board.isWhiteNext();
-    //const isCheck = isChecking(board, isWhite);
-    // TODO is mate
+    const o = { piece, pieceChar, from, to, isCapture, promoPiece };
 
     // castle
     if (isKing(piece) && Math.abs(deltaMovesXY(from, to)[0]) > 1) {
@@ -82,24 +79,34 @@ export function moveToObject(move, board) {
     return o;
 }
 
-// TODO add check(+)/checkmate(#)/stalemate(???) suffixes
+// check(+)/checkmate(#) is added by evaluate's computeOutcomes()
 export function moveToPgn(move, board, moves) {
     const o = moveToObject(move, board);
+
+    // castling
     if (o.from2) return o.to[0] === 'g' ? CASTLE_KINGSIDE : CASTLE_QUEENSIDE;
+
+    // pawns
     if (o.piece === 'P') return o.isCapture ? `${o.from[0]}x${o.to}` : o.to;
 
-    let hits = 2;
-    if (moves) {
-        hits = moves.reduce((prev, curr) => {
-            return (curr.indexOf(o.to) > 1) ? prev + 1 : prev;
-        }, 0);
-    } 
-
-    if (hits > 1) {
-        return `${o.piece}${o.from}${o.isCapture ? 'x' : ''}${o.to}`;
-    } else {
-        return `${o.piece}${o.isCapture ? 'x' : ''}${o.to}`;
+    // these never need 'from' disambiguation
+    switch (o.piece) {
+        case 'K':
+        case 'B':
+        case 'Q':
+            return `${o.piece}${o.isCapture ? 'x' : ''}${o.to}`;
     }
+
+    // N, R...
+    // filter only pieces of this kind
+    moves = moves.filter((mv) => {
+        const from = mv.substring(0, 2);
+        const to = mv.substring(2, 4);
+        const ch = board.get(from);
+        return ch === o.pieceChar && to === o.to;
+    });
+    const needsFrom = moves.length > 1;
+    return `${o.piece}${needsFrom ? o.from : ''}${o.isCapture ? 'x' : ''}${o.to}`;
 }
 
 function _knightMoves(pos) {
@@ -208,6 +215,9 @@ const pm = new Map();
 const rm = new Map();
 const bm = new Map();
 const nm = new Map();
+
+// to check memoize resources / impact
+// setInterval(() => console.log(`km:${km.size}, qm:${qm.size}, pm:${pm.size}, rm:${rm.size}, bm:${bm.size}, nm:${nm.size}`), 5000);
 
 export const kingMoves   = memoFactory(_kingMoves ,  km, (a, b) => `${a}:${b}`);
 export const queenMoves  = memoFactory(_queenMoves,  qm);
