@@ -1,6 +1,6 @@
 import { PAWN_B, PAWN_W, isKing, isWhitePiece, isBlackPiece } from './pieces.mjs';
 import { EMPTY } from './board.mjs';
-import { histogram } from './utils.mjs';
+import { histogram, randomFloat } from './utils.mjs';
 import { isChecking, moveToPgn } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 import { playBoard } from './stockfish-browser-wrapper.mjs';
@@ -223,27 +223,24 @@ export function sortDescByScore(arr) {
 }
 
 export function heuristic1(o) {
-    o.score =   (o.isCheckmate  ?  100 : 0)      +
-                (o.isStalemate  ?   -5 : 0)      +
-                (o.bestMatDiff + o.worseMatDiff) +
-                (o.isPromotion   ?  0.5 : 0)     +
-                (o.canBeCaptured ? -1.1 : 0)     +
-                 o.rnd * 0.05;
+    o.score =   (o.isCheckmate                   ?                     100 : 0) +
+                (o.isCapture && !o.canBeCaptured ?                     0.8 : 0) +
+                (o.isPromotion                   ?                     0.5 : 0) +
+                (o.isCapture &&  o.canBeCaptured ? randomFloat(0.5) - 0.15 : 0) +
+                (o.isStalemate                   ?                      -5 : 0) +
+                (o.bestMatDiff + o.worseMatDiff) * 0.2 +
+                                           o.rnd * 0.05;
 }
 
 export async function playZpBot(board) {
     const candidates = Array.from( (await computeOutcomes(board)).moveAttributesMap.values() );
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);
-    //console.table(candidates);
+    console.table(candidates);
     return candidates[0].move;
 }
 
 export async function playSF(board) {
-    //console.log(board.toString());
-    const fen = board.getFen();
-    //console.log(`sf in: ${fen}`);
-    const { bestMove } = await playBoard(fen);
-    //console.log(`sf out: ${bestMove}`);
+    const { bestMove } = await playBoard(board.getFen());
     return bestMove;
 }

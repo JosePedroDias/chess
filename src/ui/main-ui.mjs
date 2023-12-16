@@ -15,7 +15,7 @@ import { sleep } from '../utils.mjs';
 let BOT_VS_BOT = false;
 let HUMAN_VS_HUMAN = false;
 let HUMAN_SIDE = WHITE;
-let BOT_SPEED_MS = 1500;
+let BOT_SPEED_MS = 550;
 let FROM_BLACKS = false;
 
 const USE_STOCKFISH = true;
@@ -103,9 +103,11 @@ export function ui(
     // TODO HACKY TEMPORARY
     function undo() {
         board = board.getLastBoard();
+        board = board.getLastBoard();
         location.hash = board.getFen();
         window.board = board;
         redraw();
+        doNextMove();
     }
     window.undo = undo;
 
@@ -127,12 +129,6 @@ export function ui(
 
         try {
             out = await computeOutcomes(board);
-            {
-                const candidates = Array.from(out.moveAttributesMap.values());
-                candidates.forEach(heuristic1);
-                sortDescByScore(candidates);
-                console.table(candidates);
-            } 
             redraw();
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
@@ -172,24 +168,31 @@ export function ui(
             } while (!moves.includes(move));
         } else {
             // BOT IS NOW PLAYING
-            await sleep(BOT_SPEED_MS);
 
             const playFn = botFunctions[board.isWhiteNext() ? 0 : 1];
+            
+            const t0 = Date.now();
             console.log(`${playFn.name}...`);
             move = await playFn(board);
+            const dt = Date.now() - t0;
+            console.log(`after ${dt} ms got ${move}`);
+
+            const remainingMs = BOT_SPEED_MS - dt;
+            if (remainingMs > 0) {
+                console.log(`sleep for ${remainingMs} ms`)
+                await sleep(remainingMs);
+            }
         }
 
         const moveAttrs = out.moveAttributesMap.get(move);
-        console.log(`\n${board._params.fullMoveNumber}.${board._params.halfMoveClock} move: ${moveAttrs.pgn}\n`);
+        console.log(`\nfm: ${board._params.fullMoveNumber} ${board._params.next} hm: ${board._params.halfMoveClock} move: ${moveAttrs.pgn}\n`);
         board = board.applyMove(move, moveAttrs.pgn);
         playAppropriateSound(move, board);
         
         window.board = board; // TODO TEMP
 
         updateEval();
-        
         redraw();
-
         doNextMove();
     }
 
