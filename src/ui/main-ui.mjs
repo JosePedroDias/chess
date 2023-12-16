@@ -12,7 +12,7 @@ import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { evalBoard } from '../stockfish-browser-wrapper.mjs';
 import { sleep } from '../utils.mjs';
 
-const USE_STOCKFISH = true;
+const USE_STOCKFISH_EVAL = true;
 
 const moveIndices = new Array(2);
 
@@ -56,8 +56,8 @@ export function ui(
     if      (onlyBots)   playFunctions[0] = playSF;
     else if (onlyHumans) playFunctions[1] = playHuman;
 
-    const playingWhite = playFunctions[0].name;
-    const playingBlack = playFunctions[1].name;
+    const playingWhite = playFunctions[0].name.substring(4);
+    const playingBlack = playFunctions[1].name.substring(4);
 
     const vb = [
         -MARGIN * CW,
@@ -126,7 +126,7 @@ export function ui(
     let out;
 
     const updateEval = async () => {
-        if (!USE_STOCKFISH) return;
+        if (!USE_STOCKFISH_EVAL) return;
         let ev = await evalBoard(board.getFen());
         document.title = `eval: ${ev} | ${title}`;
     }
@@ -165,7 +165,7 @@ export function ui(
         }
 
         const moveAttrs = out.moveAttributesMap.get(move);
-        console.log(`\nfm: ${board._params.fullMoveNumber} ${board._params.next} hm: ${board._params.halfMoveClock} move: ${moveAttrs.pgn}\n`);
+        console.log(`\nfmn: ${board._params.fullMoveNumber} ${board._params.next} hmc: ${board._params.halfMoveClock} move: ${moveAttrs.pgn} (${move})\n`);
         board = board.applyMove(move, moveAttrs.pgn);
         playAppropriateSound(move, board);
         

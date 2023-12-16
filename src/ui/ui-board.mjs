@@ -55,8 +55,26 @@ export function UiBoard(
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
     const annotations = [];
+
+    const lastMove = board.getLastMove()
+    if (lastMove) {
+        const mvO = moveToObject(lastMove, board.getLastBoard());
+        const color = board.isWhiteNext() ? '#333' : '#CCC';
+        annotations.push(
+            Arrow({ id: `arrow-${mvO.from}-${mvO.to}-last` }, {
+                from: toBoardCoords(mvO.from),
+                to: toBoardCoords(mvO.to),
+                fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
+                stroke: { color },
+                width: ARROW_SCALE_LAST * 1,
+                arrowW: ARROW_SCALE_LAST *  1.8,
+                arrowH: ARROW_SCALE_LAST * 6,
+                title: lastMove,
+            }),
+        );
+    }
+
     if (drawAnnotations) {
-        const lastMove = board.getLastMove()
         for (const pos of Array.from(out?.attackedPositions || [])) {
             const isDefended = out?.defendedPositions.has(pos);
             annotations.push(
@@ -117,22 +135,6 @@ export function UiBoard(
                     );
                 }
             }
-        }
-        if (lastMove) {
-            const mvO = moveToObject(lastMove, board.getLastBoard());
-            const color = board.isWhiteNext() ? '#333' : '#CCC';
-            annotations.push(
-                Arrow({ id: `arrow-${mvO.from}-${mvO.to}-last` }, {
-                    from: toBoardCoords(mvO.from),
-                    to: toBoardCoords(mvO.to),
-                    fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
-                    stroke: { color },
-                    width: ARROW_SCALE_LAST * 1,
-                    arrowW: ARROW_SCALE_LAST *  1.8,
-                    arrowH: ARROW_SCALE_LAST * 6,
-                    title: lastMove,
-                }),
-            );
         }
     }
 
