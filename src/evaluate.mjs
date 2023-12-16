@@ -187,7 +187,7 @@ export async function computeOutcomes(board) {
         const rnd = Math.random();
         const [worseMatDiff, bestMatDiff] = materialDiff.get(move);
         
-        const pgn = moveToPgn(move, board) + (isCheckmate ? '#' : isCheck ? '+' : '');
+        const pgn = moveToPgn(move, board, moves) + (isCheckmate ? '#' : isCheck ? '+' : '');
         
         moveAttributesMap.set(move, {
             move,

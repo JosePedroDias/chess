@@ -82,14 +82,24 @@ export function moveToObject(move, board) {
     return o;
 }
 
-// TODO simplify non-pawn moves
 // TODO add check(+)/checkmate(#)/stalemate(???) suffixes
-export function moveToPgn(move, board) {
+export function moveToPgn(move, board, moves) {
     const o = moveToObject(move, board);
     if (o.from2) return o.to[0] === 'g' ? CASTLE_KINGSIDE : CASTLE_QUEENSIDE;
     if (o.piece === 'P') return o.isCapture ? `${o.from[0]}x${o.to}` : o.to;
-    //const check = isChecking(board)
-    return `${o.piece}${o.from}${o.isCapture ? 'x' : ''}${o.to}`;
+
+    let hits = 2;
+    if (moves) {
+        hits = moves.reduce((prev, curr) => {
+            return (curr.indexOf(o.to) > 1) ? prev + 1 : prev;
+        }, 0);
+    } 
+
+    if (hits > 1) {
+        return `${o.piece}${o.from}${o.isCapture ? 'x' : ''}${o.to}`;
+    } else {
+        return `${o.piece}${o.isCapture ? 'x' : ''}${o.to}`;
+    }
 }
 
 function _knightMoves(pos) {

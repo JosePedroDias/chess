@@ -2,7 +2,8 @@ import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
 import { Board, POSITIONS } from './board.mjs';
-import { isChecking, isMoveCapture, moveToObject, moveToPgn, validMoves } from './move.mjs';
+import { isChecking, isMoveCapture, moveToObject, moveToPgn } from './move.mjs';
+import { validMoves } from './valid-moves.mjs';
 import { diff, randomFromArr } from './utils.mjs';
 import { KING_W, KING_B } from './pieces.mjs';
 import { setup, getValidMoves, terminate } from './stockfish-node-wrapper.mjs';
@@ -42,7 +43,7 @@ const printBoard = (b, moves, pos) => {
     console.log(b.toString() + `\n+---------------+ ${pos}`);
 };
 
-const getValidBoardWithPiece = (isWhite, piece, pos) => {
+const getValidBoardWithPiece = async (isWhite, piece, pos) => {
     let b = new Board();
     if (!isWhite) b = b.getInvertedBoard();
 
@@ -53,7 +54,7 @@ const getValidBoardWithPiece = (isWhite, piece, pos) => {
     if (piece !== KING_W) {
         const wKPos = randomFromArr(Array.from(positions));
         b.set(wKPos, KING_W);
-        const wkMoves = validMoves(b, true);
+        const wkMoves = await validMoves(b);
         for (const mv of wkMoves) positions.delete(mv.substring(2, 4));
     }
     
@@ -61,7 +62,7 @@ const getValidBoardWithPiece = (isWhite, piece, pos) => {
     if (piece !== KING_B) {
         const bKPos = randomFromArr(Array.from(positions));
         b.set(bKPos, KING_B);
-        const bkMoves = validMoves(b, false);
+        const bkMoves = await validMoves(b);
         for (const mv of bkMoves) positions.delete(mv.substring(2, 4));
     }
 
@@ -84,8 +85,8 @@ const customPositions = (xs, ys) => {
 const valid = async (piece, isWhite, xs, ys) => {
     const iter = xs ? customPositions(xs, ys) : POSITIONS;
     for (const pos of iter) {
-        const b = getValidBoardWithPiece(isWhite, piece, pos);
-        const moves = validMoves(b);
+        const b = await getValidBoardWithPiece(isWhite, piece, pos);
+        const moves = await validMoves(b);
         moves.sort();
         if (USE_SF) {
             const movesSF = await getValidMoves(b.getFen());
@@ -126,10 +127,10 @@ test('validMoves q', async (_t) => await valid('q', false));
 test('validMoves K', async (_t) => await valid('K', true));
 test('validMoves k', async (_t) => await valid('k', false));
 
-test('king moves without getting checked', (_t) => {
+test('king moves without getting checked', async (_t) => {
     const b = Board.fromFen(`8/8/1k6/4b3/8/3K4/r7/8 w - - 0 1`);
     console.log(b.toString(false, true));
-    const moves = validMoves(b, true);
+    const moves = await validMoves(b);
     moves.sort();
     deepEqual(moves, ['d3c4', 'd3e3', 'd3e4']);
 });

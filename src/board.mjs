@@ -182,7 +182,10 @@ export class Board {
     clone() {
         const b = new Board();
 
-        b._initialFen = this._initialFen;
+        if (b._initialFen) {
+            b._initialFen = this._initialFen;
+        }
+        
         b._cells      = Array.from(this._cells);
         b._cellIds    = Array.from(this._cellIds);
         b._moves      = Array.from(this._moves);
@@ -293,7 +296,7 @@ export class Board {
         b.set(to, promPiece || piece);
         b.setId(to, id);
         b._moves.push(mv);
-        b._movesPgn.push(movePgn || mv)
+        b._movesPgn.push(movePgn || mv); // TODO MEH
 
         if (isPawn(piece)) {
             isHMCReset = true;
