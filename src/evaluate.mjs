@@ -231,7 +231,7 @@ export function heuristic1(o) {
                  o.rnd * 0.05;
 }
 
-export async function play(board) {
+export async function playZpBot(board) {
     const candidates = Array.from( (await computeOutcomes(board)).moveAttributesMap.values() );
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);

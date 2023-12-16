@@ -1,7 +1,7 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board, BLACK, WHITE } from '../board.mjs';
-import { computeOutcomes, play, playSF, heuristic1, sortDescByScore } from '../evaluate.mjs';
+import { computeOutcomes, playZpBot, playSF, heuristic1, sortDescByScore } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -37,6 +37,17 @@ export function ui(
     { board }
 ) {
     let out = {};
+
+    const botFunctions = [ // white, black
+        playSF,
+        playZpBot
+    ];
+
+    const whiteBotName = botFunctions[0].name;
+    const blackBotName = botFunctions[1].name;
+
+    const playingWhite = BOT_VS_BOT ? whiteBotName : HUMAN_VS_HUMAN ? 'human' : HUMAN_SIDE === WHITE ? 'human' : whiteBotName;
+    const playingBlack = BOT_VS_BOT ? blackBotName : HUMAN_VS_HUMAN ? 'human' : HUMAN_SIDE === BLACK ? 'human' : blackBotName;
 
     const vb = [
         -MARGIN * CW,
@@ -98,13 +109,15 @@ export function ui(
     }
     window.undo = undo;
 
+    const title = `${playingWhite} v ${playingBlack}`;
+
     const updateEval = async () => {
         if (!USE_STOCKFISH) return;
         let ev = await evalBoard(board.getFen());
 
         // instead of centered on white, centered on who's the human player
         if (isFinite(ev) && HUMAN_SIDE === BLACK) ev = -ev;
-        document.title = `chess eval: ${ev}`;
+        document.title = `eval: ${ev} | ${title}`;
     }
     
     updateEval();
@@ -123,6 +136,10 @@ export function ui(
             redraw();
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
+                console.log(board.getPgn({
+                    White: playingWhite,
+                    Black: playingBlack,
+                }));
                 redraw();
                 await sleep(100);
                 return window.alert(err); // checkmate or draw
@@ -155,17 +172,11 @@ export function ui(
             } while (!moves.includes(move));
         } else {
             // BOT IS NOW PLAYING
-
             await sleep(BOT_SPEED_MS);
 
-            //if (!board.isWhiteNext()) {
-            if (false) {
-                console.log('stockfish...');
-                move = await playSF(board);
-            } else {
-                console.log('my bot...');
-                move = await play(board);
-            }
+            const playFn = botFunctions[board.isWhiteNext() ? 0 : 1];
+            console.log(`${playFn.name}...`);
+            move = await playFn(board);
         }
 
         const moveAttrs = out.moveAttributesMap.get(move);
