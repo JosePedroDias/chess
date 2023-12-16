@@ -20,7 +20,7 @@ import { Arrow } from './arrow.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
 export function UiBoard(
-    { fromBlacks },
+    { fromBlacks, drawAnnotations },
     { board, out },
 ) {
     const posToXY = (pos) => {
@@ -48,96 +48,92 @@ export function UiBoard(
         pieces.push(Fn({ isWhite, id }, { pos: posToXY(pos) }))
     }
 
-    const annotations = [];
-    //console.log('inner', out);
-
-    const lastMove = board.getLastMove()
-
     const ARROW_SCALE_LAST = 2;
     const ANNO_STROKE_WIDTH = 0.33;
     const ANNO_ALPHA = 0.75;
 
     const toBoardCoords = (pos) => mulScalar(CW, add(posToXY(pos), [0.5, 0.5]));
 
-    // TODO
-    for (const pos of Array.from(out?.attackedPositions || [])) {
-        const isDefended = out?.defendedPositions.has(pos);
-        annotations.push(
-            Ring({ id: `ring-${pos}` }, {
-                center: toBoardCoords(pos),
-
-                title: isDefended ? 'attacked and defended' : 'attacked',
-
-                radius: CW * 0.44,
-                strokeWidth: CW * 0.06,
-                
-                color: isDefended ? 'orange' : 'red',
-                alpha: ANNO_ALPHA,
-            }),
-        );
-    }
-
-    if (out?.moves) {
-        for (const [mv, attrs] of out.moveAttributesMap.entries()) {
-            const mvO = moveToObject(mv, board);
-
-            let color, title, width = 0.9;
-            if      (attrs.isCheckmate) {                       title = 'checkmate';       color = 'green';   width = 1.3; }
-            else if (attrs.isStalemate) {                       title = 'stalemate';       color = 'brown';   width = 1.3; }
-            else if (attrs.isCheck) {                           title = 'check';           color = 'purple';               }
-            else if (attrs.isCapture && !attrs.canBeCaptured) { title = 'safe capture';    color = 'lime';    width = 1.3; }
-            else if (attrs.isCapture) {                         title = 'capture';         color = 'yellow';               }
-            else if (attrs.canBeCaptured) {                     title = 'can be captured'; color = 'orchid';               }
-            else if (attrs.isPromotion) {                       title = 'promotion';       color = 'cyan';                 }
-            else {                                              title = 'regular';         color = randomColor();          }
-            // TODO CASTLE
-
-            title = `${attrs.pgn} (${title})`;
-
+    const annotations = [];
+    if (drawAnnotations) {
+        const lastMove = board.getLastMove()
+        for (const pos of Array.from(out?.attackedPositions || [])) {
+            const isDefended = out?.defendedPositions.has(pos);
             annotations.push(
-                Arrow({ id: `arrow-${mvO.from}-${mvO.to}-${title}` }, {
-                    from: toBoardCoords(mvO.from),
-                    to:   toBoardCoords(mvO.to),
-                    fill:   { color, alpha: ANNO_ALPHA },
-                    stroke: { color, width: ANNO_STROKE_WIDTH },
-                    arrowW: 1.8,
-                    arrowH: 6,
-                    width,
-                    title,
+                Ring({ id: `ring-${pos}` }, {
+                    center: toBoardCoords(pos),
+
+                    title: isDefended ? 'attacked and defended' : 'attacked',
+
+                    radius: CW * 0.44,
+                    strokeWidth: CW * 0.06,
+                    
+                    color: isDefended ? 'orange' : 'red',
+                    alpha: ANNO_ALPHA,
                 }),
             );
-            if (mvO.from2) {
+        }
+        if (out?.moves) {
+            for (const [mv, attrs] of out.moveAttributesMap.entries()) {
+                const mvO = moveToObject(mv, board);
+
+                let color, title, width = 0.9;
+                if      (attrs.isCheckmate) {                       title = 'checkmate';       color = 'green';   width = 1.3; }
+                else if (attrs.isStalemate) {                       title = 'stalemate';       color = 'brown';   width = 1.3; }
+                else if (attrs.isCheck) {                           title = 'check';           color = 'purple';               }
+                else if (attrs.isCapture && !attrs.canBeCaptured) { title = 'safe capture';    color = 'lime';    width = 1.3; }
+                else if (attrs.isCapture) {                         title = 'capture';         color = 'yellow';               }
+                else if (attrs.canBeCaptured) {                     title = 'can be captured'; color = 'orchid';               }
+                else if (attrs.isPromotion) {                       title = 'promotion';       color = 'cyan';                 }
+                else {                                              title = 'regular';         color = randomColor();          }
+                // TODO CASTLE
+
+                title = `${attrs.pgn} (${title})`;
+
                 annotations.push(
-                    Arrow({ id: `arrow-${mvO.from2}-${mvO.to2}-${title}` }, {
-                        from: toBoardCoords(mvO.from2),
-                        to:   toBoardCoords(mvO.to2),
+                    Arrow({ id: `arrow-${mvO.from}-${mvO.to}-${title}` }, {
+                        from: toBoardCoords(mvO.from),
+                        to:   toBoardCoords(mvO.to),
                         fill:   { color, alpha: ANNO_ALPHA },
                         stroke: { color, width: ANNO_STROKE_WIDTH },
                         arrowW: 1.8,
                         arrowH: 6,
                         width,
                         title,
-                    })
+                    }),
                 );
+                if (mvO.from2) {
+                    annotations.push(
+                        Arrow({ id: `arrow-${mvO.from2}-${mvO.to2}-${title}` }, {
+                            from: toBoardCoords(mvO.from2),
+                            to:   toBoardCoords(mvO.to2),
+                            fill:   { color, alpha: ANNO_ALPHA },
+                            stroke: { color, width: ANNO_STROKE_WIDTH },
+                            arrowW: 1.8,
+                            arrowH: 6,
+                            width,
+                            title,
+                        })
+                    );
+                }
             }
         }
-    }
-
-    if (lastMove) {
-        const mvO = moveToObject(lastMove, board.getLastBoard());
-        const color = board.isWhiteNext() ? '#333' : '#CCC';
-        annotations.push(
-            Arrow({ id: `arrow-${mvO.from}-${mvO.to}-last` }, {
-                from: toBoardCoords(mvO.from),
-                to: toBoardCoords(mvO.to),
-                fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
-                stroke: { color },
-                width: ARROW_SCALE_LAST * 1,
-                arrowW: ARROW_SCALE_LAST *  1.8,
-                arrowH: ARROW_SCALE_LAST * 6,
-                title: lastMove,
-            }),
-        );
+        if (lastMove) {
+            const mvO = moveToObject(lastMove, board.getLastBoard());
+            const color = board.isWhiteNext() ? '#333' : '#CCC';
+            annotations.push(
+                Arrow({ id: `arrow-${mvO.from}-${mvO.to}-last` }, {
+                    from: toBoardCoords(mvO.from),
+                    to: toBoardCoords(mvO.to),
+                    fill: { color, alpha: ANNO_ALPHA, ANNO_STROKE_WIDTH },
+                    stroke: { color },
+                    width: ARROW_SCALE_LAST * 1,
+                    arrowW: ARROW_SCALE_LAST *  1.8,
+                    arrowH: ARROW_SCALE_LAST * 6,
+                    title: lastMove,
+                }),
+            );
+        }
     }
 
     const yToRank = (i) => fromBlacks ? i + 1 : 8 - i;

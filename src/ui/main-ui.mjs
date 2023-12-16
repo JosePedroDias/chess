@@ -33,7 +33,7 @@ function playAppropriateSound(move, resultingBoard) {
 }
 
 export function ui(
-    { rootEl, fromBlacks },
+    { rootEl, fromBlacks, drawAnnotations },
     { board }
 ) {
     let out = {};
@@ -148,7 +148,6 @@ export function ui(
         if (isFinite(ev) && HUMAN_SIDE === BLACK) ev = -ev;
         document.title = `eval: ${ev} | ${title}`;
     }
-    
     updateEval();
 
     const doNextMove = async () => {
@@ -195,7 +194,6 @@ export function ui(
         redraw();
         doNextMove();
     }
-
     setTimeout(doNextMove); // ?
 
     m.mount(rootEl, {
@@ -215,7 +213,7 @@ export function ui(
                     ontouchstart: onMouse(0),
                     ontouchend: onMouse(1),
                 },
-                UiBoard({ fromBlacks }, { board, out }),
+                UiBoard({ fromBlacks, drawAnnotations }, { board, out }),
             );
         }
     });
@@ -253,6 +251,7 @@ ui(
     {
         rootEl: document.body,
         fromBlacks: FROM_BLACKS,
+        drawAnnotations: search.get('hints'),
     },
     {
         board: startBoard,
