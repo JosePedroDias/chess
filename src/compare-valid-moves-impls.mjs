@@ -24,8 +24,8 @@ while (true) {
         console.log(`FEN: ${b.getFen()}`);
         console.log(b.toString());
 
-        // console.log(`\na) zpBot:`);     console.log(vm1);
-        // console.log(`\nb) stockfish:`); console.log(vm2);
+        console.log(`\na) zpBot:`);     console.log(vm1);
+        console.log(`\nb) stockfish:`); console.log(vm2);
 
         const { onlyInA, onlyInB } = diff(vm1, vm2);
         onlyInA && console.log(`\nonly in zpBot:`, onlyInA);

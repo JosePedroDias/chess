@@ -1,7 +1,7 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board } from '../board.mjs';
-import { computeOutcomes, playZpBot, playSF } from '../evaluate.mjs';
+import { computeOutcomes, playZpBot /*, playSF*/ } from '../evaluate.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -9,11 +9,11 @@ import { moveToObject, isChecking } from '../move.mjs';
 
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 
-import { setup, evalBoard } from '../stockfish-browser-wrapper.mjs';
+//import { setup, evalBoard } from '../stockfish-browser-wrapper.mjs';
 import { sleep } from '../utils.mjs';
 
-const USE_STOCKFISH_EVAL = true;
-setup(20);
+const USE_STOCKFISH_EVAL = false;
+//setup(20);
 
 const moveIndices = new Array(2);
 
@@ -54,7 +54,8 @@ export function ui(
 
     // white, black
     const playFunctions = [ playHuman, playZpBot ];
-    if      (onlyBots)   playFunctions[0] = playSF;
+    //if      (onlyBots)   playFunctions[0] = playSF;
+    if      (onlyBots)   playFunctions[0] = playZpBot;
     else if (onlyHumans) playFunctions[1] = playHuman;
 
     const playingWhite = playFunctions[0].name.substring(4);

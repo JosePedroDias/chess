@@ -3,7 +3,7 @@ import { EMPTY } from './board.mjs';
 import { histogram, randomFloat } from './utils.mjs';
 import { isChecking, moveToPgn } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
-import { playBoard } from './stockfish-browser-wrapper.mjs';
+//import { playBoard } from './stockfish-browser-wrapper.mjs';
 
 export const PIECE_VALUE = {
     'q': 9,
@@ -238,7 +238,7 @@ export async function playZpBot(board) {
     return candidates[0].move;
 }
 
-export async function playSF(board) {
+/* export async function playSF(board) {
     const { bestMove } = await playBoard(board.getFen());
     return bestMove;
-}
+}*/
