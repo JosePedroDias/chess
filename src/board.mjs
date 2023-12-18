@@ -322,13 +322,15 @@ export class Board {
                     from2 = isWhite ? 'h1' : 'h8';
                     to2   = isWhite ? 'f1' : 'f8';
                 } else {
-                    throw new Error('Unexpected');
+                    //throw new Error(`Unexpected (move ${mv})`);
                 }
-                const id2 = b.getId(from2);
-                b.set(to2, b.get(from2));
-                b.setId(to2, id2);
-                b.set(from2, EMPTY);
-                b.setId(from2, undefined);
+                if (from2) {
+                    const id2 = b.getId(from2);
+                    b.set(to2, b.get(from2));
+                    b.setId(to2, id2);
+                    b.set(from2, EMPTY);
+                    b.setId(from2, undefined);
+                }
             }
             b.unsetCastlingFlags(isWhite ? [QUEEN_W, KING_W] : [QUEEN_B, KING_B]); // unset castling flag
         } else if (isRook(piece)) {

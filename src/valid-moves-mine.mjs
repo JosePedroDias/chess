@@ -63,7 +63,9 @@ export function validMoves(board, isWhiteOverride) {
                     case 'e8c8':
                         if (!board.hasCastlingFlag(QUEEN_B)) return false;
                         mustBeEmpty = ['d8', 'c8', 'b8']; mustBeRook = 'a8'; ;break;
-                    default: throw new Error('should not happen');
+                    default:
+                        // throw new Error(`Unexpected ${move}`);
+                        return false;
                 }
                 if (!mustBeEmpty.every((pos) => board.get(pos) === EMPTY)) return false;
                 if (mustBeEmpty.some((pos) => isBeingAttacked(pos, board, !isWhite))) return false;
