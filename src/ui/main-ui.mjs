@@ -26,7 +26,7 @@ function playAppropriateSound(move, resultingBoard) {
 }
 
 export function ui(
-    { rootEl, playMs, fromBlacks, drawAnnotations, onlyBots, onlyHumans },
+    { rootEl, playTimeMs, fromBlacks, drawAnnotations, onlyBots, onlyHumans },
     { board }
 ) {
     const playHuman = async (board) => {
@@ -160,7 +160,7 @@ export function ui(
         const dt = Date.now() - t0;
         console.log(`after ${dt} ms got ${move}`);
 
-        const remainingMs = playMs - dt;
+        const remainingMs = playTimeMs - dt;
         if (remainingMs > 0) {
             console.log(`sleep for ${remainingMs} ms`)
             await sleep(remainingMs);
@@ -210,10 +210,13 @@ export function ui(
     }
     window.board = startBoard;
 
+    let playTimeMs = search.get('play-time-ms');
+    if (!playTimeMs || isNaN(parseFloat(playTimeMs))) playTimeMs = 550;
+
     ui(
         {
             rootEl:          document.body,
-            playMs:          550,
+            playTimeMs:      playTimeMs,
             fromBlacks:      search.get('from-blacks'),
             drawAnnotations: search.get('hints'),
             onlyBots:        search.get('only-bots'),

@@ -6,9 +6,63 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link rel="icon" href="data:;base64,iVBORw0KGgo=">
         <link rel="stylesheet" href="main.css">
+        <link rel="stylesheet" href="form.css">
     </head>
     <body>
-        <!-- ui and game logic -->
-        <script type="module" src="./src/ui/main-ui.mjs"></script>
+        <form>
+            <!-- <label for="side"></label>
+            <input type="checkbox" id="side" value="white">
+            <input type="checkbox" id="side" value="black"> -->
+
+            <p>
+                <label for="only-bots">only bots?</label>
+                <input type="checkbox" id="only-bots" value="1">
+            </p>
+            <p>
+                <label for="play-time-ms">play time</label>
+                <input type="range" id="play-time-ms" value="550" min="550" max="2000" step="50">
+                <span id="play-time-ms-val">550</span>
+                ms
+            </p>
+            <p>
+                <label for="hints">visual annotations?</label>
+                <input type="checkbox" id="hints" value="1">
+            </p>
+            <p>
+                <label for="fen">FEN:</label>
+                <textarea id="fen" cols="80" rows="1" placeholder="keep empty for default board"></textarea>
+            </p>
+            <button>play</button>
+        </form>
+        <script>
+            const playBtnEl         = document.querySelector('button');
+            const onlyBotsInputEl   = document.getElementById('only-bots');
+            const playTimeMsInputEl = document.getElementById('play-time-ms');
+            const hintsInputEl      = document.getElementById('hints');
+            const fenInputEl        = document.getElementById('fen');
+
+            playTimeMsInputEl.addEventListener('change', (ev) => {
+                document.getElementById('play-time-ms-val').textContent = ev.target.value;
+            });
+
+            const DEFAULT_PLAY_TIME_MS = 550;
+
+            playBtnEl.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const onlyBots   = onlyBotsInputEl.checked || '';
+                const playTimeMs = playTimeMsInputEl.value;
+                const hints      = hintsInputEl.checked || '';
+                const fen        = fenInputEl.value;
+                // console.log({ onlyBots, playTimeMs, hints, fen });
+
+                const u = new URLSearchParams();
+                onlyBots                             && u.set('only-bots',    '1');
+                (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
+                hints                                && u.set('hints',        '1');
+                window.location.href = `./play.html?${u.toString()}${fen ? `#${fen}` : ''}`;
+            });
+        </script>
     </body>
 </html>
