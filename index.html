@@ -20,9 +20,18 @@
             </p>
             <p>
                 <label for="play-time-ms">play time</label>
-                <input type="range" id="play-time-ms" value="550" min="550" max="2000" step="50">
+                <input type="range" id="play-time-ms" value="550" min="550" max="5000" step="50">
                 <span id="play-time-ms-val">550</span>
                 ms
+            </p>
+            <p>
+                <label for="bot-sf">bot runs stockfish</label>
+                <input type="checkbox" id="bot-sf" value="1">
+            </p>
+            <p>
+                <label for="bot-level">bot level</label>
+                <input type="range" id="bot-level" value="10" min="1" max="20" step="1">
+                <span id="bot-level-val">10</span>
             </p>
             <p>
                 <label for="eval">stockfish board evaluations</label>
@@ -43,16 +52,25 @@
 
             const fromBlacksInputEl = document.getElementById('from-blacks');
             const onlyBotsInputEl   = document.getElementById('only-bots');
-            const sfEvalInputEl     = document.getElementById('eval');
             const playTimeMsInputEl = document.getElementById('play-time-ms');
+            const botSfInputEl      = document.getElementById('bot-sf');
+            const botLevelInputEl   = document.getElementById('bot-level');
+            const sfEvalInputEl     = document.getElementById('eval');
             const hintsInputEl      = document.getElementById('hints');
             const fenInputEl        = document.getElementById('fen');
 
+            const playTimeMsSpanEl = document.getElementById('play-time-ms-val');
+            const botLevelSpanEl   = document.getElementById('bot-level-val');
+
             playTimeMsInputEl.addEventListener('change', (ev) => {
-                document.getElementById('play-time-ms-val').textContent = ev.target.value;
+                playTimeMsSpanEl.textContent = ev.target.value;
+            });
+            botLevelInputEl.addEventListener('change', (ev) => {
+                botLevelSpanEl.textContent = ev.target.value;
             });
 
             const DEFAULT_PLAY_TIME_MS = 550;
+            const DEFAULT_BOT_LEVEL    =  10;
 
             playBtnEl.addEventListener('click', (ev) => {
                 ev.preventDefault();
@@ -61,15 +79,20 @@
                 const fromBlacks = fromBlacksInputEl.checked || '';
                 const onlyBots   = onlyBotsInputEl.checked   || '';
                 const playTimeMs = playTimeMsInputEl.value;
+                const botSf      = botSfInputEl.checked     || '';
+                const botLevel   = botLevelInputEl.value;
                 const sfEval     = sfEvalInputEl.checked     || '';
                 const hints      = hintsInputEl.checked      || '';
                 const fen        = fenInputEl.value;
-                // console.log({ onlyBots, playTimeMs, hints, fen });
+                
+                // console.log({ fromBlacks, onlyBots, playTimeMs, botSf, botLevel, sfEval, hints, fen });
 
                 const u = new URLSearchParams();
                 fromBlacks                           && u.set('from-blacks',  '1');
                 onlyBots                             && u.set('only-bots',    '1');
                 (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
+                botSf                                && u.set('bot-sf',       '1');
+                (botLevel   != DEFAULT_BOT_LEVEL)    && u.set('bot-level',    botLevel);
                 sfEval                               && u.set('eval',         '1');
                 hints                                && u.set('hints',        '1');
                 window.location.href = `./play.html?${u.toString()}${fen ? `#${fen}` : ''}`;

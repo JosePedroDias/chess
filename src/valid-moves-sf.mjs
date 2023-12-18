@@ -4,10 +4,10 @@ const mod = await import(
     './stockfish-node-wrapper.mjs' :
     './stockfish-browser-wrapper.mjs'
 );
-setup         = mod.setup;
+//setup         = mod.setup;
 getValidMoves = mod.getValidMoves;
 
-setup(20);
+// setup(20);
 
 export async function validMoves(board, isWhiteOverride) {
     const isWhite = board.isWhiteNext();

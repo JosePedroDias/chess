@@ -1,7 +1,9 @@
 import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board } from '../board.mjs';
-import { computeOutcomes, playZpBot /*, playSF*/ } from '../evaluate.mjs';
+import { computeOutcomes } from '../evaluate.mjs';
+import { playZpBot } from '../zpBot.mjs';
+import { playSfBot } from '../sfBot.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
@@ -21,13 +23,13 @@ function playAppropriateSound(move, resultingBoard) {
 }
 
 export function ui(
-    { rootEl, fromBlacks, playTimeMs, sfEval, hints, onlyBots, onlyHumans },
+    { rootEl, fromBlacks, playTimeMs, botSf, botLevel, sfEval, hints, onlyBots, onlyHumans },
     { board }
 ) {
-    if (sfEval) {
+    if (sfEval || botSf) {
         (async () => {
             const mod = await import('../stockfish-browser-wrapper.mjs');
-            mod.setup(20);
+            mod.setup(botLevel);
             evalBoard = mod.evalBoard;
         })();
     }
@@ -56,13 +58,14 @@ export function ui(
     }
 
     // white, black
-    const playFunctions = [ playHuman, playZpBot ];
-    //if      (onlyBots)   playFunctions[0] = playSF;
-    if      (onlyBots)   playFunctions[0] = playZpBot;
-    else if (onlyHumans) playFunctions[1] = playHuman;
+    const botFn = botSf ? playSfBot : playZpBot;
+    const playFunctions = [ playHuman, botFn ];
+    const isBot         = [ false,     true  ];
+    if      (onlyBots) {   playFunctions[0] = botFn;     isBot[0] = true;  }
+    else if (onlyHumans) { playFunctions[1] = playHuman; isBot[1] = false; }
 
-    const playingWhite = playFunctions[0].name.substring(4);
-    const playingBlack = playFunctions[1].name.substring(4);
+    const playingWhite = playFunctions[0].name.substring(4) + (isBot[0] && botSf ? `(${botLevel})` : '');
+    const playingBlack = playFunctions[1].name.substring(4) + (isBot[1] && botSf ? `(${botLevel})` : '');
 
     const vb = [
         -MARGIN * CW,
@@ -133,9 +136,7 @@ export function ui(
     const updateEval = async () => {
         let ev;
         if (evalBoard) {
-            console.log('before');
             ev = await evalBoard(board.getFen());
-            console.log('after');
         }
         document.title = ev ? `eval: ${ev} | ${title}` : title;
     }
@@ -163,7 +164,7 @@ export function ui(
         
         const t0 = Date.now();
         console.log(`${playFn.name.substring(4)}...`);
-        const move = await playFn(board);
+        const move = await playFn(board, playTimeMs);
         const dt = Date.now() - t0;
         console.log(`after ${dt} ms got ${move}`);
 
@@ -220,12 +221,17 @@ export function ui(
     let playTimeMs = search.get('play-time-ms');
     if (!playTimeMs || isNaN(parseFloat(playTimeMs))) playTimeMs = 550;
 
+    let botLevel = search.get('bot-level');
+    if (!botLevel || isNaN(parseFloat(botLevel))) botLevel = 10;
+
     ui(
         {
             rootEl:          document.body,
             fromBlacks:      search.get('from-blacks'),
             playTimeMs:      playTimeMs,
             hints:           search.get('hints'),
+            botSf:           search.get('bot-sf'),
+            botLevel:        botLevel,
             sfEval:          search.get('eval'),
             onlyBots:        search.get('only-bots'),
             onlyHumans:      search.get('only-humans'),

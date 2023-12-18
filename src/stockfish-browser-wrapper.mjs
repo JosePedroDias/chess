@@ -153,6 +153,6 @@ export function setup(skillLevel) {
         _fireLine(line);
     });
 
-    setSkillLevel(skillLevel);
-    //.then(() => console.log(`skill level ${skillLevel} set`));
+    setSkillLevel(skillLevel)
+    .then(() => console.log(`skill level ${skillLevel} set`));
 }
