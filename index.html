@@ -10,12 +10,12 @@
     </head>
     <body>
         <form>
-            <!-- <label for="side"></label>
-            <input type="checkbox" id="side" value="white">
-            <input type="checkbox" id="side" value="black"> -->
-
             <p>
-                <label for="only-bots">only bots?</label>
+                <label for="from-blacks">see board from blacks</label>
+                <input type="checkbox" id="from-blacks" value="1">
+            </p>
+            <p>
+                <label for="only-bots">bot vs bot</label>
                 <input type="checkbox" id="only-bots" value="1">
             </p>
             <p>
@@ -25,18 +25,25 @@
                 ms
             </p>
             <p>
-                <label for="hints">visual annotations?</label>
+                <label for="eval">stockfish board evaluations</label>
+                <input type="checkbox" id="eval" value="1">
+            </p>
+            <p>
+                <label for="hints">visual annotations</label>
                 <input type="checkbox" id="hints" value="1">
             </p>
             <p>
-                <label for="fen">FEN:</label>
+                <label for="fen">game FEN</label>
                 <textarea id="fen" cols="80" rows="1" placeholder="keep empty for default board"></textarea>
             </p>
             <button>play</button>
         </form>
         <script>
             const playBtnEl         = document.querySelector('button');
+
+            const fromBlacksInputEl = document.getElementById('from-blacks');
             const onlyBotsInputEl   = document.getElementById('only-bots');
+            const sfEvalInputEl     = document.getElementById('eval');
             const playTimeMsInputEl = document.getElementById('play-time-ms');
             const hintsInputEl      = document.getElementById('hints');
             const fenInputEl        = document.getElementById('fen');
@@ -51,15 +58,19 @@
                 ev.preventDefault();
                 ev.stopPropagation();
 
-                const onlyBots   = onlyBotsInputEl.checked || '';
+                const fromBlacks = fromBlacksInputEl.checked || '';
+                const onlyBots   = onlyBotsInputEl.checked   || '';
                 const playTimeMs = playTimeMsInputEl.value;
-                const hints      = hintsInputEl.checked || '';
+                const sfEval     = sfEvalInputEl.checked     || '';
+                const hints      = hintsInputEl.checked      || '';
                 const fen        = fenInputEl.value;
                 // console.log({ onlyBots, playTimeMs, hints, fen });
 
                 const u = new URLSearchParams();
+                fromBlacks                           && u.set('from-blacks',  '1');
                 onlyBots                             && u.set('only-bots',    '1');
                 (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
+                sfEval                               && u.set('eval',         '1');
                 hints                                && u.set('hints',        '1');
                 window.location.href = `./play.html?${u.toString()}${fen ? `#${fen}` : ''}`;
             });

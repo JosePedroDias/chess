@@ -6,26 +6,27 @@ Machine algos not super relevant, this is just a cute origami for me to learn ch
 It can now be divided into 3 parts:
 - the engine itself, in vanilla JS, supporting FEN/PGN I/O and basic UCI interface (`src/*.mjs`)
 - the browser playing UI, using SVG and Mithril (`src/ui/*.mjs`)
-- a wrapper over stockfish.js 16, used for evaluating the board and as correct behavior reference
+- a wrapper over stockfish.js 16, used for evaluating the board and as correct behavior benchmark
     - `src/stockfish-browser-wrapper.mjs`
     - `src/stockfish-node-wrapper.mjs`
     - `stockfish-host.js` (to host a compliant web server)
 
 # Show it running, please!
 
-- on GH:
-
-    - [bot vs bot, seen from blacks](https://josepedrodias.github.io/chess/?only-bots=1&from-blacks=1)
-    - [human vs bot w/ hints       ](https://josepedrodias.github.io/chess/?hints=1)
-
-- locally:
-    - [bot vs bot, seen from blacks](http://localhost:8080/chess/?only-bots=1&from-blacks=1)
-    - [human vs bot w/ hints       ](http://localhost:8080/chess/?hints=1)
+- [default game](https://josepedrodias.github.io/chess/play.html)
+- [bot vs bot](https://josepedrodias.github.io/chess/play.html?only-bots=1)
+- [human vs bot w/ hints](https://josepedrodias.github.io/chess/play.html?hints=1)
+- [a friendly form to set the game up](https://josepedrodias.github.io/chess/)
 
 # stockfish usage
 
-~~I still have a bug in valid moves generation without stockfish. (I believe it has to do with king moves).~~
-`valid-moves.mjs` can use either employ my logic or SF's, and I'm using SFs for now so I can evolve the rest of the game.
+`valid-moves.mjs` can use either employ my logic or SF's.
+
+I toggle on SF for it when to confirm bugs in valid move generation.
+
+In the actual browser game, one can also:
+- get StockFish board evaluations in the browser page title
+- play against StockFish (disabled, there are too many games doing that already)
 
 # annotations and bot behavior
 
@@ -119,26 +120,28 @@ As part of the overlays to the chess game, both arrows and circles can be drawn.
 
 - logic
     - complement TODO tests
-    - fix bot UCI compatibility
+    - revisit/fix `main-bot-repl` and `main-bot-uci`
 - UI
     - buttons: new game / play on other side / export PGN
     - (you can currently do `copy(board.getPgn())` on the browser console and paste in sites such as http://lichess.org/paste )
+    - you can undo by doing `undo()` on the browser console
 
 # setup
 
 optional:
-    if you want to have stockfish:
+    if you want to update stockfish:
     - clone `https://github.com/nmrugg/stockfish.js/` into `vendors/stockfish.js`
     - run `extract-minimal-stockfish.sh`
-    - host the game via `node stockfish-host.js` or adapt the recipe to your web server
-    - uncomment the stockfish `main-stockfish-wrapper.mjs` script line in `index.html` to use it
+    - I've kept the `-single` flavour so it works without response headers (ie in github.io) but for better performance:
+        - edit `stockfish-browser-wrapper` and uncomment this flavour `const ENGINE_FLAVOR_SUFFIX = ''`
+        - host the game via `node stockfish-host.js` or adapt the recipe to your web server
 
 to run the engine you need node 20.x or later / evergreen browsers
     - `index.html` host and visit the index page to play
+    - `npm test` to run all tests (not amazing coverage)
     - `npm run bot-repl` to play bot vs bot or bot vs human in node/terminal
     - `npm run bot-uci` to host a UCI interface (tentative)
-    - `npm test` to run all tests (not amazing coverage)
-
+    - `npm run compare` to compare valid moves generation between this engine and StockFish
 
 # chess lingo
 

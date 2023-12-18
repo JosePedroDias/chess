@@ -6,15 +6,10 @@ import { UiBoard } from './ui-board.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
 import { moveToObject, isChecking } from '../move.mjs';
-
 import { initSfx, playSample } from '../sfx/sfx.mjs';
-
-//import { setup, evalBoard } from '../stockfish-browser-wrapper.mjs';
 import { sleep } from '../utils.mjs';
 
-const USE_STOCKFISH_EVAL = false;
-//setup(20);
-
+let evalBoard;
 const moveIndices = new Array(2);
 
 function playAppropriateSound(move, resultingBoard) {
@@ -26,9 +21,17 @@ function playAppropriateSound(move, resultingBoard) {
 }
 
 export function ui(
-    { rootEl, playTimeMs, fromBlacks, drawAnnotations, onlyBots, onlyHumans },
+    { rootEl, fromBlacks, playTimeMs, sfEval, hints, onlyBots, onlyHumans },
     { board }
 ) {
+    if (sfEval) {
+        (async () => {
+            const mod = await import('../stockfish-browser-wrapper.mjs');
+            mod.setup(20);
+            evalBoard = mod.evalBoard;
+        })();
+    }
+
     const playHuman = async (board) => {
         let move;
         const out = await computeOutcomes(board);
@@ -128,9 +131,13 @@ export function ui(
     let out;
 
     const updateEval = async () => {
-        if (!USE_STOCKFISH_EVAL) return;
-        let ev = await evalBoard(board.getFen());
-        document.title = `eval: ${ev} | ${title}`;
+        let ev;
+        if (evalBoard) {
+            console.log('before');
+            ev = await evalBoard(board.getFen());
+            console.log('after');
+        }
+        document.title = ev ? `eval: ${ev} | ${title}` : title;
     }
     updateEval();
 
@@ -193,7 +200,7 @@ export function ui(
                     ontouchstart: onMouse(0),
                     ontouchend: onMouse(1),
                 },
-                UiBoard({ fromBlacks, drawAnnotations }, { board, out }),
+                UiBoard({ fromBlacks, drawAnnotations: hints }, { board, out }),
             );
         }
     });
@@ -216,9 +223,10 @@ export function ui(
     ui(
         {
             rootEl:          document.body,
-            playTimeMs:      playTimeMs,
             fromBlacks:      search.get('from-blacks'),
-            drawAnnotations: search.get('hints'),
+            playTimeMs:      playTimeMs,
+            hints:           search.get('hints'),
+            sfEval:          search.get('eval'),
             onlyBots:        search.get('only-bots'),
             onlyHumans:      search.get('only-humans'),
         },

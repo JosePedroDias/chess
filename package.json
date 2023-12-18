@@ -6,6 +6,7 @@
         "test": "node --test src",
         "bot-repl": "node src/main-bot-repl.mjs",
         "bot-uci": "node src/main-bot-uci.mjs",
+        "compare": "node src/compare-valid-moves-impls.mjs",
         "host": "node stockfish-host.js"
     },
     "dependencies": {

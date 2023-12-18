@@ -7,3 +7,9 @@ form {
 p {
     margin: 0.2em;
 }
+
+label {
+    text-align: right;
+    display: inline-block;
+    min-width: 16em;
+}
