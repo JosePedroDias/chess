@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Board } from './board.mjs';
 import { diff, randomFromArr } from './utils.mjs';
 //import { isChecking } from './move.mjs';
