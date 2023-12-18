@@ -148,6 +148,9 @@ export class Board {
     }
 
     getPgn(tags = {}) { // { White: 'zp', Black: 'bot' }
+        if (!('Site' in tags)) tags.Site = 'https://josepedrodias.github.io/chess/';
+        if (!('Date' in tags)) tags.Date = (new Date()).toISOString().substring(0, 10).replace(/-/g, '.');
+
         const movesPGN = Array.from(this._movesPgn.entries())
         .map(([num, movePgn]) => {
             if (num % 2 === 0) {
