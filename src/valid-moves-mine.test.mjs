@@ -40,5 +40,41 @@ test('validMoves castling impossible under check', async (_t) => {
         'g3f1', 'g3f5', 'h1f1',
         'h1g1', 'h1h2', 'h1h3',
         'h5g4', 'h5g6'
-      ]);
+    ]);
+});
+
+test('validMoves castling ??',  async (_t) => {
+    const b = Board.fromFen(`B1bqkb2/2p1pp2/2np2pr/p6p/1P2N3/5P2/P1PPQ1PP/R1B1K1NR b KQq - 0 9`);
+    const moves = await validMoves(b);
+    moves.sort();
+    deepEqual(moves, [
+        'a5a4',
+        'a5b4',
+        'c6a7',
+        'c6b4',
+        'c6b8',
+        'c6d4',
+        'c6e5',
+        'c8a6',
+        'c8b7',
+        'c8d7',
+        'c8e6',
+        'c8f5',
+        'c8g4',
+        'c8h3',
+        'd6d5',
+        'd8d7',
+        'e7e5',
+        'e7e6',
+        //'e8c8', // O-O !!
+        'e8d7',
+        'f7f5',
+        'f7f6',
+        'f8g7',
+        'g6g5',
+        'h5h4',
+        'h6h7',
+        'h6h8',
+    ]);
+    //console.log(moves);
 });

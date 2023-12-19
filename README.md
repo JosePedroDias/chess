@@ -145,9 +145,9 @@ to run the engine you need node 20.x or later / evergreen browsers
 
 # chess lingo
 
-- **pin** - your piece not only target an enemy piece but another one further in the line of sight. the other piece is generally more valuable.
+- **pin/skewer** - your piece not only target an enemy piece but another one further in the line of sight. if the the other piece is more valuable, it's a pin, otherwise it's a skewer.
 this situation prevents the opponent from moving his closer piece without losing the one further away
-- **fork** - move your piece in a way that it simultaneously attacks multiple pieces, forcing the opponent to sacrifice one of them
+- **fork** - place your piece in a way that it simultaneously attacks multiple pieces, forcing the opponent to sacrifice one of them
 - **reveal** - kinda the opposite of a pin. you move a piece out of the way, exposing a better attack behind it
 - **win a tempo** - create a situation which deflects the opponent from following their plan
 - **trade** - to willingly capture a piece which is defended and expected to be capture next
