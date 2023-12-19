@@ -11,30 +11,26 @@
     <body>
         <form>
             <p>
-                <label for="from-blacks">see board from blacks</label>
-                <input type="checkbox" id="from-blacks" value="1">
+                <label for="bot-sf">stockfish bot (default ZpBot)</label>
+                <input type="checkbox" id="bot-sf" value="1">
+            </p>
+            <p>
+                <label for="bot-level">bot level</label>
+                <input type="range" id="bot-level" value="6" min="1" max="20" step="1">
+                <span id="bot-level-val">6</span>
+            </p>
+            <p>
+                <label for="play-time-ms">bot play time</label>
+                <input type="range" id="play-time-ms" value="1200" min="550" max="5000" step="50">
+                <span id="play-time-ms-val">1200</span>
+                ms
             </p>
             <p>
                 <label for="only-bots">bot vs bot</label>
                 <input type="checkbox" id="only-bots" value="1">
             </p>
             <p>
-                <label for="play-time-ms">play time</label>
-                <input type="range" id="play-time-ms" value="550" min="550" max="5000" step="50">
-                <span id="play-time-ms-val">550</span>
-                ms
-            </p>
-            <p>
-                <label for="bot-sf">bot runs stockfish</label>
-                <input type="checkbox" id="bot-sf" value="1">
-            </p>
-            <p>
-                <label for="bot-level">bot level</label>
-                <input type="range" id="bot-level" value="10" min="1" max="20" step="1">
-                <span id="bot-level-val">10</span>
-            </p>
-            <p>
-                <label for="eval">stockfish board evaluations</label>
+                <label for="eval">board evaluations</label>
                 <input type="checkbox" id="eval" value="1">
             </p>
             <p>
@@ -42,8 +38,12 @@
                 <input type="checkbox" id="hints" value="1">
             </p>
             <p>
+                <label for="from-blacks">see board from blacks</label>
+                <input type="checkbox" id="from-blacks" value="1">
+            </p>
+            <p>
                 <label for="fen">game FEN</label>
-                <textarea id="fen" cols="80" rows="1" placeholder="keep empty for default board"></textarea>
+                <textarea id="fen" cols="80" placeholder="keep empty for default board" spellcheck="false" autocorrect="off"></textarea>
             </p>
             <button>play</button>
         </form>
@@ -69,8 +69,8 @@
                 botLevelSpanEl.textContent = ev.target.value;
             });
 
-            const DEFAULT_PLAY_TIME_MS = 550;
-            const DEFAULT_BOT_LEVEL    =  10;
+            const DEFAULT_PLAY_TIME_MS = 1200;
+            const DEFAULT_BOT_LEVEL    =    6;
 
             playBtnEl.addEventListener('click', (ev) => {
                 ev.preventDefault();
