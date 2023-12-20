@@ -15,6 +15,13 @@ import { Rook } from './neo/rook.mjs';
 import { Queen } from './neo/queen.mjs';
 import { King } from './neo/king.mjs';
 
+/* import { Pawn } from './wiki/pawn.mjs';
+import { Knight } from './wiki/knight.mjs';
+import { Bishop } from './wiki/bishop.mjs';
+import { Rook } from './wiki/rook.mjs';
+import { Queen } from './wiki/queen.mjs';
+import { King } from './wiki/king.mjs'; */
+
 import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
 import { add, mulScalar } from './geometry.mjs';

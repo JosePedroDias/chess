@@ -3,17 +3,22 @@ import m from '../../../vendor/mithril.mjs';
 import { CW, STROKE_WIDTH } from '../constants.mjs';
 import { BLACK, WHITE } from '../colors.mjs';
 
-export function Rook({ isWhite }, { pos }) {
+export function Rook({ isWhite, id }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
     const stroke = isWhite ? BLACK : WHITE;
 
     const x = pos[0] * CW;
     const y = pos[1] * CW;
 
-    return m('g',
+    return m('g.enter',
         {
+            key: id,
             transform: `translate(${x}, ${y + 0.3})`,
             style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; opacity:1; fill-opacity:1; fill-rule:evenodd; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
+            onbeforeremove(vnode) {
+                vnode.dom.classList.add('leave');
+                return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
+            },
         },
         [
             m('title', `${isWhite ? 'white' : 'black'} rook`),

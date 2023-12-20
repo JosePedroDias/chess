@@ -3,7 +3,7 @@ import m from '../../../vendor/mithril.mjs';
 import { CW, STROKE_WIDTH } from '../constants.mjs';
 import { BLACK, WHITE } from '../colors.mjs';
 
-export function King({ isWhite }, { pos }) {
+export function King({ isWhite, id }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
     const fill2 = isWhite ? BLACK : WHITE;
     const stroke = isWhite ? BLACK : WHITE;
@@ -12,10 +12,15 @@ export function King({ isWhite }, { pos }) {
     const x = pos[0] * CW;
     const y = pos[1] * CW;
 
-    return m('g',
+    return m('g.enter',
         {
+            key: id,
             transform: `translate(${x}, ${y})`,
             style: `fill:none; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; fill-opacity:1; fill-rule:evenodd; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1`,
+            onbeforeremove(vnode) {
+                vnode.dom.classList.add('leave');
+                return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
+            },
         },
         [
             m('title', `${isWhite ? 'white' : 'black'} king`),

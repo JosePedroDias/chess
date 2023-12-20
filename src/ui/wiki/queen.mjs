@@ -3,17 +3,22 @@ import m from '../../../vendor/mithril.mjs';
 import { CW, STROKE_WIDTH } from '../constants.mjs';
 import { BLACK, WHITE } from '../colors.mjs';
 
-export function Queen({ isWhite }, { pos }) {
+export function Queen({ isWhite, id }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
     const stroke = isWhite ? BLACK : WHITE;
 
     const x = pos[0] * CW;
     const y = pos[1] * CW;
 
-    return m('g',
+    return m('g.enter',
         {
+            key: id,
             transform: `translate(${x}, ${y})`,
             style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; stroke-linejoin:round`,
+            onbeforeremove(vnode) {
+                vnode.dom.classList.add('leave');
+                return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
+            },
         },
         [
             m('title', `${isWhite ? 'white' : 'black'} queen`),

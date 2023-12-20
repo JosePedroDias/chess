@@ -24,6 +24,7 @@ export function Evaluation({ fromBlacks }, { value }) {
 
     return m('g',
         {
+            'x-comment' : 'evaluation bar',
             transform: `translate(${x}, ${y})`,
             style: `stroke:none; stroke-linecap:round; stroke-linejoin:round; stroke-miterlimit:4`,
         },
