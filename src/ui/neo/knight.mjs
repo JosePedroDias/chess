@@ -1,8 +1,7 @@
 import m from '../../../vendor/mithril.mjs';
 
-import { CW, STROKE_WIDTH, EXIT_MS, SHOW_KEYS } from '../constants.mjs';
+import { CW, STROKE_WIDTH, SHOW_KEYS } from '../constants.mjs';
 import { BLACK, WHITE } from '../colors.mjs';
-import { sleep } from '../../utils.mjs';
 
 export function Knight({ isWhite, id }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
@@ -18,7 +17,6 @@ export function Knight({ isWhite, id }, { pos }) {
             style: `fill:${fill}; stroke:${stroke}; stroke-width:${STROKE_WIDTH}; stroke-linecap:round; stroke-linejoin:round; stroke-miterlimit:4`,
             onbeforeremove(vnode) {
                 vnode.dom.classList.add('leave');
-                //return sleep(EXIT_MS);
                 return new Promise((resolve) => vnode.dom.addEventListener('animationend', resolve));
             }
         },

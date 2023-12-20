@@ -9,7 +9,9 @@ import {
     subtraction,
     memoFactory,
     weightedRandom,
+    clamp,
 } from './utils.mjs';
+import { equal } from 'node:assert';
 
 test('flatten1Level', (_t) => {
     const arr1 = ['a', 2];
@@ -97,4 +99,10 @@ test('weightedRandom', (_t) => {
     ok(histo.a > 0.6 - e && histo.a < 0.6 + e, JSON.stringify(histo));
     ok(histo.b > 0.3 - e && histo.b < 0.3 + e, JSON.stringify(histo));
     ok(histo.c > 0.1 - e && histo.c < 0.1 + e, JSON.stringify(histo));
+});
+
+test('clamp', (_t) => {
+    equal(clamp(-3,   -1, 2.5), -1  );
+    equal(clamp( 3,   -1, 2.5),  2.5);
+    equal(clamp( 1.2, -1, 2.5),  1.2);
 });

@@ -114,3 +114,9 @@ export function randomString(n = 5) {
     }
     return str;
 }
+
+export function clamp(n, min, max) {
+    if (n < min) return min;
+    if (n > max) return max;
+    return n;
+}

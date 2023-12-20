@@ -5,6 +5,7 @@ import { computeOutcomes } from '../evaluate.mjs';
 import { playZpBot } from '../zpBot.mjs';
 import { playSfBot } from '../sfBot.mjs';
 import { UiBoard } from './ui-board.mjs';
+import { Evaluation } from './evaluation.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
 import { moveToObject, isChecking } from '../move.mjs';
@@ -12,6 +13,7 @@ import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { sleep } from '../utils.mjs';
 
 let evalBoard;
+let evalO = {};
 const moveIndices = new Array(2);
 
 function playAppropriateSound(move, resultingBoard) {
@@ -139,6 +141,8 @@ export function ui(
             ev = await evalBoard(board.getFen());
         }
         document.title = ev ? `eval: ${ev} | ${title}` : title;
+        evalO = { value: ev };
+        redraw();
     }
     updateEval();
 
@@ -185,7 +189,10 @@ export function ui(
         redraw();
         doNextMove();
     }
-    setTimeout(doNextMove); // ?
+    setTimeout(() => {
+        updateEval();
+        doNextMove();
+    }); // ?
 
     m.mount(rootEl, {
         oninit(_vnode) {
@@ -202,6 +209,7 @@ export function ui(
                     ontouchend: onMouse(1),
                 },
                 UiBoard({ fromBlacks, drawAnnotations: hints }, { board, out }),
+                Evaluation({ fromBlacks }, evalO),
             );
         }
     });
