@@ -10,15 +10,58 @@
     </head>
     <body>
         <form>
-            <p>
-                <label for="bot-sf">stockfish bot (default ZpBot)</label>
-                <input type="checkbox" id="bot-sf" value="1">
-            </p>
-            <p>
-                <label for="bot-level">bot level</label>
-                <input type="range" id="bot-level" value="6" min="1" max="20" step="1">
-                <span id="bot-level-val">6</span>
-            </p>
+            <div class="players">
+                <fieldset>
+                    <legend>player 1</legend>
+    
+                    <p>
+                        <label for="p1h">human</label>
+                        <input type="radio" id="p1h" name="p1" value="Human" checked>
+                    </p>
+                    <p>
+                        <label for="p1z">zpBot</label>
+                        <input type="radio" id="p1z" name="p1" value="ZpBot">
+                    </p>
+                    <p>
+                        <label for="p1s2">sfBot(2)</label>
+                        <input type="radio" id="p1s2" name="p1" value="SfBot(2)">
+                    </p>
+                    <p>
+                        <label for="p1s8">sfBot(8)</label>
+                        <input type="radio" id="p1s8" name="p1" value="SfBot(8)">
+                    </p>
+                    <p>
+                        <label for="p1s16">sfBot(16)</label>
+                        <input type="radio" id="p1s16" name="p1" value="SfBot(16)">
+                    </p>
+                </fieldset>
+    
+                <fieldset>
+                    <legend>player 2</legend>
+    
+                    <p>
+                        <label for="p2h">human</label>
+                        <input type="radio" id="p2h" name="p2" value="Human">
+                    </p>
+                    <p>
+                        <label for="p2z">zpBot</label>
+                        <input type="radio" id="p2z" name="p2" value="ZpBot" checked>
+                    </p>
+                    <p>
+                        <label for="p2s2">sfBot(2)</label>
+                        <input type="radio" id="p2s2" name="p2" value="SfBot(2)">
+                    </p>
+                    <p>
+                        <label for="p2s8">sfBot(8)</label>
+                        <input type="radio" id="p2s8" name="p2" value="SfBot(8)">
+                    </p>
+                    <p>
+                        <label for="p2s16">sfBot(16)</label>
+                        <input type="radio" id="p2s16" name="p2" value="SfBot(16)">
+                    </p>
+                </fieldset>
+            </div>
+
             <p>
                 <label for="play-time-ms">bot play time</label>
                 <input type="range" id="play-time-ms" value="1200" min="550" max="5000" step="50">
@@ -26,12 +69,8 @@
                 ms
             </p>
             <p>
-                <label for="only-bots">bot vs bot</label>
-                <input type="checkbox" id="only-bots" value="1">
-            </p>
-            <p>
                 <label for="eval">board evaluations</label>
-                <input type="checkbox" id="eval" value="1">
+                <input type="checkbox" id="eval" value="1" checked>
             </p>
             <p>
                 <label for="hints">visual annotations</label>
@@ -51,50 +90,45 @@
             const playBtnEl         = document.querySelector('button');
 
             const fromBlacksInputEl = document.getElementById('from-blacks');
-            const onlyBotsInputEl   = document.getElementById('only-bots');
             const playTimeMsInputEl = document.getElementById('play-time-ms');
-            const botSfInputEl      = document.getElementById('bot-sf');
-            const botLevelInputEl   = document.getElementById('bot-level');
             const sfEvalInputEl     = document.getElementById('eval');
             const hintsInputEl      = document.getElementById('hints');
             const fenInputEl        = document.getElementById('fen');
 
             const playTimeMsSpanEl = document.getElementById('play-time-ms-val');
-            const botLevelSpanEl   = document.getElementById('bot-level-val');
 
             playTimeMsInputEl.addEventListener('change', (ev) => {
                 playTimeMsSpanEl.textContent = ev.target.value;
             });
-            botLevelInputEl.addEventListener('change', (ev) => {
-                botLevelSpanEl.textContent = ev.target.value;
-            });
 
             const DEFAULT_PLAY_TIME_MS = 1200;
-            const DEFAULT_BOT_LEVEL    =    6;
 
             playBtnEl.addEventListener('click', (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
 
-                const fromBlacks = fromBlacksInputEl.checked || '';
-                const onlyBots   = onlyBotsInputEl.checked   || '';
+                const p1 = document.querySelector('input[name=p1]:checked').value;
+                const p2 = document.querySelector('input[name=p2]:checked').value;
+
+                const fromBlacks = fromBlacksInputEl.checked;
                 const playTimeMs = playTimeMsInputEl.value;
-                const botSf      = botSfInputEl.checked     || '';
-                const botLevel   = botLevelInputEl.value;
-                const sfEval     = sfEvalInputEl.checked     || '';
-                const hints      = hintsInputEl.checked      || '';
+                const sfEval     = sfEvalInputEl.checked;
+                const hints      = hintsInputEl.checked;
+
                 const fen        = fenInputEl.value;
                 
-                // console.log({ fromBlacks, onlyBots, playTimeMs, botSf, botLevel, sfEval, hints, fen });
+                console.log({ p1, p2, fromBlacks, playTimeMs, sfEval, hints, fen });
 
                 const u = new URLSearchParams();
+
+                u.set('p1', p1);
+                u.set('p2', p2);
+
                 fromBlacks                           && u.set('from-blacks',  '1');
-                onlyBots                             && u.set('only-bots',    '1');
                 (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
-                botSf                                && u.set('bot-sf',       '1');
-                (botLevel   != DEFAULT_BOT_LEVEL)    && u.set('bot-level',    botLevel);
                 sfEval                               && u.set('eval',         '1');
                 hints                                && u.set('hints',        '1');
+
                 window.location.href = `./play.html?${u.toString()}${fen ? `#${fen}` : ''}`;
             });
         </script>

@@ -33,3 +33,11 @@ button {
     font-size: 1.3em;
     margin-top: 0.4em;
 }
+
+.players {
+    display: flex;
+}
+
+.players fieldset {
+    flex: 1;
+}
