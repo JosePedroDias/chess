@@ -12,6 +12,8 @@ function sortDescByScore(arr) {
 function heuristic1(o) {
     o.score =   (o.isCheckmate                   ?                     100 : 0) +
                 (o.isCapture && !o.canBeCaptured ?                     0.8 : 0) +
+                (o.isPinSkewer                   ?                     0.5 : 0) +
+                (o.fork                          ?                     0.5 : 0) +
                 (o.isPromotion                   ?                     0.5 : 0) +
                 (o.isCapture &&  o.canBeCaptured ? randomFloat(0.5) - 0.15 : 0) +
                 (o.isStalemate                   ?                      -5 : 0) +

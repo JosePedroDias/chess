@@ -2,7 +2,7 @@ import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
 import { Board } from './board.mjs';
-import { getBoardMaterial, isFork, isPinSkewer } from './evaluate.mjs';
+import { getBoardMaterial, computeOutcomes, canFork, canPinSkewer } from './evaluate.mjs';
 
 test('material empty', (_t) => {
     const b = Board.empty();
@@ -25,32 +25,64 @@ test('material winning', (_t) => {
     equal(getBoardMaterial(b, false), 21);
 });
 
-test('fork', { only: true }, async (_t) => {
+test('fork', async (_t) => {
     {
         const b = Board.fromFen(`7k/2q1b3/8/3N4/8/8/8/1K6 w - - 0 1`);
-        const { result, potentialCaptures } = await isFork(b, true);
+        const { result, potentialCaptures } = await canFork(b, true);
         equal(result, true);
         deepEqual(potentialCaptures, ['q', 'b']);
     }
     {
         const b = Board.fromFen(`4b2k/2q5/8/3N4/8/8/8/1K6 w - - 0 1`);
-        const { result, potentialCaptures } = await isFork(b, true);
+        const { result, potentialCaptures } = await canFork(b, true);
         equal(result, false);
         deepEqual(potentialCaptures, ['q']);
     }
 });
 
-test('pin/skewer', { only: true }, (_t) => {
+test('pin/skewer', (_t) => {
     {
         const b = Board.fromFen(`4b1k1/8/1n2q3/2p5/8/4Q3/8/1K6 w - - 0 1`);
-        const { result, attackedPiecePacks } = isPinSkewer(b, true);
+        const { result, attackedPiecePacks } = canPinSkewer(b, true);
         equal(result, true);
         deepEqual(attackedPiecePacks, [['p', 'n'], ['q', 'b']]);
     }
     {
         const b = Board.fromFen(`3b2k1/8/1n2q3/2P5/8/4Q3/8/1K6 w - - 0 1`);
-        const { result, attackedPiecePacks } = isPinSkewer(b, true);
+        const { result, attackedPiecePacks } = canPinSkewer(b, true);
         equal(result, false);
         deepEqual(attackedPiecePacks, []);
     }
+});
+
+test('computeOutcomes finds fork on next move', async (_t) => {
+    const b = Board.fromFen(`7k/2q1b3/8/8/5N2/8/8/1K6 w - - 0 1`);
+    const out = await computeOutcomes(b);
+    equal(out.forkMoves.size, 1);
+    equal(out.forkMoves.has('f4d5'), true);
+    deepEqual(out.forkMoves.get('f4d5'), ['q', 'b']);
+    equal(out.moveAttributesMap.get('f4d5').isFork, true);
+});
+
+test('computeOutcomes finds pin on next move', async (_t) => {
+    const b = Board.fromFen(`4b1k1/8/1n2q3/2p5/8/7Q/8/1K6 w - - 0 1`);
+    const out = await computeOutcomes(b);
+    equal(out.pinSkewerMoves.size, 4);
+
+    equal(out.pinSkewerMoves.has('h3e3'), true);
+    deepEqual(out.pinSkewerMoves.get('h3e3'), [ ['p', 'n'], ['q', 'b'] ]);
+
+    equal(out.pinSkewerMoves.has('h3b3'), true);
+    deepEqual(out.pinSkewerMoves.get('h3b3'), [ ['q', 'k'] ]);
+
+    equal(out.pinSkewerMoves.has('h3h6'), true);
+    deepEqual(out.pinSkewerMoves.get('h3h6'), [ ['q', 'n'] ]);
+
+    equal(out.pinSkewerMoves.has('h3h8'), true);
+    deepEqual(out.pinSkewerMoves.get('h3h8'), [ ['k', 'b'] ]);
+
+    equal(out.moveAttributesMap.get('h3e3').isPinSkewer, true);
+    equal(out.moveAttributesMap.get('h3b3').isPinSkewer, true);
+    equal(out.moveAttributesMap.get('h3h6').isPinSkewer, true);
+    equal(out.moveAttributesMap.get('h3h8').isPinSkewer, true);
 });

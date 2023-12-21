@@ -82,7 +82,7 @@ export function isTie(board) {
 }
 
 // who played is attacking more than 1 enemy piece
-export async function isFork(board, mySide) {
+export async function canFork(board, mySide) {
     const vMoves = await validMoves(board, mySide);
     const potentialCaptures = [];
     const isEnemyPiece = mySide ? isBlackPiece : isWhitePiece;
@@ -97,9 +97,11 @@ export async function isFork(board, mySide) {
     return { result, potentialCaptures };
 }
 
+// export function rateFork(potentialCaptures) {}
+
 // long range pieces only (B, R, Q)
 // instead of stopping at first enemy piece, continue until a pieces of ours is met
-export function isPinSkewer(board, mySide) {
+export function canPinSkewer(board, mySide) {
     const isMyPiece = mySide ? isWhitePiece : isBlackPiece;
     const attackedPiecePacks = [];
     const sidePositions = board.getSidePositions(mySide);
@@ -136,6 +138,8 @@ export function isPinSkewer(board, mySide) {
     return { result, attackedPiecePacks };
 }
 
+//export function ratePinSkewer(attackedPiecePacks) {}
+
 export async function computeOutcomes(board) {
     const tieResult = isTie(board);
     if (tieResult) throw tieResult;
@@ -151,6 +155,8 @@ export async function computeOutcomes(board) {
     }
 
     const captureMoves       = new Set();
+    const forkMoves          = new Map();
+    const pinSkewerMoves     = new Map();
     const promotionMoves     = new Set();
     const checkMoves         = new Set();
     const checkmateMoves     = new Set();
@@ -194,6 +200,11 @@ export async function computeOutcomes(board) {
 
         if (prom) promotionMoves.add(mv);
         const board2 = board.applyMove(mv);
+
+        const pinSkewerRes = canPinSkewer(board2, isWhite);
+        const forkRes      = await canFork(board2, isWhite);
+        if (pinSkewerRes.result) pinSkewerMoves.set(mv, pinSkewerRes.attackedPiecePacks);
+        if (forkRes.result)      forkMoves.set(mv, forkRes.potentialCaptures);
 
         const amIChecking = isChecking(board2, isWhite);
         if (amIChecking) checkMoves.add(mv);
@@ -239,6 +250,9 @@ export async function computeOutcomes(board) {
         const isPromotion    = promotionMoves.has(move);
         const rnd = Math.random();
         const [worseMatDiff, bestMatDiff] = materialDiff.get(move);
+
+        const isPinSkewer = pinSkewerMoves.has(move);
+        const isFork      = forkMoves.has(move);
         
         const pgn = moveToPgn(move, board, moves) + (isCheckmate ? '#' : isCheck ? '+' : '');
         
@@ -249,6 +263,8 @@ export async function computeOutcomes(board) {
             isCheckmate,
             isStalemate,
             isCapture,
+            isPinSkewer,
+            isFork,
             canBeCaptured,
             isPromotion,
             worseMatDiff,
@@ -259,6 +275,8 @@ export async function computeOutcomes(board) {
 
     return {
         moves,
+        pinSkewerMoves,
+        forkMoves,
         moveAttributesMap,
         attackedPositions,
         defendedPositions,

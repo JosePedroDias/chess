@@ -82,6 +82,7 @@ export function UiBoard(
     }
 
     if (drawAnnotations) {
+        // out?.moveAttributesMap && console.table(Array.from(out.moveAttributesMap.values()));
         for (const pos of Array.from(out?.attackedPositions || [])) {
             const isDefended = out?.defendedPositions.has(pos);
             annotations.push(
