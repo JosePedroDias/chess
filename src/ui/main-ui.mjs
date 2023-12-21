@@ -2,8 +2,9 @@ import { redraw, default as m } from '../../vendor/mithril.mjs';
 
 import { Board } from '../board.mjs';
 import { computeOutcomes } from '../evaluate.mjs';
+import { playRandomBot } from '../randomBot.mjs';
 import { playZpBot } from '../zpBot.mjs';
-import { playSfBot } from '../sfBot.mjs';
+import { playSfBot } from '../sfBot.mjs'; // TODO import function (requires bootstrap to be async)
 import { UiBoard } from './ui-board.mjs';
 import { Evaluation } from './evaluation.mjs';
 import { MARGIN, CW } from './constants.mjs';
@@ -24,11 +25,15 @@ function playAppropriateSound(move, resultingBoard) {
     else                 playSample('dragSlide', 0.33);
 }
 
+function isBotNameSf(name) {
+    return name.indexOf('SfBot') === 0;
+}
+
 export function ui(
     { rootEl, players, fromBlacks, playTimeMs, sfEval, hints },
     { board }
 ) {
-    if (sfEval || players[0].indexOf('SfBot') !== -1 || players[1].indexOf('SfBot') !== -1) {
+    if (sfEval || players.some(isBotNameSf)) {
         (async () => {
             const mod = await import('../stockfish-browser-wrapper.mjs');
             mod.setup(20);
@@ -62,8 +67,9 @@ export function ui(
     // white, black
 
     const playFunctions = players.map((name) => {
-        if (name === 'ZpBot') return playZpBot;
-        if (name.indexOf('SfBot') === 0) return playSfBot; // TODO assign bot level
+        if (name === 'ZpBot')  return playZpBot;
+        if (name === 'RandomBot')  return playRandomBot;
+        if (isBotNameSf(name)) return playSfBot; // TODO assign bot level
         return playHuman;
     });
 

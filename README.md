@@ -13,10 +13,9 @@ It can now be divided into 3 parts:
 
 # Show it running, please!
 
-- [default game](https://josepedrodias.github.io/chess/play.html)
-- [bot vs bot](https://josepedrodias.github.io/chess/play.html?only-bots=1)
-- [human vs bot w/ hints](https://josepedrodias.github.io/chess/play.html?hints=1)
-- [a friendly form to set the game up](https://josepedrodias.github.io/chess/)
+- [default game](https://josepedrodias.github.io/chess/)
+- [RandomBot vs ZpBot](https://josepedrodias.github.io/chess/play.html?p1=RandomBot&p2=ZpBot&play-time-ms=550&hints=1)
+- [RandomBot vs ZpBot fast](https://josepedrodias.github.io/chess/play.html?p1=RandomBot&p2=ZpBot&play-time-ms=1)
 
 # stockfish usage
 
@@ -122,7 +121,8 @@ As part of the overlays to the chess game, both arrows and circles can be drawn.
     - complement TODO tests
     - revisit/fix `main-bot-repl` and `main-bot-uci`
 - UI
-    - buttons: new game / play on other side / export PGN
+    - display moves, pause, next, prev, export pgn, undo
+    - training mode (where zpBot exhausts each move to train us, via sorting visited paths on LS?)
     - (you can currently do `copy(board.getPgn())` on the browser console and paste in sites such as http://lichess.org/paste )
     - you can undo by doing `undo()` on the browser console
 
