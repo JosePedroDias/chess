@@ -1,7 +1,7 @@
-import { PAWN_B, PAWN_W, isKing, isWhitePiece } from './pieces.mjs';
+import { PAWN_B, PAWN_W, isBishop, isRook, isQueen, isKing, isWhitePiece, isBlackPiece } from './pieces.mjs';
 import { EMPTY } from './board.mjs';
 import { histogram } from './utils.mjs';
-import { isChecking, moveToPgn } from './move.mjs';
+import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
 export const PIECE_VALUE = {
@@ -79,6 +79,61 @@ export function isTie(board) {
     if (board._params.halfMoveClock === 100) return DRAW_50MOVE;
 
     return findMaterialDraws(board);
+}
+
+// who played is attacking more than 1 enemy piece
+export async function isFork(board, mySide) {
+    const vMoves = await validMoves(board, mySide);
+    const potentialCaptures = [];
+    const isEnemyPiece = mySide ? isBlackPiece : isWhitePiece;
+    for (const mv of vMoves) {
+        const to = mv.substring(2, 4);
+        const toPiece = board.get(to);
+        if (isEnemyPiece(toPiece)) {
+            potentialCaptures.push(toPiece);
+        }
+    }
+    const result = potentialCaptures.length > 1;
+    return { result, potentialCaptures };
+}
+
+// long range pieces only (B, R, Q)
+// instead of stopping at first enemy piece, continue until a pieces of ours is met
+export function isPinSkewer(board, mySide) {
+    const isMyPiece = mySide ? isWhitePiece : isBlackPiece;
+    const attackedPiecePacks = [];
+    const sidePositions = board.getSidePositions(mySide);
+    for (const [pos, piece] of sidePositions) {
+        let movesArr;
+        if (isBishop(piece)) {
+            movesArr = bishopMoves(pos);
+        } else if (isRook(piece)) {
+            movesArr = rookMoves(pos);
+        } else if (isQueen(piece)) {
+            movesArr = queenMoves(pos);
+        } else {
+            continue;
+        }
+
+        if (movesArr[0] && movesArr[0] instanceof Array) {
+            for (const dirPositions of movesArr) {
+                const attackedPieces = [];
+                dirL: for (const to of dirPositions) {
+                    const v = board.get(to);
+                    if (isMyPiece(v)) {
+                        break dirL;
+                    } else if (v !== EMPTY) {
+                        attackedPieces.push(v);
+                    }
+                }
+                if (attackedPieces.length > 1) {
+                    attackedPiecePacks.push(attackedPieces);
+                }
+            }
+        }
+    }
+    const result = attackedPiecePacks.length > 0;
+    return { result, attackedPiecePacks };
 }
 
 export async function computeOutcomes(board) {
