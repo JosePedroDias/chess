@@ -25,13 +25,13 @@ function playAppropriateSound(move, resultingBoard) {
 }
 
 export function ui(
-    { rootEl, fromBlacks, playTimeMs, botSf, botLevel, sfEval, hints, onlyBots, onlyHumans },
+    { rootEl, players, fromBlacks, playTimeMs, sfEval, hints },
     { board }
 ) {
-    if (sfEval || botSf) {
+    if (sfEval || players[0].indexOf('SfBot') !== -1 || players[1].indexOf('SfBot') !== -1) {
         (async () => {
             const mod = await import('../stockfish-browser-wrapper.mjs');
-            mod.setup(botLevel);
+            mod.setup(20);
             evalBoard = mod.evalBoard;
         })();
     }
@@ -60,14 +60,12 @@ export function ui(
     }
 
     // white, black
-    const botFn = botSf ? playSfBot : playZpBot;
-    const playFunctions = [ playHuman, botFn ];
-    const isBot         = [ false,     true  ];
-    if      (onlyBots) {   playFunctions[0] = botFn;     isBot[0] = true;  }
-    else if (onlyHumans) { playFunctions[1] = playHuman; isBot[1] = false; }
 
-    const playingWhite = playFunctions[0].name.substring(4) + (isBot[0] && botSf ? `(${botLevel})` : '');
-    const playingBlack = playFunctions[1].name.substring(4) + (isBot[1] && botSf ? `(${botLevel})` : '');
+    const playFunctions = players.map((name) => {
+        if (name === 'ZpBot') return playZpBot;
+        if (name.indexOf('SfBot') === 0) return playSfBot; // TODO assign bot level
+        return playHuman;
+    });
 
     const vb = [
         -MARGIN * CW,
@@ -131,7 +129,7 @@ export function ui(
     }
     window.undo = undo;
 
-    const title = `${playingWhite} v ${playingBlack}`;
+    const title = `${players[0]} v ${players[1]}`;
 
     let out;
 
@@ -154,8 +152,8 @@ export function ui(
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
                 console.log(board.getPgn({
-                    White: playingWhite,
-                    Black: playingBlack,
+                    White: players[0],
+                    Black: players[1],
                 }));
                 redraw();
                 await sleep(100);
@@ -227,22 +225,22 @@ export function ui(
     window.board = startBoard;
 
     let playTimeMs = search.get('play-time-ms');
-    if (!playTimeMs || isNaN(parseFloat(playTimeMs))) playTimeMs = 550;
+    if (!playTimeMs || isNaN(parseFloat(playTimeMs))) playTimeMs = 1200;
 
-    let botLevel = search.get('bot-level');
-    if (!botLevel || isNaN(parseFloat(botLevel))) botLevel = 10;
+    const p1 = search.get('p1') || 'Human';
+    const p2 = search.get('p2') || 'ZpBot';
+    const players = [p1, p2];
 
     ui(
         {
             rootEl:          document.body,
+
+            players,
+
             fromBlacks:      search.get('from-blacks'),
             playTimeMs:      playTimeMs,
-            hints:           search.get('hints'),
-            botSf:           search.get('bot-sf'),
-            botLevel:        botLevel,
             sfEval:          search.get('eval'),
-            onlyBots:        search.get('only-bots'),
-            onlyHumans:      search.get('only-humans'),
+            hints:           search.get('hints'),
         },
         {
             board: startBoard,

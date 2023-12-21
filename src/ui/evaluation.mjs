@@ -10,7 +10,7 @@ export function Evaluation({ fromBlacks }, { value }) {
     const x = CW * 8.05;
     const y = CW * 4;
 
-    const si = fromBlacks ? 1 : -1;
+    const si = fromBlacks ? -1 : 1;
 
     const value_ = clamp(value, -MAX, MAX);
     const dy = si * ((isFinite(value_) ? value_ : 0) / MAX) * 4 * CW;
@@ -33,14 +33,14 @@ export function Evaluation({ fromBlacks }, { value }) {
                 y: y0,
                 width:  CW * 0.2,
                 height: y1,
-                fill: value_ > 0 ? BLACK : WHITE,
+                fill: value_ > 0 ? WHITE : BLACK,
             }),
             m(
                 'text',
                 {
                     dy,
                     style: `stroke:none; font-size:4px; font-weight:600; dominant-baseline: ${dy > 0 ? 'auto' : 'hanging'}`,
-                    fill: value_ < 0 ? BLACK : WHITE,
+                    fill: value_ < 0 ? WHITE : BLACK,
                 },
                 valueT,
             ),

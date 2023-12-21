@@ -25,6 +25,6 @@ export async function playZpBot(board) {
     const candidates = Array.from( (await computeOutcomes(board)).moveAttributesMap.values() );
     candidates.forEach(heuristic1);
     sortDescByScore(candidates);
-    console.table(candidates);
+    //console.table(candidates);
     return candidates[0].move;
 }
