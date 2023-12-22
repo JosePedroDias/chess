@@ -41,6 +41,7 @@ export class Board {
     static empty() {
         const b = new Board();
         b._cells.fill(EMPTY);
+        b._params.castling.clear();
         return b;
     }
 
@@ -220,6 +221,7 @@ export class Board {
         }
     }
 
+    // returns interator of [position, piece]
     cellsHaving(criteria = () => true) {
         return {
             [Symbol.iterator]: () => {
@@ -241,6 +243,16 @@ export class Board {
                 }
             }
         }
+    }
+
+    // returns array of positions
+    positionsHaving(criteria = () => true) {
+        return Array.from(this.cellsHaving(criteria)).map(([pos]) => pos);
+    }
+
+    // returns array of pieces
+    positionsHaving(criteria = () => true) {
+        return Array.from(this.cellsHaving(criteria)).map(([pos]) => pos);
     }
 
     // array of [position, piece]

@@ -104,10 +104,10 @@ export function UiBoard(
                 const mvO = moveToObject(mv, board);
 
                 let color, title, width = 0.9;
-                if      (attrs.isCheckmate) {                       title = 'checkmate';       color = 'green';   width = 1.3; }
-                else if (attrs.isStalemate) {                       title = 'stalemate';       color = 'brown';   width = 1.3; }
+                if      (attrs.isCheckmate) {                       title = 'checkmate';       color = '#7F7';    width = 2.5; }
+                else if (attrs.isStalemate) {                       title = 'stalemate';       color = '#F77';    width = 2.5; }
                 else if (attrs.isCheck) {                           title = 'check';           color = 'purple';               }
-                else if (attrs.isCapture && !attrs.canBeCaptured) { title = 'safe capture';    color = 'lime';    width = 1.3; }
+                else if (attrs.isCapture && !attrs.canBeCaptured) { title = 'safe capture';    color = 'green';   width = 1.5; }
                 else if (attrs.isCapture) {                         title = 'capture';         color = 'yellow';               }
                 else if (attrs.canBeCaptured) {                     title = 'can be captured'; color = 'orchid';               }
                 else if (attrs.isPromotion) {                       title = 'promotion';       color = 'cyan';                 }

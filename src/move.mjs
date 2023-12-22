@@ -30,7 +30,7 @@ function isXYValid([x, y]) {
 }
 
 // ('a1', 'b3') => [1, -2]
-function deltaMovesXY(pos1, pos2) {
+export function deltaMovesXY(pos1, pos2) {
     const xy1 = posToXY(pos1);
     const xy2 = posToXY(pos2);
     return [

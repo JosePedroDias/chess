@@ -1,3 +1,5 @@
+import { EMPTY } from "./board.mjs";
+
 export const KING_W = 'K';
 export const KING_B = 'k';
 export const QUEEN_W = 'Q';
@@ -14,6 +16,10 @@ export const PAWN_B = 'p';
 export const WHITE_PIECES = [KING_W, QUEEN_W, ROOK_W, BISHOP_W, KNIGHT_W, PAWN_W];
 export const BLACK_PIECES = [KING_B, QUEEN_B, ROOK_B, BISHOP_B, KNIGHT_B, PAWN_B];
 export const PIECES = [...WHITE_PIECES, ...BLACK_PIECES];
+
+export function isEmpty(piece) {
+    return piece === EMPTY;
+}
 
 export function isPiece(piece) {
     return PIECES.includes(piece);

@@ -162,7 +162,7 @@ export function ui(
                     Black: players[1],
                 }));
                 redraw();
-                await sleep(100);
+                await sleep(550);
                 return window.alert(err); // checkmate or draw
             }
             throw err;
