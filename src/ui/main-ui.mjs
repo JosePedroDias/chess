@@ -124,11 +124,16 @@ export function ui(
         }
     };
 
+    function updateHash() {
+        //location.hash = board.getFen();
+        history.replaceState(undefined, undefined, `#${board.getFen()}`); // avoid hash changes getting into the navigation history
+    }
+
     // TODO
     function undo() {
         board = board.getLastBoard();
         board = board.getLastBoard();
-        location.hash = board.getFen();
+        updateHash();
         window.board = board;
         redraw();
         doNextMove();
@@ -151,7 +156,7 @@ export function ui(
     updateEval();
 
     const doNextMove = async () => {
-        location.hash = board.getFen();
+        updateHash();
         try {
             out = await computeOutcomes(board);
             redraw();

@@ -92,16 +92,23 @@
                 <label for="fen">game FEN</label>
                 <textarea id="fen" cols="80" placeholder="keep empty for default board" spellcheck="false" autocorrect="off"></textarea>
             </p>
+            <p>
+                <label for="puzzle-pieces">puzzle pieces</label>
+                <textarea id="puzzle-pieces" cols="80" placeholder="fill with piece characters to get a random board with them" spellcheck="false" autocorrect="off"></textarea>
+            </p>
             <button>play</button>
         </form>
-        <script>
-            const playBtnEl         = document.querySelector('button');
+        <script type="module">
+            import { puzzle } from './src/puzzle.mjs';
 
-            const fromBlacksInputEl = document.getElementById('from-blacks');
-            const playTimeMsInputEl = document.getElementById('play-time-ms');
-            const sfEvalInputEl     = document.getElementById('eval');
-            const hintsInputEl      = document.getElementById('hints');
-            const fenInputEl        = document.getElementById('fen');
+            const playBtnEl           = document.querySelector('button');
+
+            const fromBlacksInputEl   = document.getElementById('from-blacks');
+            const playTimeMsInputEl   = document.getElementById('play-time-ms');
+            const sfEvalInputEl       = document.getElementById('eval');
+            const hintsInputEl        = document.getElementById('hints');
+            const fenInputEl          = document.getElementById('fen');
+            const puzzlePiecesInputEl = document.getElementById('puzzle-pieces');
 
             const playTimeMsSpanEl = document.getElementById('play-time-ms-val');
 
@@ -111,7 +118,7 @@
 
             const DEFAULT_PLAY_TIME_MS = 1200;
 
-            playBtnEl.addEventListener('click', (ev) => {
+            playBtnEl.addEventListener('click', async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
 
@@ -123,7 +130,8 @@
                 const sfEval     = sfEvalInputEl.checked;
                 const hints      = hintsInputEl.checked;
 
-                const fen        = fenInputEl.value;
+                let   fen          = fenInputEl.value;
+                const puzzlePieces = puzzlePiecesInputEl.value;
                 
                 console.log({ p1, p2, fromBlacks, playTimeMs, sfEval, hints, fen });
 
@@ -136,6 +144,11 @@
                 (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
                 sfEval                               && u.set('eval',         '1');
                 hints                                && u.set('hints',        '1');
+
+                if (puzzlePieces) {
+                    const board = await puzzle(puzzlePieces);
+                    fen = board.getFen();
+                }
 
                 window.location.href = `./play.html?${u.toString()}${fen ? `#${fen}` : ''}`;
             });
