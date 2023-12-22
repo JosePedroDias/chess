@@ -24,6 +24,7 @@ import { King } from './wiki/king.mjs'; */
 
 import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
+import { Dashed } from './dashed.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
 export function UiBoard(
@@ -82,7 +83,8 @@ export function UiBoard(
     }
 
     if (drawAnnotations) {
-        // out?.moveAttributesMap && console.table(Array.from(out.moveAttributesMap.values()));
+        //out?.moveAttributesMap && console.table(Array.from(out.moveAttributesMap.values()));
+        //out?.viewedPositions && console.log(Array.from(out.viewedPositions[0]));
         for (const pos of Array.from(out?.attackedPositions || [])) {
             const isDefended = out?.defendedPositions.has(pos);
             annotations.push(
@@ -173,6 +175,13 @@ export function UiBoard(
                 ]);
             }),
         ]),
+
+        /* m('g', { 'x-comment' : 'dashes' }, [
+            out?.viewedPositions ? [
+                ...Array.from(out?.viewedPositions[0]).map((mv) => Dashed({}, { pos: posToXY(mv), alpha: 0.5, color: '#D44' })),
+                ...Array.from(out?.viewedPositions[1]).map((mv) => Dashed({}, { pos: posToXY(mv), alpha: 0.5, color: '#4D4', inverted: true })),
+            ] : undefined,
+        ]), */
 
         m('g', { 'x-comment' : 'labels' }, [
             ...times(8).map((i) => {

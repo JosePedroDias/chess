@@ -163,6 +163,7 @@ export async function computeOutcomes(board) {
     const stalemateMoves     = new Set();
     const canBeCapturedMoves = new Set();
     const attackedPositions  = new Set();
+    const viewedPositions    = [new Set(), new Set()];
     const defendedPositions  = new Set();
 
     const initialMaterial = getBoardMaterial(board, isWhite);
@@ -210,7 +211,6 @@ export async function computeOutcomes(board) {
         if (amIChecking) checkMoves.add(mv);
 
         const moves2 = await validMoves(board2);
-
         for (const mv2 of moves2) {
             const board3 =  board2.applyMove(mv2);
             const endMaterial = getBoardMaterial(board3, isWhite);
@@ -221,8 +221,16 @@ export async function computeOutcomes(board) {
             const myPiecePositions2 = board2.getSidePositions(isWhite).map(([pos]) => pos);
             const to2 = mv2.substring(2, 4);
 
+            viewedPositions[0].add(to2);
+
             if (myPiecePositions.includes(to2) && board2.get(to2) !== EMPTY) attackedPositions.add(to2);
             if (myPiecePositions2.includes(to2)) canBeCapturedMoves.add(mv);
+        }
+
+        const moves2b = await validMoves(board.getInvertedBoard());
+        for (const mv2 of moves2b) {
+            const to2 = mv2.substring(2, 4);
+            viewedPositions[1].add(to2);
         }
 
         const numMoves = moves2.length;
@@ -280,6 +288,7 @@ export async function computeOutcomes(board) {
         moveAttributesMap,
         attackedPositions,
         defendedPositions,
+        viewedPositions,
         amIBeingChecked,
     };
 }

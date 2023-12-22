@@ -248,14 +248,13 @@ export class Board {
         }
     }
 
-    // returns array of positions
     positionsHaving(criteria = () => true) {
         return Array.from(this.cellsHaving(criteria)).map(([pos]) => pos);
     }
 
     // returns array of pieces
-    positionsHaving(criteria = () => true) {
-        return Array.from(this.cellsHaving(criteria)).map(([pos]) => pos);
+    piecesHaving(criteria = () => true) {
+        return Array.from(this.cellsHaving(criteria)).map(([_, piece]) => piece);
     }
 
     // array of [position, piece]
@@ -394,6 +393,7 @@ export class Board {
 export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 export const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
 
+console.log('preparing board');
 for (let [yi, y] of RANKS.entries()) {
     for (let [xi, x] of FILES.entries()) {
         const position = `${x}${y}`;
@@ -404,14 +404,11 @@ for (let [yi, y] of RANKS.entries()) {
         INDICES_TO_POSITIONS.set(index, position);
         POSITIONS_TO_XY.set(position, [xi, yi]);
 
-        const _isWhiteCell = index % 2 === 0;
+        const _isWhiteCell = (xi + yi) % 2 === 0;
         const setToFill = _isWhiteCell ? WHITE_CELL_POSITIONS : BLACK_CELL_POSITIONS;
         setToFill.add(position);
     }
 }
-
-console.log(WHITE_CELL_POSITIONS);
-console.log(BLACK_CELL_POSITIONS);
 
 export const POSITIONS = new Set(POSITIONS_TO_INDICES.keys());
 
@@ -426,5 +423,3 @@ export function isWhiteCell(pos) {
 export function isBlackCell(pos) {
     return BLACK_CELL_POSITIONS.has(pos);
 }
-
-window.isWhiteCell = isWhiteCell;

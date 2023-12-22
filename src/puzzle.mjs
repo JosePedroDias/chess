@@ -9,6 +9,7 @@ export async function puzzle(pieces) {
     if (!pieces.includes('K')) pieces.unshift('K');
     
     const b = Board.empty();
+
     while (true) {
         const p = pieces.shift();
         if (!p) return b;
@@ -28,8 +29,7 @@ export async function puzzle(pieces) {
                 const [p1, p2] = b.positionsHaving(p_ => p === p_);
                 console.log('positions', p1, p2);
                 if (p2) {
-                    console.log('is', isWhiteCell(p1), isWhiteCell(p2));
-                    if (isWhiteCell(p1) === isWhiteCell(p2)) throw 'bishops of this side are on a cell of the same color';
+                    if (isWhiteCell(p1) === isWhiteCell(p2)) throw 'bishops of same side must be in opposite-colored cells';
                 }
             }
 

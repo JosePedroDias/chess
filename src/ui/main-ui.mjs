@@ -218,6 +218,23 @@ export function ui(
                     ontouchend: onMouse(1),
                 },
                 [
+                    m('defs', [
+                        m('filter', { id: 'emboss' }, [
+                            m('feGaussianBlur', { in: 'SourceAlpha', stdDeviation: 1, result: 'blur' }),
+                            m('feSpecularLighting', { in: 'blur', surfaceScale: 1.5, specularConstant: 0.66,
+                            specularExponent: 100, 'lighting-color': '#bbbbbb', result: 'specOut' }, [
+                                m('fePointLight', { x: -50, y: -50, z: 150 }),
+                            ]),
+                            m('feComposite', { in: 'specOut', in2: 'SourceAlpha', operator: 'in', result: 'specOut' }),
+                            m('feComposite', { in: 'SourceGraphic', in2: 'specOut', operator: 'arithmetic', k1: 0, k2: 1, k3: 1, k4: 0, result: 'litPaint' }),
+                        ]),
+                        m('filter', { id: 'inner-glow' }, [
+                            m('feFlood', { 'flood-color': 'yellow' }),
+                            m('feComposite', { in2: 'SourceAlpha', operator: 'out' }),
+                            m('feGaussianBlur', { stdDeviation: 3, result: 'blur' }),
+                            m('feComposite', { in2: 'SourceGraphic', operator: 'atop' }),
+                        ]),
+                    ]),
                     UiBoard({ fromBlacks, drawAnnotations: hints }, { board, out }),
                     Evaluation({ fromBlacks }, evalO),
                 ]

@@ -54,11 +54,15 @@ g {
     to   { opacity: 0; }
 }
 
-/* .exit {
-    opacity: 0;
-} */
-
 text {
     font: 400 11px sans-serif;
     user-select: none;
+}
+
+.cell:hover {
+    filter: url('#inner-glow');
+}
+
+.dashed {
+    pointer-events: none;
 }
