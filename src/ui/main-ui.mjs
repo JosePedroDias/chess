@@ -217,8 +217,10 @@ export function ui(
                     ontouchstart: onMouse(0),
                     ontouchend: onMouse(1),
                 },
-                UiBoard({ fromBlacks, drawAnnotations: hints }, { board, out }),
-                Evaluation({ fromBlacks }, evalO),
+                [
+                    UiBoard({ fromBlacks, drawAnnotations: hints }, { board, out }),
+                    Evaluation({ fromBlacks }, evalO),
+                ]
             );
         }
     });

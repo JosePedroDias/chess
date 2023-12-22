@@ -159,43 +159,50 @@ export function UiBoard(
                 const xi = i % 8;
                 const yi = Math.floor(i / 8);
                 const isEven = (xi + yi) % 2 === 0;
+                const posName = `${xToFile(xi)}${yToRank(yi)}`;
                 return m('rect', {
+                    key: posName,
+                    class: 'cell',
                     x: xi * CW,
                     y: yi * CW,
                     width:  CW,
                     height: CW,
                     fill: isEven ? LIGHT : DARK,
                 }, [
-                    m('title', `${xToFile(xi)}${yToRank(yi)}`),
+                    m('title', posName),
                 ]);
             }),
         ]),
 
         m('g', { 'x-comment' : 'labels' }, [
             ...times(8).map((i) => {
+                const label = yToRank(i);
                 return m(
                     'text',
                     {
+                        key: label,
                         x: -MARGIN * 0.75 * CW,
                         y: (i - 0.5) * CW,
                         dy: CW,
                         fill: WHITE,
                         'dominant-baseline': 'middle',
                     },
-                    yToRank(i),
+                    label,
                 );
             }),
             ...times(8).map((i) => {
+                const label = xToFile(i);
                 return m(
                     'text',
                     {
+                        key: label,
                         x: (i + 0.5) * CW,
                         y: (7 + MARGIN * 0.75) * CW,
                         dy: CW,
                         fill: WHITE,
                         'text-anchor': 'middle',
                     },
-                    xToFile(i),
+                    label,
                 );
             }),
         ]),

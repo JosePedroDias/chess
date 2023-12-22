@@ -25,6 +25,16 @@
             "type": "node",
             "runtimeVersion": "20.10.0",
             "request": "launch",
+            "name": "run puzzle.test",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/puzzle.test.mjs"
+        },
+        {
+            "type": "node",
+            "runtimeVersion": "20.10.0",
+            "request": "launch",
             "name": "run evaluate.test",
             "skipFiles": [
                 "<node_internals>/**"

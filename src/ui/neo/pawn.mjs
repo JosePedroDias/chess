@@ -1,11 +1,11 @@
 import m from '../../../vendor/mithril.mjs';
 
 import { CW, STROKE_WIDTH, SHOW_KEYS } from '../constants.mjs';
-import { BLACK, WHITE } from '../colors.mjs';
+import { BLACK, WHITE, BLACK_S, WHITE_S } from '../colors.mjs';
 
 export function Pawn({ isWhite, id }, { pos }) {
     const fill = isWhite ? WHITE : BLACK;
-    const stroke = isWhite ? BLACK : WHITE;
+    const stroke = isWhite ? WHITE_S : BLACK_S;
 
     const x = pos[0] * CW;
     const y = pos[1] * CW;

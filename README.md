@@ -105,6 +105,7 @@ As part of the overlays to the chess game, both arrows and circles can be drawn.
 - https://github.com/jhlywa/chess.js/blob/master/src/chess.ts
 - https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
 - https://developer.mozilla.org/en-US/docs/Web/SVG/Element
+- https://www.w3.org/TR/SVG11/filters.html#FilterPrimitivesOverviewIntro
 - https://mithril.js.org/autoredraw.html
 - https://mithril.js.org/components.html#lifecycle-methods
 - https://www.chessboardjs.com/examples#5000

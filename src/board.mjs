@@ -5,6 +5,9 @@ export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
 export const POSITIONS_TO_XY = new Map();
 
+const WHITE_CELL_POSITIONS = new Set();
+const BLACK_CELL_POSITIONS = new Set();
+
 export const WHITE = 'white';
 export const BLACK = 'black';
 
@@ -400,11 +403,28 @@ for (let [yi, y] of RANKS.entries()) {
         POSITIONS_TO_INDICES.set(position, index);
         INDICES_TO_POSITIONS.set(index, position);
         POSITIONS_TO_XY.set(position, [xi, yi]);
+
+        const _isWhiteCell = index % 2 === 0;
+        const setToFill = _isWhiteCell ? WHITE_CELL_POSITIONS : BLACK_CELL_POSITIONS;
+        setToFill.add(position);
     }
 }
+
+console.log(WHITE_CELL_POSITIONS);
+console.log(BLACK_CELL_POSITIONS);
 
 export const POSITIONS = new Set(POSITIONS_TO_INDICES.keys());
 
 export function isValidPosition(pos) {
     return POSITIONS.has(pos);
 }
+
+export function isWhiteCell(pos) {
+    return WHITE_CELL_POSITIONS.has(pos);
+}
+
+export function isBlackCell(pos) {
+    return BLACK_CELL_POSITIONS.has(pos);
+}
+
+window.isWhiteCell = isWhiteCell;
