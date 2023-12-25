@@ -16,7 +16,7 @@ test('empty board', (_t) => {
                 
                 `);
     equal(b._params.next, WHITE);
-    deepEqual(b._params.castling, new Set(['K', 'Q', 'k', 'q']));
+    deepEqual(b._params.castling, new Set());
     equal(b._params.enPassant, undefined);
     equal(b._params.halfMoveClock, 0);
     equal(b._params.fullMoveNumber, 1);
@@ -139,6 +139,12 @@ test('applyMove', (_t) => {
         const b = Board.fromFen(`k7/8/7P/8/8/8/8/7K w - - 0 1`);
         const b2 = b.applyMove('h6h7');
         equal(b2.getFen(), `k7/7P/8/8/8/8/8/7K b - - 0 1`);
+    }
+    {
+        // pawn move with en passant capture
+        const b = Board.fromFen(`rnbqkbnr/pppppp2/8/6pP/8/8/PPPPPPP1/RNBQKBNR w KQkq g6 0 2`);
+        const b2 = b.applyMove('h5g6');
+        equal(b2.getFen(), `rnbqkbnr/pppppp2/6P1/8/8/8/PPPPPPP1/RNBQKBNR b KQkq - 0 2`);
     }
     {
         // pawn move with promotion

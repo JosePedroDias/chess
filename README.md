@@ -150,6 +150,7 @@ to run the engine you need node 20.x or later / evergreen browsers
 this situation prevents the opponent from moving his closer piece without losing the one further away
 - **fork** - place your piece in a way that it simultaneously attacks multiple pieces, forcing the opponent to sacrifice one of them
 - **reveal** - kinda the opposite of a pin. you move a piece out of the way, exposing a better attack behind it
+- **discovered attack** - when by moving a piece we expose a new attack from another piece that was being blocked before
 - **win a tempo** - create a situation which deflects the opponent from following their plan
 - **trade** - to willingly capture a piece which is defended and expected to be capture next
 - **castling** - move the king 2 cells to either left or right and have to opposing rook step over you and occupy the next cell (needs empty cells between them and all the journey of the king to be check-free. can only happen if both pieces haven't moved in the game)

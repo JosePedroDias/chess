@@ -306,7 +306,8 @@ export class Board {
         
         const b = this.clone();
 
-        const isCapture = this.get(to) !== EMPTY;
+        const isEnPassantCapture = isPawn(piece) && this._params.enPassant === to;
+        const isCapture = this.get(to) !== EMPTY || isEnPassantCapture;
         let isHMCReset = isCapture;
 
         const id = b.getId(from);
@@ -316,6 +317,12 @@ export class Board {
         b.setId(to, id);
         b._moves.push(mv);
         b._movesPgn.push(movePgn || mv); // TODO MEH
+
+        if (isEnPassantCapture) {
+            const posToClear = `${to[0]}${parseInt(to[1], 10) + (isWhite ? -1 : 1)}`;
+            b.set(posToClear, EMPTY);
+            b.setId(posToClear, undefined);
+        }
 
         // update en passant flag
         if (!isPawn(piece)) b._params.enPassant = undefined;

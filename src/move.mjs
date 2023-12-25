@@ -49,13 +49,14 @@ export function moveFromPgn(pgnMove, board) {
   
   schema:
     {
-        from:        [a-h][1-8]
-        to           [a-h][1-8]
-        piece        [PNBRQK]
-        from2?       [a-h][1-8]
-        to2?         [a-h][1-8]
-        isCapture    boolean
-        promoPiece?: [a-h][1-8]
+        from:               [a-h][1-8]
+        to                  [a-h][1-8]
+        piece               [PNBRQK]
+        from2?              [a-h][1-8]
+        to2?                [a-h][1-8]
+        isCapture           boolean
+        isEnPassantCapture  boolean
+        promoPiece?         [a-h][1-8]
     }
 */
 export function moveToObject(move, board) {
@@ -74,6 +75,12 @@ export function moveToObject(move, board) {
         const isKingSide = toFile === 'g';
         o.from2 = isKingSide ? `h${fromRank}` : `a${fromRank}`;
         o.to2 = isKingSide ? `f${fromRank}` : `d${fromRank}`;
+    }
+
+    // en passant
+    if (isPawn(piece) && board._params.enPassant === o.to) {
+        o.isCapture = true;
+        o.isEnPassantCapture = true;
     }
     
     return o;
