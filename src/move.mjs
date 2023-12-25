@@ -56,6 +56,7 @@ export function moveFromPgn(pgnMove, board) {
         to2?                [a-h][1-8]
         isCapture           boolean
         isEnPassantCapture  boolean
+        isCheck             boolean
         promoPiece?         [a-h][1-8]
     }
 */
@@ -82,6 +83,10 @@ export function moveToObject(move, board) {
         o.isCapture = true;
         o.isEnPassantCapture = true;
     }
+
+    // detect check
+    const board2 = board.applyMove(move);
+    o.isCheck = isChecking(board2, !board2.isWhiteNext());
     
     return o;
 }

@@ -9,9 +9,11 @@ import { UiBoard } from './ui-board.mjs';
 import { Evaluation } from './evaluation.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
-import { moveToObject, isChecking } from '../move.mjs';
+import { moveToObject } from '../move.mjs';
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { sleep } from '../utils.mjs';
+import { narrateMove } from '../narrate-move.mjs';
+import { say } from '../tts.mjs';
 
 let evalBoard;
 let evalO = {};
@@ -19,8 +21,7 @@ const moveIndices = new Array(2);
 
 function playAppropriateSound(move, resultingBoard) {
     const moveO = moveToObject(move, resultingBoard.getLastBoard());
-    const isCheck = isChecking(resultingBoard, !resultingBoard.isWhiteNext());
-    if (isCheck)         playSample('notificationSound');
+    if (moveO.isCheck)   playSample('notificationSound');
     if (moveO.isCapture) playSample('move');
     else                 playSample('dragSlide', 0.33);
 }
@@ -30,7 +31,7 @@ function isBotNameSf(name) {
 }
 
 export function ui(
-    { rootEl, players, fromBlacks, playTimeMs, sfEval, hints },
+    { rootEl, players, sfx, tts, fromBlacks, playTimeMs, sfEval, hints },
     { board }
 ) {
     if (sfEval || players.some(isBotNameSf)) {
@@ -90,7 +91,9 @@ export function ui(
     const onMouse = (i) => (ev) => {
         //ev.redraw = false;
         
-        if (i === 0) initSfx();
+        if (i === 0) {
+            sfx &&initSfx();
+        }
 
         if (i === 1) {
             ev.stopPropagation();
@@ -162,6 +165,7 @@ export function ui(
             redraw();
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
+                /*await */say(err);
                 console.log(board.getPgn({
                     White: players[0],
                     Black: players[1],
@@ -189,8 +193,9 @@ export function ui(
 
         const moveAttrs = out.moveAttributesMap.get(move);
         console.log(`\nfmn: ${board._params.fullMoveNumber} ${board._params.next} hmc: ${board._params.halfMoveClock} move: ${moveAttrs.pgn} (${move})\n`);
+        if (tts) /*await*/ say(narrateMove(move, board));
         board = board.applyMove(move, moveAttrs.pgn);
-        playAppropriateSound(move, board);
+        sfx && playAppropriateSound(move, board);
         
         window.board = board; // TODO TEMP
 
@@ -267,6 +272,8 @@ export function ui(
 
             players,
 
+            sfx:             search.get('sfx'),
+            tts:             search.get('tts'),
             fromBlacks:      search.get('from-blacks'),
             playTimeMs:      playTimeMs,
             sfEval:          search.get('eval'),

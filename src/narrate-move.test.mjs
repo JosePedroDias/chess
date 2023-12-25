@@ -62,3 +62,23 @@ test('narrateMove knight take', (_t) => {
     b.set('f3', 'p');
     equal(narrateMove('g1f3', b), `knight takes f3`);
 });
+
+test('narrateMove pawn promotion to queen', (_t) => {
+    const b = Board.fromFen(`8/2k3P1/8/8/8/8/8/1K6 w - - 0 1`);
+    equal(narrateMove('g7g8q', b), `pawn to g8 and promotes to queen`);
+});
+
+test('narrateMove pawn take and promotion to queen', (_t) => {
+    const b = Board.fromFen(`6r1/2k4P/8/8/8/8/8/1K6 w - - 0 1`);
+    equal(narrateMove('h7g8q', b), `pawn takes g8 and promotes to queen`);
+});
+
+test('narrateMove castling king side', (_t) => {
+    const b = Board.fromFen(`rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1`);
+    equal(narrateMove('e1g1', b), `castling king side`);
+});
+
+test('narrateMove castling queen side', (_t) => {
+    const b = Board.fromFen(`rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1`);
+    equal(narrateMove('e1c1', b), `castling queen side`);
+});

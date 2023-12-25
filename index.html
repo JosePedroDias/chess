@@ -89,6 +89,14 @@
                 <input type="checkbox" id="from-blacks" value="1">
             </p>
             <p>
+                <label for="sfx">sound effects</label>
+                <input type="checkbox" id="sfx" value="1" checked>
+            </p>
+            <p>
+                <label for="tts">text to speech (hear the moves)</label>
+                <input type="checkbox" id="tts" value="1" checked>
+            </p>
+            <p>
                 <label for="fen">game FEN</label>
                 <textarea id="fen" cols="80" placeholder="keep empty for default board" spellcheck="false" autocorrect="off"></textarea>
             </p>
@@ -103,6 +111,8 @@
 
             const playBtnEl           = document.querySelector('button');
 
+            const sfxInputEl          = document.getElementById('sfx');
+            const ttsInputEl          = document.getElementById('tts');
             const fromBlacksInputEl   = document.getElementById('from-blacks');
             const playTimeMsInputEl   = document.getElementById('play-time-ms');
             const sfEvalInputEl       = document.getElementById('eval');
@@ -125,6 +135,8 @@
                 const p1 = document.querySelector('input[name=p1]:checked').value;
                 const p2 = document.querySelector('input[name=p2]:checked').value;
 
+                const sfx        = sfxInputEl.checked;
+                const tts        = ttsInputEl.checked;
                 const fromBlacks = fromBlacksInputEl.checked;
                 const playTimeMs = playTimeMsInputEl.value;
                 const sfEval     = sfEvalInputEl.checked;
@@ -140,6 +152,8 @@
                 u.set('p1', p1);
                 u.set('p2', p2);
 
+                sfx                                  && u.set('sfx',          '1');
+                tts                                  && u.set('tts',          '1');
                 fromBlacks                           && u.set('from-blacks',  '1');
                 (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
                 sfEval                               && u.set('eval',         '1');
