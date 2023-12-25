@@ -40,10 +40,10 @@ test('narrateMove pawn en passant take', (_t) => {
     //console.log(b.toString());
     //console.log(b._params.enPassant); // g6
 
-    console.log(b.getFen());
+    //console.log(b.getFen());
     //const o = moveToObject('h5g6', b); console.log(o);
 
-    const b2 = b.applyMove('h5g6');
+    //const b2 = b.applyMove('h5g6');
     //console.log(b2.getFen());
     //console.log(b2.toString());
     //console.log(b2._params.enPassant);

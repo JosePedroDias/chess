@@ -8,9 +8,9 @@ import { computeOutcomes } from './evaluate.mjs';
 test('moveToObject not capturing', (_t) => {
     _t.todo('B, R, Q, K, O-O, O-O-O');
     const b0 = Board.default();
-    deepEqual(moveToObject('e2e4', b0), { from: 'e2', to: 'e4', piece: 'P', pieceChar: 'P', isCapture: false, promoPiece: undefined });
-    deepEqual(moveToObject('e2e3', b0), { from: 'e2', to: 'e3', piece: 'P', pieceChar: 'P', isCapture: false, promoPiece: undefined });
-    deepEqual(moveToObject('g1f3', b0), { from: 'g1', to: 'f3', piece: 'N', pieceChar: 'N', isCapture: false, promoPiece: undefined });
+    deepEqual(moveToObject('e2e4', b0), { from: 'e2', to: 'e4', piece: 'P', pieceChar: 'P', isCapture: false, isCheck: false, promoPiece: undefined });
+    deepEqual(moveToObject('e2e3', b0), { from: 'e2', to: 'e3', piece: 'P', pieceChar: 'P', isCapture: false, isCheck: false, promoPiece: undefined });
+    deepEqual(moveToObject('g1f3', b0), { from: 'g1', to: 'f3', piece: 'N', pieceChar: 'N', isCapture: false, isCheck: false, promoPiece: undefined });
 });
 
 test('moveToObject capturing', (_t) => {
