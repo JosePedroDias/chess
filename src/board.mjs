@@ -169,7 +169,7 @@ export class Board {
 
         const tagsPGN = (Object.entries(tags)).reduce((prev, [key, value]) => {
             return `${prev}\n[${key} "${value}"]`;
-        }, '');
+        }, '').trim();
 
         return `${tagsPGN}\n${movesPGN}`;
     }
