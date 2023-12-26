@@ -87,10 +87,10 @@ export class Board {
             }
         });
 
-        let i = -1;
         for (const movePgn of parts) {
-            ++i;
-            if (i % 3 === 0) continue;
+            if ((/^\s*$/).test(movePgn)) continue; // whitespace lines
+            if ((/^\d+\.+$/).test(movePgn)) continue; // lines with 1. or 1...
+            if (movePgn === '1/2-1/2' || (/^\d+-\d+$/).test(movePgn)) continue; // ignore outcomes
             const move = moveFromPgn(movePgn, b);
             b = b.applyMove(move, movePgn);
         }
