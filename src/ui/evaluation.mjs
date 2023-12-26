@@ -2,7 +2,10 @@ import m from '../../vendor/mithril.mjs';
 
 import { clamp } from '../utils.mjs';
 import { CW } from './constants.mjs';
-import { BLACK, WHITE } from './colors.mjs';
+//import { BLACK, WHITE } from './colors.mjs';
+
+const BLACK = '#000';
+const WHITE = '#FFF';
 
 const MAX = 5;
 

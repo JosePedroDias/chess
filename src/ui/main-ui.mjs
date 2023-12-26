@@ -30,6 +30,11 @@ function isBotNameSf(name) {
     return name.indexOf('SfBot') === 0;
 }
 
+function getSfBotLevelFromName(name) {
+    const m = (/\((\d+)\)/).exec(name);
+    if (m) return parseInt(m[1], 10);
+}
+
 export function ui(
     { rootEl, players, sfx, tts, fromBlacks, playTimeMs, sfEval, hints },
     { board }
@@ -37,7 +42,11 @@ export function ui(
     if (sfEval || players.some(isBotNameSf)) {
         (async () => {
             const mod = await import('../stockfish-browser-wrapper.mjs');
-            mod.setup(20);
+            const firstSfPlayer = isBotNameSf(players[0]) ? players[0] : players[1];
+            console.log('firstSfPlayer', firstSfPlayer);
+            const sfLevel = getSfBotLevelFromName(firstSfPlayer);
+            console.log('sfLevel', sfLevel);
+            mod.setup(sfLevel);
             evalBoard = mod.evalBoard;
         })();
     }
