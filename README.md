@@ -121,8 +121,12 @@ As part of the overlays to the chess game, both arrows and circles can be drawn.
 - logic
     - complement TODO tests
     - revisit/fix `main-bot-repl` and `main-bot-uci`
+    - import pgn
+    - export pgn file
 - UI
-    - display moves, pause, next, prev, export pgn, undo
+    - display moves list
+    - display material
+    - pause, next, prev, export pgn, undo
     - training mode (where zpBot exhausts each move to train us, via sorting visited paths on LS?)
     - (you can currently do `copy(board.getPgn())` on the browser console and paste in sites such as http://lichess.org/paste )
     - you can undo by doing `undo()` on the browser console

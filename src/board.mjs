@@ -1,5 +1,6 @@
 import { isPiece, isPawn, isRook, isKing, isWhitePiece, isBlackPiece, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
 import { randomString } from './utils.mjs';
+import { moveFromPgn } from './move.mjs';
 
 export const POSITIONS_TO_INDICES = new Map();
 export const INDICES_TO_POSITIONS = new Map();
@@ -29,6 +30,8 @@ export class Board {
     _cells = new Array(64).fill(EMPTY);
     _cellIds = new Array(64).fill(undefined);
 
+    _tags = {};
+
     _params = {
         next: WHITE, // next to move
         castling: new Set([KING_W, QUEEN_W, KING_B, QUEEN_B]),
@@ -57,6 +60,43 @@ export class Board {
     static fromFen(fen) {
         const b = new Board();
         b.setFen(fen);
+        return b;
+    }
+
+    static fromPgn(pgn) {
+        let b = Board.default();
+
+        // remove comments
+        pgn = pgn.replaceAll(/(\{[^\}]*\})/gm, '');
+
+        const lines = pgn.split('\n');
+
+        // parse tags
+        const tags = {};
+        const parts = [];
+        lines.forEach((line) => {
+            line = line.trim();
+            if (line.startsWith('[')) {
+                const rgx = /\[(\S+) "([^"]+)"\]/;
+                const m = rgx.exec(line);
+                if (m && m.length > 2) {
+                    tags[m[1]] = m[2];
+                }
+            } else {
+                for (const item of line.split(' ')) parts.push(item);
+            }
+        });
+
+        let i = -1;
+        for (const movePgn of parts) {
+            ++i;
+            if (i % 3 === 0) continue;
+            const move = moveFromPgn(movePgn, b);
+            b = b.applyMove(move, movePgn);
+        }
+
+        b._tags = tags;
+
         return b;
     }
 
@@ -151,7 +191,8 @@ export class Board {
         };
     }
 
-    getPgn(tags = {}) { // { White: 'zp', Black: 'bot' }
+    getPgn(extraTags = {}) { // { White: 'zp', Black: 'bot' }
+        const tags = { ...this._tags, ...extraTags };
         if (!('Site' in tags)) tags.Site = 'https://josepedrodias.github.io/chess/';
         if (!('Date' in tags)) tags.Date = (new Date()).toISOString().substring(0, 10).replace(/-/g, '.');
 
@@ -199,6 +240,10 @@ export class Board {
         
         b._cells      = Array.from(this._cells);
         b._cellIds    = Array.from(this._cellIds);
+
+        //b._tags       = structuredClone(this._tags);
+        b._tags       = {...this._tags};
+
         b._moves      = Array.from(this._moves);
         b._movesPgn   = Array.from(this._movesPgn);
         b._pastBoards = Array.from(this._pastBoards);

@@ -166,3 +166,58 @@ test('applyMove', (_t) => {
         equal(b2.getFen(), `rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQ1RK1 b kq - 1 1`);
     }
 });
+
+test('fromPgn basic', (_t) => {
+    const b = Board.fromPgn(`1. b4 c5 2. bxc5 Na6`); // b2b4 c7c5 b4c5 b8a6
+    equal(b.getFen(), `r1bqkbnr/pp1ppppp/n7/2P5/8/8/P1PPPPPP/RNBQKBNR w KQkq - 1 3`);
+    deepEqual(b._moves, ['b2b4', 'c7c5', 'b4c5', 'b8a6']);
+    deepEqual(b._movesPgn, ['b4', 'c5', 'bxc5', 'Na6']);
+});
+
+test('fromPgn with tags and comments', (_t) => {
+    const b = Board.fromPgn(`[Tag "Tag Value"]
+[AnotherTag "another 123"]
+{bananas and oranges} 1. e3 e6`);
+    equal(b.getFen(), `rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2`);
+    deepEqual(b._moves, ['e2e3', 'e7e6']);
+    deepEqual(b._movesPgn, ['e3', 'e6']);
+});
+
+test('fromPgn other', () => {
+    const b = Board.fromPgn(`[Site "https://josepedrodias.github.io/chess/"]
+[Date "2023.12.26"]
+1. d3 d5 2. c3 e5 3. Nd2 Nc6 4. e4 Nf6 5. Be2 Bc5 6. Ng1f3 Bg4 7. O-O O-O 8. h3 Bh5 9. exd5 Nxd5 10. Ne4 Bb6 11. g4 Bg6 12. Bd2 f6 13. Qb3 Bf7 14. Qc2 Qe7 15. Nh4 Ra8d8 16. Nf5 Qe6 17. a3 Ba5 18. b4 Bb6 19. d4 h6 20. b5 Na5 21. Ra1b1 g6 22. Kh2 h5 23. Rg1`);
+    equal(b.getFen(), `3r1rk1/ppp2b2/1b2qpp1/nP1npN1p/3PN1P1/P1P4P/2QBBP1K/1R4R1 b - - 1 23`);
+    deepEqual(b._moves, [
+        'd2d3', 'd7d5', 'c2c3', 'e7e5', 'b1d2',
+        'b8c6', 'e2e4', 'g8f6', 'f1e2', 'f8c5',
+        'g1f3', 'c8g4', 'e1g1', 'e8g8', 'h2h3',
+        'g4h5', 'e4d5', 'f6d5', 'd2e4', 'c5b6',
+        'g2g4', 'h5g6', 'c1d2', 'f7f6', 'd1b3',
+        'g6f7', 'b3c2', 'd8e7', 'f3h4', 'a8d8',
+        'h4f5', 'e7e6', 'a2a3', 'b6a5', 'b2b4',
+        'a5b6', 'd3d4', 'h7h6', 'b4b5', 'c6a5',
+        'a1b1', 'g7g6', 'g1h2', 'h6h5', 'f1g1'
+    ]);
+    deepEqual(b._movesPgn, [
+        'd3',    'd5',   'c3',   'e5',  'Nd2',
+        'Nc6',   'e4',   'Nf6',  'Be2', 'Bc5',
+        'Ng1f3', 'Bg4',  'O-O',  'O-O', 'h3',
+        'Bh5',   'exd5', 'Nxd5', 'Ne4', 'Bb6',
+        'g4',    'Bg6',  'Bd2',  'f6',  'Qb3',
+        'Bf7',   'Qc2',  'Qe7',  'Nh4', 'Ra8d8',
+        'Nf5',   'Qe6',  'a3',   'Ba5', 'b4',
+        'Bb6',   'd4',   'h6',   'b5',  'Na5',
+        'Ra1b1', 'g6',   'Kh2',  'h5',  'Rg1'
+    ]);
+    deepEqual(b._tags, {
+        Date: '2023.12.26',
+        Site: 'https://josepedrodias.github.io/chess/',
+    });
+    equal(b.getPgn(), `[Site "https://josepedrodias.github.io/chess/"]
+[Date "2023.12.26"]
+1. d3 d5 2. c3 e5 3. Nd2 Nc6 4. e4 Nf6 5. Be2 Bc5 6. Ng1f3 Bg4 7. O-O O-O 8. h3 Bh5 9. exd5 Nxd5 10. Ne4 Bb6 11. g4 Bg6 12. Bd2 f6 13. Qb3 Bf7 14. Qc2 Qe7 15. Nh4 Ra8d8 16. Nf5 Qe6 17. a3 Ba5 18. b4 Bb6 19. d4 h6 20. b5 Na5 21. Ra1b1 g6 22. Kh2 h5 23. Rg1`);
+});
+
+// TODO fromPgn: promotion
+// TODO fromPgn: en passant

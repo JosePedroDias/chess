@@ -1,6 +1,8 @@
-import { EMPTY, INDICES_TO_POSITIONS, POSITIONS_TO_INDICES } from './board.mjs';
+import { EMPTY, INDICES_TO_POSITIONS, POSITIONS_TO_INDICES, POSITIONS, FILES } from './board.mjs';
 import { isWhitePiece, isBlackPiece, isKing, isQueen, isRook, isBishop, isKnight, isPawn, KING_W, KING_B } from './pieces.mjs';
 import { memoFactory } from './utils.mjs';
+
+import { validMoves } from './valid-moves-mine.mjs';
 
 export const CASTLE_QUEENSIDE = 'O-O-O';
 export const CASTLE_KINGSIDE = 'O-O';
@@ -41,7 +43,47 @@ export function deltaMovesXY(pos1, pos2) {
 
 // 'e4' => { from: 'e2', to: 'e4', piece: 'P', isCapture: false }
 export function moveFromPgn(pgnMove, board) {
-    // TODO
+    const isWhite = board.isWhiteNext();
+    if (CASTLE_MOVES.includes(pgnMove)) {
+        if (isWhite) return CASTLE_QUEENSIDE ? 'e1g1' : 'e1c1';
+        else         return CASTLE_QUEENSIDE ? 'e8g8' : 'e8c8';
+    }
+
+    pgnMove = pgnMove.replaceAll('x', '');
+    pgnMove = pgnMove.replaceAll('+', '');
+
+    let promoPiece = '';
+    if (pgnMove.includes('=')) promoPiece = pgnMove.split('=')[1].toLowerCase();
+
+    let from, to;
+    if (POSITIONS_TO_INDICES.has(pgnMove.substring(0, 2))) {
+        to = pgnMove.substring(0, 2);
+        const rank = parseInt(pgnMove[1], 10);
+        const expectedPiece = isWhite ? 'P' : 'p';
+        from = pgnMove[0] + (rank + (isWhite ? -1 : 1));
+        if (board.get(from) !== expectedPiece)
+        from = pgnMove[0] + (rank + (isWhite ? -2 : 2));
+        return `${from}${to}${promoPiece}`;
+    } else if (FILES.includes(pgnMove[0]) && POSITIONS.has(pgnMove.substring(1, 3))) {
+        to = pgnMove.substring(1, 3);
+        from = pgnMove[0] + (parseInt(pgnMove[2], 10) + (isWhite ? -1 : 1));
+        return `${from}${to}${promoPiece}`;
+    } else {
+        const piece = pgnMove[0].toUpperCase();
+        const to_ = pgnMove.substring(pgnMove.length - 2);
+        const from_ = pgnMove.length === 3 ? '' : pgnMove.length === 4 ? pgnMove[1] : pgnMove.substring(1, 3);
+        const moves = validMoves(board).filter((mv) => {
+            const from = mv.substring(0, 2);
+            const to = mv.substring(2, 4);
+            if (to_ !== to) return false;
+            if (board.get(from).toUpperCase() !== piece) return false;
+            if (!from_) return true;
+            if (from_.length === 1) return from[0] === from_;
+            return from_ === from;
+        });
+        if (moves.length > 1) throw 'unexpected!';
+        return moves[0];
+    }
 }
 
 /*
