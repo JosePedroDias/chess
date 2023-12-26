@@ -4,32 +4,32 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { validMoves } from './valid-moves-mine.mjs';
 import { Board } from './board.mjs';
 
-test('validMoves start pos', async (_t) => {
+test('validMoves start pos', (_t) => {
     const b = Board.default();
-    const moves = await validMoves(b);
+    const moves = validMoves(b);
     moves.sort();
     equal(moves.length, 20); // 16 pawns + 4 knights
 });
 
 
-test('validMoves check', async (_t) => {
+test('validMoves check', (_t) => {
     const b = Board.fromFen(`1nbqk1nr/1ppp1ppp/4p3/8/2P1P3/3P4/5PPP/3rK1NR w KQk - 0 12`);
-    const moves = await validMoves(b);
+    const moves = validMoves(b);
     moves.sort();
     deepEqual(moves, ['e1d1', 'e1e2']);
 });
 
-test('validMoves checkmate', async (_t) => {
+test('validMoves checkmate', (_t) => {
     let b = Board.fromFen(`4k1r1/4P3/3Q2P1/5K2/7p/2b5/7P/8 w - - 5 46`);
     b = b.applyMove('d6d8');
-    const moves = await validMoves(b);
+    const moves = validMoves(b);
     moves.sort();
     deepEqual(moves, []);
 });
 
-test('validMoves castling impossible under check', async (_t) => {
+test('validMoves castling impossible under check', (_t) => {
     const b = Board.fromFen(`1nb2b2/1ppp1kr1/r4ppp/p3p2B/P6P/N2qPPN1/1P1P2P1/2BQK2R w K - 0 19`);
-    const moves = await validMoves(b);
+    const moves = validMoves(b);
     moves.sort();
     deepEqual(moves, [
         'a3b1', 'a3b5', 'a3c2',
@@ -43,9 +43,9 @@ test('validMoves castling impossible under check', async (_t) => {
     ]);
 });
 
-test('validMoves castling ??',  async (_t) => {
+test('validMoves castling ??',  (_t) => {
     const b = Board.fromFen(`B1bqkb2/2p1pp2/2np2pr/p6p/1P2N3/5P2/P1PPQ1PP/R1B1K1NR b KQq - 0 9`);
-    const moves = await validMoves(b);
+    const moves = validMoves(b);
     moves.sort();
     deepEqual(moves, [
         'a5a4',
@@ -77,4 +77,18 @@ test('validMoves castling ??',  async (_t) => {
         'h6h8',
     ]);
     //console.log(moves);
+});
+
+test('validMoves castling 2', (_t) => {
+    let b = Board.fromFen(`r2qr1k1/2pb1ppp/1p3n2/p3p3/3n2P1/1P1P3P/P1PN3B/R3KB1R b KQ - 0 17`);
+    b = b.applyMove('d4c2'); // Nc2+
+    //console.log(b.toString(true, true, true));
+    const moves = validMoves(b).toSorted();
+    equal(moves.length, 3);
+    deepEqual(moves, [
+        //'e1c1', // castling! incorrect
+        'e1d1',
+        'e1e2',
+        'e1f2'
+    ]);
 });

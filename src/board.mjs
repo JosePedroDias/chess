@@ -317,7 +317,8 @@ export class Board {
         }
     }
 
-    toString(fromBlacks, dotEmpties) {
+    toString(fromBlacks, positions, dotEmpties) {
+        let op = positions && fromBlacks ? (arr) => arr.toReversed() : arr => arr;
         const lines = [];
         for (let yi = 0; yi < 8; ++yi) {
             const line = [];
@@ -327,8 +328,10 @@ export class Board {
                 const content = dotEmpties ? ` ${p === EMPTY ? '.' : p}` : ` ${p}`;
                 line.push(content);
             }
+            if (positions) line.unshift(RANKS[fromBlacks ? 7 - yi : yi]);
             lines.push(line.join(''));
         }
+        if (positions) lines.push('  ' + op(FILES).join(' '));
         return lines.join(NL);
     }
 

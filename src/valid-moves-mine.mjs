@@ -62,15 +62,15 @@ export function validMoves(board, isWhiteOverride) {
                         mustBeEmpty = ['f8', 'g8'];       mustBeRook = 'h8'; break;
                     case 'e8c8':
                         if (!board.hasCastlingFlag(QUEEN_B)) return false;
-                        mustBeEmpty = ['d8', 'c8', 'b8']; mustBeRook = 'a8'; ;break;
+                        mustBeEmpty = ['d8', 'c8', 'b8']; mustBeRook = 'a8'; break;
                     default:
                         // throw new Error(`Unexpected ${move}`);
                         return false;
                 }
+                //if (board.get(mustBeRook) !== (isWhite ? ROOK_W : ROOK_B)) return false; // flag enforces this already
                 if (!mustBeEmpty.every((pos) => board.get(pos) === EMPTY)) return false;
                 if (mustBeEmpty.length === 3) mustBeEmpty.pop(); // last position can be checked
-                if (mustBeEmpty.some((pos) => isBeingAttacked(pos, board, !isWhite))) return false;
-                if (board.get(mustBeRook) !== (isWhite ? ROOK_W : ROOK_B)) return false;
+                if ([from, ...mustBeEmpty].some((pos) => isBeingAttacked(pos, board, !isWhite))) return false;
                 return true;
             });
         } else {

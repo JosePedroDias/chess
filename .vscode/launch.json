@@ -39,7 +39,8 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/valid-moves-mine.test.mjs"
+            "program": "${workspaceFolder}/src/valid-moves-mine.test.mjs",
+            "args": ["--test-only"],
         },
         {
             "type": "node",
