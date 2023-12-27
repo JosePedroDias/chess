@@ -18,7 +18,7 @@ export function Evaluation({ fromBlacks }, { value }) {
     const value_ = clamp(value, -MAX, MAX);
     const dy = si * ((isFinite(value_) ? value_ : 0) / MAX) * 4 * CW;
     
-    const valueT = isFinite(value) ? Math.abs(value).toFixed(2) : '?';
+    const valueT = isFinite(value) ? Math.abs(value).toFixed(1) : '?';
 
     const y0 = dy > 0 ? 0  : dy;
     const y1 = dy > 0 ? dy : -dy;
@@ -41,8 +41,9 @@ export function Evaluation({ fromBlacks }, { value }) {
             m(
                 'text',
                 {
+                    x:  CW * 0.1,
                     dy,
-                    style: `stroke:none; font-size:4px; font-weight:600; dominant-baseline: ${dy > 0 ? 'auto' : 'hanging'}`,
+                    style: `stroke:none; font-size:5px; font-weight:600; text-anchor: middle; dominant-baseline: ${dy > 0 ? 'auto' : 'hanging'}`,
                     fill: value_ < 0 ? WHITE : BLACK,
                 },
                 valueT,

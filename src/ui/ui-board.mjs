@@ -22,13 +22,14 @@ import { Rook } from './wiki/rook.mjs';
 import { Queen } from './wiki/queen.mjs';
 import { King } from './wiki/king.mjs'; */
 
+import { Circle } from './circle.mjs';
 import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
 import { Dashed } from './dashed.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
 export function UiBoard(
-    { fromBlacks, drawAnnotations },
+    { fromBlacks, drawAnnotations, dest },
     { board, out },
 ) {
     const posToXY = (pos) => {
@@ -80,6 +81,22 @@ export function UiBoard(
                 title: lastMove,
             }),
         );
+    }
+
+    if (dest && out?.moves) {
+        const validDestinations = new Set();
+        for (const mv of out.moves) {
+            validDestinations.add(mv.substring(2, 4));
+        }
+
+        for (const mv of Array.from(validDestinations)) {
+            annotations.push(Circle({ id: `circle-${mv}` }, {
+                center: toBoardCoords(mv),
+                radius: CW * 0.175,
+                color: 'black',
+                alpha: 0.1,
+            }));
+        }
     }
 
     if (drawAnnotations) {

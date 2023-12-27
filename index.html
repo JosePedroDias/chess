@@ -81,6 +81,10 @@
                 <input type="checkbox" id="eval" value="1" checked>
             </p>
             <p>
+                <label for="dest">valid destinations</label>
+                <input type="checkbox" id="dest" value="1" checked>
+            </p>
+            <p>
                 <label for="hints">visual annotations</label>
                 <input type="checkbox" id="hints" value="1">
             </p>
@@ -116,6 +120,7 @@
             const fromBlacksInputEl   = document.getElementById('from-blacks');
             const playTimeMsInputEl   = document.getElementById('play-time-ms');
             const sfEvalInputEl       = document.getElementById('eval');
+            const destInputEl         = document.getElementById('dest');
             const hintsInputEl        = document.getElementById('hints');
             const fenInputEl          = document.getElementById('fen');
             const puzzlePiecesInputEl = document.getElementById('puzzle-pieces');
@@ -140,6 +145,7 @@
                 const fromBlacks = fromBlacksInputEl.checked;
                 const playTimeMs = playTimeMsInputEl.value;
                 const sfEval     = sfEvalInputEl.checked;
+                const dest       = destInputEl.checked;
                 const hints      = hintsInputEl.checked;
 
                 let   fen          = fenInputEl.value;
@@ -157,6 +163,7 @@
                 fromBlacks                           && u.set('from-blacks',  '1');
                 (playTimeMs != DEFAULT_PLAY_TIME_MS) && u.set('play-time-ms', playTimeMs);
                 sfEval                               && u.set('eval',         '1');
+                dest                                 && u.set('dest',         '1');
                 hints                                && u.set('hints',        '1');
 
                 if (puzzlePieces) {

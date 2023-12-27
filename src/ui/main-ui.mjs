@@ -9,6 +9,8 @@ import { UiBoard } from './ui-board.mjs';
 import { Evaluation } from './evaluation.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
+import { Material } from './material.mjs';
+import { Moves } from './moves.mjs';
 import { moveToObject } from '../move.mjs';
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { sleep } from '../utils.mjs';
@@ -36,17 +38,15 @@ function getSfBotLevelFromName(name) {
 }
 
 export function ui(
-    { rootEl, players, sfx, tts, fromBlacks, playTimeMs, sfEval, hints },
+    { rootEl, players, sfx, tts, fromBlacks, playTimeMs, sfEval, dest, hints },
     { board }
 ) {
     if (sfEval || players.some(isBotNameSf)) {
         (async () => {
             const mod = await import('../stockfish-browser-wrapper.mjs');
             const firstSfPlayer = isBotNameSf(players[0]) ? players[0] : players[1];
-            console.log('firstSfPlayer', firstSfPlayer);
             const sfLevel = getSfBotLevelFromName(firstSfPlayer);
-            console.log('sfLevel', sfLevel);
-            mod.setup(sfLevel);
+            mod.setup(sfLevel || 1);
             evalBoard = mod.evalBoard;
         })();
     }
@@ -170,7 +170,7 @@ export function ui(
     const doNextMove = async () => {
         updateHash();
         try {
-            out = await computeOutcomes(board);
+            out = computeOutcomes(board);
             redraw();
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
@@ -194,16 +194,18 @@ export function ui(
         const dt = Date.now() - t0;
         console.log(`after ${dt} ms got ${move}`);
 
-        const remainingMs = playTimeMs - dt;
+        const moveAttrs = out.moveAttributesMap.get(move);
+        console.log(`\nfmn: ${board._params.fullMoveNumber} ${board._params.next} hmc: ${board._params.halfMoveClock} move: ${moveAttrs?.pgn || '???'} (${move})\n`);
+        if (tts) await say(narrateMove(move, board));
+
+        const dt2 = Date.now() - t0;
+        const remainingMs = playTimeMs - dt2;
         if (remainingMs > 0) {
             console.log(`sleep for ${remainingMs} ms`)
             await sleep(remainingMs);
         }
 
-        const moveAttrs = out.moveAttributesMap.get(move);
-        console.log(`\nfmn: ${board._params.fullMoveNumber} ${board._params.next} hmc: ${board._params.halfMoveClock} move: ${moveAttrs.pgn} (${move})\n`);
-        if (tts) /*await*/ say(narrateMove(move, board));
-        board = board.applyMove(move, moveAttrs.pgn);
+        board = board.applyMove(move, moveAttrs?.pgn);
         sfx && playAppropriateSound(move, board);
         
         window.board = board; // TODO TEMP
@@ -249,8 +251,10 @@ export function ui(
                             m('feComposite', { in2: 'SourceGraphic', operator: 'atop' }),
                         ]),
                     ]),
-                    UiBoard({ fromBlacks, drawAnnotations: hints }, { board, out }),
+                    UiBoard({ fromBlacks, drawAnnotations: hints, dest }, { board, out }),
                     Evaluation({ fromBlacks }, evalO),
+                    //Material({}, { board }),
+                    //Moves({}, { board }),
                 ]
             );
         }
@@ -286,6 +290,7 @@ export function ui(
             fromBlacks:      search.get('from-blacks'),
             playTimeMs:      playTimeMs,
             sfEval:          search.get('eval'),
+            dest:           search.get('dest'),
             hints:           search.get('hints'),
         },
         {

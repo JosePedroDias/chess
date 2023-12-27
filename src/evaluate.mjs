@@ -33,6 +33,34 @@ export function getBoardMaterial(board, isWhite) {
     return mat;
 }
 
+export function getBoardCaptureCount(board, isWhite) {
+    const o = new Map([
+        ['q', 1],
+        ['r', 2],
+        ['b', 2],
+        ['n', 2],
+        ['p', 8],
+    ]);
+    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
+    for (const [_, piece] of board) {
+        if (isMyPiece(piece)) {
+            const piece2 = piece.toLowerCase();
+            if (piece2 === 'k') continue;
+            let count = o.get(piece2);
+            o.set(piece2, count - 1);
+        }
+    }
+    return o;
+}
+
+export function getBoardCaptures(board) {
+    const histW = getBoardCaptureCount(board, true);
+    const histB = getBoardCaptureCount(board, false);
+    const matW = Array.from(histW).reduce((mat, [k, count]) => mat + count * getPieceMaterial(k), 0);
+    const matB = Array.from(histB).reduce((mat, [k, count]) => mat + count * getPieceMaterial(k), 0);
+    return [histW, histB, matW - matB];
+}
+
 export function findMaterialDraws(board) {
     const p1 = board.getSidePositions(true ).map(([_, piece]) => piece.toLowerCase());
     const p2 = board.getSidePositions(false).map(([_, piece]) => piece.toLowerCase());
@@ -82,8 +110,8 @@ export function isTie(board) {
 }
 
 // who played is attacking more than 1 enemy piece
-export async function canFork(board, mySide) {
-    const vMoves = await validMoves(board, mySide);
+export function canFork(board, mySide) {
+    const vMoves = validMoves(board, mySide);
     const potentialCaptures = [];
     const isEnemyPiece = mySide ? isBlackPiece : isWhitePiece;
     for (const mv of vMoves) {
@@ -140,7 +168,7 @@ export function canPinSkewer(board, mySide) {
 
 //export function ratePinSkewer(attackedPiecePacks) {}
 
-export async function computeOutcomes(board) {
+export function computeOutcomes(board) {
     const tieResult = isTie(board);
     if (tieResult) throw tieResult;
 
@@ -148,7 +176,7 @@ export async function computeOutcomes(board) {
 
     const amIBeingChecked = isChecking(board, !isWhite);
 
-    const moves = await validMoves(board);
+    const moves = validMoves(board);
 
     if (moves.length === 0) {
         throw (amIBeingChecked ? `${CHECKMATE} by ${board.getInvertedBoard()._params.next}` : DRAW_STALEMATE);
@@ -176,7 +204,7 @@ export async function computeOutcomes(board) {
         if (isKing(board.get(pos))) continue;
         const board_ = board.clone();
         board_.set(pos, isWhite ? PAWN_B : PAWN_W);
-        const moves_ = await validMoves(board_);
+        const moves_ = validMoves(board_);
         for (const mv_ of moves_) {
             const to_ = mv_.substring(2, 4);
             if (to_ === pos) {
@@ -203,14 +231,14 @@ export async function computeOutcomes(board) {
         const board2 = board.applyMove(mv);
 
         const pinSkewerRes = canPinSkewer(board2, isWhite);
-        const forkRes      = await canFork(board2, isWhite);
+        const forkRes      = canFork(board2, isWhite);
         if (pinSkewerRes.result) pinSkewerMoves.set(mv, pinSkewerRes.attackedPiecePacks);
         if (forkRes.result)      forkMoves.set(mv, forkRes.potentialCaptures);
 
         const amIChecking = isChecking(board2, isWhite);
         if (amIChecking) checkMoves.add(mv);
 
-        const moves2 = await validMoves(board2);
+        const moves2 = validMoves(board2);
         for (const mv2 of moves2) {
             const board3 =  board2.applyMove(mv2);
             const endMaterial = getBoardMaterial(board3, isWhite);
@@ -227,7 +255,7 @@ export async function computeOutcomes(board) {
             if (myPiecePositions2.includes(to2)) canBeCapturedMoves.add(mv);
         }
 
-        const moves2b = await validMoves(board.getInvertedBoard());
+        const moves2b = validMoves(board.getInvertedBoard());
         for (const mv2 of moves2b) {
             const to2 = mv2.substring(2, 4);
             viewedPositions[1].add(to2);

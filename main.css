@@ -56,6 +56,7 @@ g {
 
 text {
     font: 400 11px sans-serif;
+    stroke: none;
     user-select: none;
 }
 

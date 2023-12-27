@@ -13,7 +13,7 @@ export function getPieceName(pieceInUppercase) {
 }
 
 export function narrateMove(move, board) {
-    // console.log(`%c ${move}`, 'color: orange');
+    //console.log(`%c ${move}`, 'color: orange');
 
     if (CASTLING_MOVES.includes(move)) {
         const isKingSide = KING_SIDE_CASTLING_MOVES.includes(move);
@@ -22,7 +22,7 @@ export function narrateMove(move, board) {
     const { piece, to, isCapture, isEnPassantCapture, isCheck, promoPiece } = moveToObject(move, board);
     const pieceName = getPieceName(piece);
     const promoPieceName = promoPiece ? getPieceName(promoPiece) : '';
-    let result = `${pieceName} ${isCapture ? 'takes' : 'to'} ${to}${isEnPassantCapture ? ' en passant' : ''}`;
+    let result = `${pieceName} ${isCapture ? 'takes' : 'to'} ${to.toUpperCase()}${isEnPassantCapture ? ' en passant' : ''}`;
 
     if (promoPieceName) {
         result = `${result} and promotes to ${promoPieceName}`;
@@ -31,6 +31,8 @@ export function narrateMove(move, board) {
     if (isCheck) {
         result = `${result} check`;
     }
+
+    //console.log(`%c ${result}`, 'color: orange');
 
     return result;
 }

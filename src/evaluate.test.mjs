@@ -2,7 +2,7 @@ import test from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
 import { Board } from './board.mjs';
-import { getBoardMaterial, computeOutcomes, canFork, canPinSkewer } from './evaluate.mjs';
+import { getBoardMaterial, getBoardCaptures, computeOutcomes, canFork, canPinSkewer } from './evaluate.mjs';
 
 test('material empty', (_t) => {
     const b = Board.empty();
@@ -85,4 +85,48 @@ test('computeOutcomes finds pin on next move', async (_t) => {
     equal(out.moveAttributesMap.get('h3b3').isPinSkewer, true);
     equal(out.moveAttributesMap.get('h3h6').isPinSkewer, true);
     equal(out.moveAttributesMap.get('h3h8').isPinSkewer, true);
+});
+
+test('getBoardCaptures default', (_t) => {
+    const b = Board.default();
+    const o = getBoardCaptures(b);
+    deepEqual(o, [
+        new Map([
+            ['q', 0],
+            ['r', 0],
+            ['b', 0],
+            ['n', 0],
+            ['p', 0],
+        ]),
+        new Map([
+            ['q', 0],
+            ['r', 0],
+            ['b', 0],
+            ['n', 0],
+            ['p', 0],
+        ]),
+        0,
+    ]);
+});
+
+test('getBoardCaptures empty', (_t) => {
+    const b = Board.empty();
+    const o = getBoardCaptures(b);
+    deepEqual(o, [
+        new Map([
+            ['q', 1],
+            ['r', 2],
+            ['b', 2],
+            ['n', 2],
+            ['p', 8],
+        ]),
+        new Map([
+            ['q', 1],
+            ['r', 2],
+            ['b', 2],
+            ['n', 2],
+            ['p', 8],
+        ]),
+        0,
+    ]);
 });

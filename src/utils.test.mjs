@@ -10,6 +10,7 @@ import {
     memoFactory,
     weightedRandom,
     clamp,
+    pairUp,
 } from './utils.mjs';
 import { equal } from 'node:assert';
 
@@ -105,4 +106,12 @@ test('clamp', (_t) => {
     equal(clamp(-3,   -1, 2.5), -1  );
     equal(clamp( 3,   -1, 2.5),  2.5);
     equal(clamp( 1.2, -1, 2.5),  1.2);
+});
+
+
+test('pairUp', (_t) => {
+    deepEqual(pairUp([]), []);
+    deepEqual(pairUp(['a']), [['a']]);
+    deepEqual(pairUp(['a', 'b']), [['a', 'b']]);
+    deepEqual(pairUp(['a', 'b', 'c']), [['a', 'b'], ['c']]);
 });

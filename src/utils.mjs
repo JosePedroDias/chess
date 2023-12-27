@@ -120,3 +120,11 @@ export function clamp(n, min, max) {
     if (n > max) return max;
     return n;
 }
+
+export function pairUp(arr) {
+    return arr.reduce((prev, curr, idx) => {
+        if (idx % 2 === 0) prev.push([curr]);
+        else prev[prev.length - 1].push(curr);
+        return prev;
+    }, []);
+}
