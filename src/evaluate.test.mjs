@@ -25,16 +25,16 @@ test('material winning', (_t) => {
     equal(getBoardMaterial(b, false), 21);
 });
 
-test('fork', async (_t) => {
+test('fork', (_t) => {
     {
         const b = Board.fromFen(`7k/2q1b3/8/3N4/8/8/8/1K6 w - - 0 1`);
-        const { result, potentialCaptures } = await canFork(b, true);
+        const { result, potentialCaptures } = canFork(b, true);
         equal(result, true);
         deepEqual(potentialCaptures, ['q', 'b']);
     }
     {
         const b = Board.fromFen(`4b2k/2q5/8/3N4/8/8/8/1K6 w - - 0 1`);
-        const { result, potentialCaptures } = await canFork(b, true);
+        const { result, potentialCaptures } = canFork(b, true);
         equal(result, false);
         deepEqual(potentialCaptures, ['q']);
     }

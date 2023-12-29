@@ -226,16 +226,15 @@ function boardSpace(board) {
 }
 
 // who played is attacking more than 1 enemy piece
-export function canFork(board, mySide) {
-    const vMoves = validMoves(board, mySide);
+export function canFork(board) {
+    const isWhite = board.isWhiteNext();
+    const vMoves = validMoves(board);
     const potentialCaptures = [];
-    const isEnemyPiece = mySide ? isBlackPiece : isWhitePiece;
+    const isEnemyPiece = isWhite ? isBlackPiece : isWhitePiece;
     for (const mv of vMoves) {
         const to = mv.substring(2, 4);
         const toPiece = board.get(to);
-        if (isEnemyPiece(toPiece)) {
-            potentialCaptures.push(toPiece);
-        }
+        if (isEnemyPiece(toPiece)) potentialCaptures.push(toPiece);
     }
     const result = potentialCaptures.length > 1;
     return { result, potentialCaptures };
@@ -245,10 +244,11 @@ export function canFork(board, mySide) {
 
 // long range pieces only (B, R, Q)
 // instead of stopping at first enemy piece, continue until a pieces of ours is met
-export function canPinSkewer(board, mySide) {
-    const isMyPiece = isPieceOfColor(mySide);
+export function canPinSkewer(board) {
+    const isWhite = board.isWhiteNext();
+    const isMyPiece = isPieceOfColor(isWhite);
     const attackedPiecePacks = [];
-    const sidePositions = board.getSidePositions(mySide);
+    const sidePositions = board.getSidePositions(isWhite);
     for (const [pos, piece] of sidePositions) {
         let movesArr;
         if (isBishop(piece)) {
