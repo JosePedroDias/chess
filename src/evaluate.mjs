@@ -5,7 +5,7 @@ import {
 } from './pieces.mjs';
 import { EMPTY, CASTLING_MOVES, FILES, POSITIONS } from './board.mjs';
 import { alwaysTrue, histogram, flatten1 } from './utils.mjs';
-import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves } from './move.mjs';
+import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves, kingMoves } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
 export const PIECE_VALUE = {
@@ -291,16 +291,29 @@ export function pressure(board, pos) {
     const v = board.get(pos);
     const isPieceWhite = v === EMPTY ? board.isWhiteNext() : isWhitePiece(v);
 
-    const board_ = board.clone();
+    const board_ = _boardOfColor(board.clone(), isPieceWhite);
     board_.set(pos, isPieceWhite ? PAWN_B : PAWN_W);
-    const myMoves = validMoves(_boardOfColor(board_, isPieceWhite)).filter((mv) => mv.substring(2, 4) === pos);
+    const myMoves = validMoves(board_).filter((mv) => mv.substring(2, 4) === pos);
 
-    const board__ = board.clone();
+    const board__ = _boardOfColor(board.clone(), !isPieceWhite);
     board__.set(pos, isPieceWhite ? PAWN_W : PAWN_B);
-    const oppMoves = validMoves(_boardOfColor(board__, !isPieceWhite)).filter((mv) => mv.substring(2, 4) === pos);
+    const oppMoves = validMoves(board__).filter((mv) => mv.substring(2, 4) === pos);
 
-    const a = myMoves.length;
-    const b = oppMoves.length;
+    let a = myMoves.length;
+    let b = oppMoves.length;
+
+    const k1 = isPieceWhite ? 'K' : 'k';
+    const k2 = isPieceWhite ? 'k' : 'K';
+
+    const kp1 = board.findPos((p) => p === k1);
+    const kp2 = board.findPos((p) => p === k2);
+
+    const myKingMoves = kingMoves(kp1, kp2);
+    const oppKingMoves = kingMoves(kp2, kp1);
+
+    if (myKingMoves.includes(pos)) a++;
+    if (oppKingMoves.includes(pos)) b++;
+    
     return [a, b];
 }
 
@@ -441,9 +454,10 @@ export function computeOutcomes(board) {
             isCheckmate,
             isStalemate,
             isCapture,
+            canBeCaptured,
+            pressure: pressurePositions.get(move.substring(2, 4)),
             isPinSkewer,
             isFork,
-            canBeCaptured,
             isPromotion,
             worseMatDiff,
             bestMatDiff,
