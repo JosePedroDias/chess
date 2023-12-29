@@ -130,3 +130,7 @@ export function pairUp(arr) {
         return prev;
     }, []);
 }
+
+export function enumerate(arr) {
+    return arr.map((it, idx) => [it, idx]);
+}

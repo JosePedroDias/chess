@@ -3,8 +3,8 @@ import {
     isBishop, isRook, isQueen, isKing, isKnight , isPawn, isWhitePiece, isBlackPiece,
     knightStartPositions, bishopStartPositions, queenStartPosition, kingStartPosition,
 } from './pieces.mjs';
-import { EMPTY, CASTLING_MOVES } from './board.mjs';
-import { alwaysTrue, histogram } from './utils.mjs';
+import { EMPTY, CASTLING_MOVES, FILES } from './board.mjs';
+import { alwaysTrue, histogram, enumerate } from './utils.mjs';
 import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
@@ -124,7 +124,7 @@ function _gmAux(stageName, froms, filterFn = alwaysTrue) {
 }
 
 // returns an array of moves
-function goldenMoves(board) {
+export function goldenMoves(board) {
     const isWhite = board.isWhiteNext();
 
     if (board._moves.length > 20) // 10 moves
@@ -156,6 +156,38 @@ function goldenMoves(board) {
     // castle
     moves = [kingStartPosition(isWhite)].filter(p => isKing(board.get(p)));
     return _gmAux('5.castle', moves, (mv) => CASTLING_MOVES.includes(mv));
+}
+
+export function pawnStructure(board) {
+    const colorFilter = board.isWhiteNext() ? isWhitePiece : isBlackPiece;
+    const pawnPositions = board.positionsHaving((v) => isPawn(v) && colorFilter(v)).sort(); //sort by file
+    const clusters = [];
+    let cluster = [];
+    for (const f of FILES) {
+        const res = pawnPositions.filter((pos) => pos[0] === f);
+        if (res.length > 0) {
+            cluster.push(res);
+        } else if (cluster.length > 0) {
+            clusters.push(cluster);
+            cluster = [];
+        }
+    }
+    if (cluster.length > 0) clusters.push(cluster);
+
+    const isolated = clusters.filter((c) => c.length === 1).map((c) => c[0]);
+    const nonIsolated = clusters.filter((c) => c.length > 1);
+    const backward =  [];//clusters.filter((c) => c.length === 2).map((c) => c[0]);
+    const doubled =  [];
+
+    const o = {
+        count: pawnPositions.length,
+        clusters,
+        doubled,
+        isolated,
+        backward,
+    };
+    console.log('pawnStructure', o);
+    return o
 }
 
 function boardSpace(board) {
@@ -228,6 +260,8 @@ export function computeOutcomes(board) {
     const isWhite = board.isWhiteNext();
 
     const amIBeingChecked = isChecking(board, !isWhite);
+
+    pawnStructure(board);
 
     const moves = validMoves(board);
 
