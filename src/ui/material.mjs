@@ -13,9 +13,17 @@ import { Pawn } from './neo/pawn.mjs';
 const WHITE = '#FFF';
 const BLACK = '#000';
 
-const size = MOVE_HEIGHT * 0.9;
+const size = MOVE_HEIGHT * 1.6;
 
 const ORDER = ['q', 'r', 'b', 'n', 'p'];
+
+const UNICODE = {
+    'q': '♛',
+    'r': '♜',
+    'b': '♝',
+    'n': '♞',
+    'p': '♟',
+};
 
 function getPiece(piece, isWhite, i) {
     const fn = ((piece) => { switch (piece) {
@@ -50,14 +58,15 @@ export function MaterialSide(captures, isWhite, diff) {
         transform: `translate(${DX}, ${DY})`,
     }, [
         ...arr.map(([piece, count], i) => {
-            piece = piece.toUpperCase();
+            //piece = piece.toUpperCase();
+            piece = UNICODE[piece];
             /* return [getPiece(piece, isWhite, i), count > -1 ? m('text', {
                 x: -size * 1.5,
                 y: dy * i,
                 style: `fill:${fill}; font-size:${size}px; dominant-baseline: ${baseline}; text-anchor: end`,
             }, `${count}`) : undefined];
  */
-            const text = count === 1 ? piece : `${count} x ${piece}`;
+            const text = count === 1 ? piece : `${count}${piece}`;
             return m('text', {
                 y: dy * i,
                 style: `fill:${fill}; font-size:${size}px; dominant-baseline: ${baseline}; text-anchor: end`,

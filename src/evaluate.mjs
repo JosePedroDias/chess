@@ -45,7 +45,7 @@ export function getBoardCaptureCount(board, isWhite) {
         ['n', 2],
         ['p', 8],
     ]);
-    const isMyPiece = isPieceOfColor(isWhite);
+    const isMyPiece = isPieceOfColor(!isWhite);
     for (const [_, piece] of board) {
         if (isMyPiece(piece)) {
             const piece2 = piece.toLowerCase();
