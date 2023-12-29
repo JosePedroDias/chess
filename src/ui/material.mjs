@@ -12,8 +12,6 @@ import { Pawn } from './neo/pawn.mjs';
 
 const WHITE = '#FFF';
 const BLACK = '#000';
-const BG =  '#333';
-const GRAY =  '#8CC';
 
 const size = MOVE_HEIGHT * 0.9;
 
@@ -28,7 +26,6 @@ function getPiece(piece, isWhite, i) {
         case 'p': return Pawn;
         default: throw 'unexpected';
     }})(piece);
-    //return fn({ isWhite }, { pos: [-1, isWhite ? i : -1 -i] });
     return m('g', {
         transform: `scale(${2.65/MOVE_HEIGHT})`,
     }, [
@@ -53,6 +50,7 @@ export function MaterialSide(captures, isWhite, diff) {
         transform: `translate(${DX}, ${DY})`,
     }, [
         ...arr.map(([piece, count], i) => {
+            piece = piece.toUpperCase();
             /* return [getPiece(piece, isWhite, i), count > -1 ? m('text', {
                 x: -size * 1.5,
                 y: dy * i,

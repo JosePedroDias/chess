@@ -1,10 +1,10 @@
 import {
     PAWN_B, PAWN_W,
-    isBishop, isRook, isQueen, isKing, isKnight , isPawn, isWhitePiece, isBlackPiece,
+    isBishop, isRook, isQueen, isKing, isKnight , isPawn, isWhitePiece, isBlackPiece, isPieceOfColor,
     knightStartPositions, bishopStartPositions, queenStartPosition, kingStartPosition,
 } from './pieces.mjs';
 import { EMPTY, CASTLING_MOVES, FILES } from './board.mjs';
-import { alwaysTrue, histogram, enumerate } from './utils.mjs';
+import { alwaysTrue, histogram, flatten1 } from './utils.mjs';
 import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
@@ -45,7 +45,7 @@ export function getBoardCaptureCount(board, isWhite) {
         ['n', 2],
         ['p', 8],
     ]);
-    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
+    const isMyPiece = isPieceOfColor(isWhite);
     for (const [_, piece] of board) {
         if (isMyPiece(piece)) {
             const piece2 = piece.toLowerCase();
@@ -158,9 +158,28 @@ export function goldenMoves(board) {
     return _gmAux('5.castle', moves, (mv) => CASTLING_MOVES.includes(mv));
 }
 
+
+// TODO checks, captures and threats
+export function checksCapturesAndThreats(board) {
+    const isWhite = board.isWhiteNext();
+    //const checks = 
+}
+
+// TODO detect discovered attacks
+
 export function pawnStructure(board) {
-    const colorFilter = board.isWhiteNext() ? isWhitePiece : isBlackPiece;
+    const isWhite = board.isWhiteNext();
+    const colorFilter = isPieceOfColor(isWhite);
+    const oppColorFilter = isPieceOfColor(!isWhite);
     const pawnPositions = board.positionsHaving((v) => isPawn(v) && colorFilter(v)).sort(); //sort by file
+    const oppPawnPositions = board.positionsHaving((v) => isPawn(v) && oppColorFilter(v)).sort();
+    const oppPawnFiles = new Set(oppPawnPositions.map(p => p[0]));
+
+    const passed = pawnPositions.filter((pos) => {
+        const file = pos[0];
+        return !oppPawnFiles.has(file);
+    });
+
     const clusters = [];
     let cluster = [];
     for (const f of FILES) {
@@ -174,19 +193,31 @@ export function pawnStructure(board) {
     }
     if (cluster.length > 0) clusters.push(cluster);
 
+    // TODO clusters can't have rank gaps >1 nor <-1
+    
+
     const isolated = clusters.filter((c) => c.length === 1).map((c) => c[0]);
-    const nonIsolated = clusters.filter((c) => c.length > 1);
-    const backward =  [];//clusters.filter((c) => c.length === 2).map((c) => c[0]);
-    const doubled =  [];
+    //const nonIsolated = clusters.filter((c) => c.some((cc) => cc.length > 1));//.flat();
+    const nonIsolated = flatten1(clusters.reduce((prev, c) => {
+        const arr = c.filter((cc) => cc.length > 1);
+        if (arr.length > 0) prev.push(arr);
+        return prev;
+    }, []));
+    const doubled = nonIsolated;
+
+    const backward = doubled.map(arr => {
+        //const 
+    });
 
     const o = {
         count: pawnPositions.length,
         clusters,
-        doubled,
         isolated,
+        doubled,
         backward,
+        passed,
     };
-    console.log('pawnStructure', o);
+    console.log('pawnStructure', JSON.stringify(o));
     return o
 }
 
@@ -215,7 +246,7 @@ export function canFork(board, mySide) {
 // long range pieces only (B, R, Q)
 // instead of stopping at first enemy piece, continue until a pieces of ours is met
 export function canPinSkewer(board, mySide) {
-    const isMyPiece = mySide ? isWhitePiece : isBlackPiece;
+    const isMyPiece = isPieceOfColor(mySide);
     const attackedPiecePacks = [];
     const sidePositions = board.getSidePositions(mySide);
     for (const [pos, piece] of sidePositions) {

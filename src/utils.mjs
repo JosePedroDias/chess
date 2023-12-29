@@ -134,3 +134,7 @@ export function pairUp(arr) {
 export function enumerate(arr) {
     return arr.map((it, idx) => [it, idx]);
 }
+
+export function flatten1(arr) {
+    return arr.reduce((prev, curr) => prev.concat(curr), []);
+}

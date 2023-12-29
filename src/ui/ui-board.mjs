@@ -3,7 +3,7 @@ import m from '../../vendor/mithril.mjs';
 import { times, randomColor } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
 import { moveToObject } from '../move.mjs';
-import { isBishop, isKing, isKnight, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
+import { isBishop, isKing, isKnight, isPieceOfColor, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
 
 import { WHITE, GRAY, DARK, LIGHT } from './colors.mjs';
 import { MARGIN, CW } from './constants.mjs';
@@ -89,13 +89,28 @@ export function UiBoard(
             validDestinations.add(mv.substring(2, 4));
         }
 
-        for (const mv of Array.from(validDestinations)) {
-            annotations.push(Circle({ id: `circle-${mv}` }, {
-                center: toBoardCoords(mv),
-                radius: CW * 0.175,
-                color: 'black',
-                alpha: 0.1,
-            }));
+        const isOppo = isPieceOfColor(!board.isWhiteNext());
+        const lastTo = board._moves[board._moves.length - 1]?.substring(2, 4);
+        for (const to of Array.from(validDestinations)) {
+            if (to === lastTo) continue;
+            else if (isOppo(board.get(to))) {
+                annotations.push(
+                    Ring({ id: `ring-${to}` }, {
+                        center: toBoardCoords(to),    
+                        radius: CW * 0.44,
+                        strokeWidth: CW * 0.06,
+                        color: 'black',
+                        alpha: 0.1,
+                    }),
+                );
+            } else {
+                annotations.push(Circle({ id: `circle-${to}` }, {
+                    center: toBoardCoords(to),
+                    radius: CW * 0.175,
+                    color: 'black',
+                    alpha: 0.1,
+                }));
+            }
         }
     }
 

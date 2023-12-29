@@ -1,5 +1,5 @@
 import { EMPTY, INDICES_TO_POSITIONS, POSITIONS_TO_INDICES, POSITIONS, FILES } from './board.mjs';
-import { isWhitePiece, isBlackPiece, isKing, isQueen, isRook, isBishop, isKnight, isPawn, KING_W, KING_B } from './pieces.mjs';
+import { isKing, isQueen, isRook, isBishop, isKnight, isPawn, KING_W, KING_B, isPieceOfColor } from './pieces.mjs';
 import { memoFactory } from './utils.mjs';
 
 import { validMoves } from './valid-moves-mine.mjs';
@@ -289,8 +289,8 @@ export const bishopMoves = memoFactory(_bishopMoves, bm);
 export const knightMoves = memoFactory(_knightMoves, nm);
 
 export function isBeingAttacked(pos, board, byWhite) {
-    const isMyPiece = byWhite ? isWhitePiece : isBlackPiece;
-    const isOpponentPiece = byWhite ? isBlackPiece : isWhitePiece;
+    const isMyPiece = isPieceOfColor(byWhite);
+    const isOpponentPiece = isPieceOfColor(!byWhite);
     
     const isOpponentKing = (v) => v === (byWhite ? KING_B : KING_W);
     const opponentKingPos = board.findPos(isOpponentKing);

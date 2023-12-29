@@ -1,4 +1,4 @@
-import { isPiece, isPawn, isRook, isKing, isWhitePiece, isBlackPiece, KING_W, KING_B, QUEEN_W, QUEEN_B } from './pieces.mjs';
+import { isPiece, isPawn, isRook, isKing, KING_W, KING_B, QUEEN_W, QUEEN_B, isPieceOfColor } from './pieces.mjs';
 import { randomString } from './utils.mjs';
 import { moveFromPgn } from './move.mjs';
 
@@ -305,7 +305,7 @@ export class Board {
     // array of [position, piece]
     getSidePositions(isWhite) {
         if (isWhite === undefined) isWhite = this.isWhiteNext();
-        const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
+        const isMyPiece = isPieceOfColor(isWhite);
         return Array.from(this.cellsHaving(isMyPiece));
     }
 

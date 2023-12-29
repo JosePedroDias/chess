@@ -33,6 +33,10 @@ export function isBlackPiece(piece) {
     return BLACK_PIECES.includes(piece);
 }
 
+export function isPieceOfColor(isWhite) {
+    return isWhite ? isWhitePiece : isBlackPiece;
+}
+
 export const KINGS = [KING_W, KING_B];
 export const QUEENS = [QUEEN_W, QUEEN_B];
 export const ROOKS = [ROOK_W, ROOK_B];

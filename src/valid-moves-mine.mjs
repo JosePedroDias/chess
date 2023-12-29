@@ -1,8 +1,7 @@
 import { EMPTY, CASTLING_MOVES } from './board.mjs';
 import {
-    isWhitePiece, isBlackPiece,
     isKing, isQueen,isRook, isBishop, isKnight, isPawn,
-    ROOK_W, ROOK_B, KING_W, KING_B, QUEEN_W, QUEEN_B,
+    KING_W, KING_B, QUEEN_W, QUEEN_B, isPieceOfColor,
 } from './pieces.mjs';
 import {
     pawnMoves, knightMoves, bishopMoves, rookMoves, queenMoves, kingMoves,
@@ -12,8 +11,8 @@ import {
 export function validMoves(board, isWhiteOverride) {
     let moves = [];
     const isWhite = isWhiteOverride !== undefined ? isWhiteOverride : board.isWhiteNext();
-    const isMyPiece = isWhite ? isWhitePiece : isBlackPiece;
-    const isOpponentPiece = isWhite ? isBlackPiece : isWhitePiece;
+    const isMyPiece = isPieceOfColor(isWhite);
+    const isOpponentPiece = isPieceOfColor(!isWhite);
     
     const isOpponentKing = (v) => v === (isWhite ? KING_B : KING_W);
     const opponentKingPos = board.findPos(isOpponentKing);
