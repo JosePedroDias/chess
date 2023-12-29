@@ -1,7 +1,7 @@
 import { randomFromArr } from './utils.mjs';
 import { computeOutcomes } from './evaluate.mjs';
 
-export async function playRandomBot(board) {
-    const out = await computeOutcomes(board);
+export function playRandomBot(board) {
+    const out = computeOutcomes(board);
     return randomFromArr(out.moves);
 }

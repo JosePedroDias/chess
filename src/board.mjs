@@ -269,7 +269,7 @@ export class Board {
         }
     }
 
-    // returns interator of [position, piece]
+    // returns iterator of [position, piece]
     cellsHaving(criteria = () => true) {
         return {
             [Symbol.iterator]: () => {

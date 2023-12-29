@@ -25,7 +25,6 @@ import { King } from './wiki/king.mjs'; */
 import { Circle } from './circle.mjs';
 import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
-import { Dashed } from './dashed.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
 export function UiBoard(
@@ -92,44 +91,49 @@ export function UiBoard(
         const isOppo = isPieceOfColor(!board.isWhiteNext());
         const lastTo = board._moves[board._moves.length - 1]?.substring(2, 4);
         for (const to of Array.from(validDestinations)) {
+            const [a, b] = out?.pressurePositions.get(to);
             if (to === lastTo) continue;
             else if (isOppo(board.get(to))) {
+                // CAPTURES
                 annotations.push(
                     Ring({ id: `ring-${to}` }, {
-                        center: toBoardCoords(to),    
+                        center: toBoardCoords(to),
                         radius: CW * 0.44,
+                        title: `${a}/${b}`,
                         strokeWidth: CW * 0.06,
-                        color: 'black',
-                        alpha: 0.1,
+                        color: b > a ? '#181' : '#222',
+                        alpha: 0.3,
                     }),
                 );
             } else {
-                annotations.push(Circle({ id: `circle-${to}` }, {
-                    center: toBoardCoords(to),
-                    radius: CW * 0.175,
-                    color: 'black',
-                    alpha: 0.1,
-                }));
+                annotations.push(
+                    Circle({ id: `circle-${to}` }, {
+                        center: toBoardCoords(to),
+                        radius: CW * 0.175,
+                        title: `${a}/${b}`,
+                        color: b <= a ? '#222' : '#811',
+                        alpha: 0.3,
+                    })
+                );
             }
         }
     }
 
     if (drawAnnotations) {
-        //out?.moveAttributesMap && console.table(Array.from(out.moveAttributesMap.values()));
-        //out?.viewedPositions && console.log(Array.from(out.viewedPositions[0]));
         for (const pos of Array.from(out?.attackedPositions || [])) {
-            const isDefended = out?.defendedPositions.has(pos);
+            const [a, b] = out?.pressurePositions.get(pos);
+            // THREATS
             annotations.push(
                 Ring({ id: `ring-${pos}` }, {
                     center: toBoardCoords(pos),
 
-                    title: isDefended ? 'attacked and defended' : 'attacked',
+                    title: `${a}/${b}`,
 
                     radius: CW * 0.44,
                     strokeWidth: CW * 0.06,
                     
-                    color: isDefended ? 'orange' : 'red',
-                    alpha: ANNO_ALPHA,
+                    color: a >= b ? '#222' : '#811',
+                    alpha: 0.3,
                 }),
             );
         }
@@ -141,12 +145,7 @@ export function UiBoard(
                 if      (attrs.isCheckmate) {                       title = 'checkmate';       color = '#7F7';    width = 2.5; }
                 else if (attrs.isStalemate) {                       title = 'stalemate';       color = '#F77';    width = 2.5; }
                 else if (attrs.isCheck) {                           title = 'check';           color = 'purple';               }
-                else if (attrs.isCapture && !attrs.canBeCaptured) { title = 'safe capture';    color = 'green';   width = 1.5; }
-                else if (attrs.isCapture) {                         title = 'capture';         color = 'yellow';               }
-                else if (attrs.canBeCaptured) {                     title = 'can be captured'; color = 'orchid';               }
-                else if (attrs.isPromotion) {                       title = 'promotion';       color = 'cyan';                 }
-                else {                                              title = 'regular';         color = randomColor();          }
-                // TODO CASTLE
+                else { continue; }
 
                 title = `${attrs.pgn} (${title})`;
 
@@ -162,20 +161,6 @@ export function UiBoard(
                         title,
                     }),
                 );
-                if (mvO.from2) {
-                    annotations.push(
-                        Arrow({ id: `arrow-${mvO.from2}-${mvO.to2}-${title}` }, {
-                            from: toBoardCoords(mvO.from2),
-                            to:   toBoardCoords(mvO.to2),
-                            fill:   { color, alpha: ANNO_ALPHA },
-                            stroke: { color, width: ANNO_STROKE_WIDTH },
-                            arrowW: 1.8,
-                            arrowH: 6,
-                            width,
-                            title,
-                        })
-                    );
-                }
             }
         }
     }
@@ -207,13 +192,6 @@ export function UiBoard(
                 ]);
             }),
         ]),
-
-        /* m('g', { 'x-comment' : 'dashes' }, [
-            out?.viewedPositions ? [
-                ...Array.from(out?.viewedPositions[0]).map((mv) => Dashed({}, { pos: posToXY(mv), alpha: 0.5, color: '#D44' })),
-                ...Array.from(out?.viewedPositions[1]).map((mv) => Dashed({}, { pos: posToXY(mv), alpha: 0.5, color: '#4D4', inverted: true })),
-            ] : undefined,
-        ]), */
 
         m('g', { 'x-comment' : 'labels' }, [
             ...times(8).map((i) => {

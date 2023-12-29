@@ -133,7 +133,7 @@ test('getBoardCaptures empty', (_t) => {
 
 test('pawnStructure start', (_t) => {
     const b = Board.default();
-    const { count, clusters, doubled, isolated, backward } = pawnStructure(b);
+    const { count, clusters, doubled, isolated, backward, passed } = pawnStructure(b);
     equal(count, 8);
     equal(clusters.length, 1);
     deepEqual(clusters, [
@@ -142,28 +142,34 @@ test('pawnStructure start', (_t) => {
     equal(doubled.length, 0);
     equal(isolated.length, 0);
     equal(backward.length, 0);
+    equal(passed.length, 0);
 });
 
 test('pawnStructure e2 to d3', (_t) => {
     const b = Board.default();
     b.set('e2', EMPTY);
     b.set('d3', 'P');
-    const { count, clusters, doubled, isolated, backward } = pawnStructure(b);
+    const { count, clusters, doubled, isolated, backward, passed } = pawnStructure(b);
     equal(count, 8);
     equal(clusters.length, 2);
     deepEqual(clusters, [
         [['a2'], ['b2'], ['c2'], ['d2', 'd3']],
         [['f2'], ['g2'], ['h2']],
     ]);
-    equal(doubled.length, 0);
+    equal(doubled.length, 1);
+    deepEqual(doubled, [
+        ['d2', 'd3'],
+    ]);
     equal(isolated.length, 0);
-    equal(backward.length, 0);
+    equal(backward.length, 1);
+    deepEqual(backward, ['d2']);
+    equal(passed.length, 0);
 });
 
 test('pawnStructure remove g2', (_t) => {
     const b = Board.default();
     b.set('g2', EMPTY);
-    const { count, clusters, doubled, isolated, backward } = pawnStructure(b);
+    const { count, clusters, doubled, isolated, backward, passed } = pawnStructure(b);
     equal(count, 7);
     equal(clusters.length, 2);
     deepEqual(clusters, [
@@ -176,4 +182,21 @@ test('pawnStructure remove g2', (_t) => {
         ['h2'],
     ]);
     equal(backward.length, 0);
+    equal(passed.length, 0);
+});
+
+test('pawnStructure remove g7 (passed)', (_t) => {
+    const b = Board.default();
+    b.set('g7', EMPTY);
+    const { count, clusters, doubled, isolated, backward, passed } = pawnStructure(b);
+    equal(count, 8);
+    equal(clusters.length, 1);
+    deepEqual(clusters, [
+        [['a2'], ['b2'], ['c2'], ['d2'], ['e2'], ['f2'], ['g2'], ['h2']],
+    ]);
+    equal(doubled.length, 0);
+    equal(isolated.length, 0);
+    equal(backward.length, 0);
+    equal(passed.length, 1);
+    deepEqual(passed, ['g2']);
 });

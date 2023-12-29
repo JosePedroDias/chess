@@ -3,7 +3,7 @@ import {
     isBishop, isRook, isQueen, isKing, isKnight , isPawn, isWhitePiece, isBlackPiece, isPieceOfColor,
     knightStartPositions, bishopStartPositions, queenStartPosition, kingStartPosition,
 } from './pieces.mjs';
-import { EMPTY, CASTLING_MOVES, FILES } from './board.mjs';
+import { EMPTY, CASTLING_MOVES, FILES, POSITIONS } from './board.mjs';
 import { alwaysTrue, histogram, flatten1 } from './utils.mjs';
 import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
@@ -100,7 +100,7 @@ export function isTie(board) {
             const v = fenRepsMap.get(key);
             if (!v) fenRepsMap.set(key, 1);
             else if (v === 2) {
-                console.log(b.toString()); // board which happened 3 times for the same side
+                //console.log(b.toString()); // board which happened 3 times for the same side
                 return DRAW_3FOLD;
             }
             else fenRepsMap.set(key, v + 1);
@@ -113,7 +113,7 @@ export function isTie(board) {
     return findMaterialDraws(board);
 }
 
-function _gmAux(stageName, froms, filterFn = alwaysTrue) {
+function _gmAux(board, stageName, froms, filterFn = alwaysTrue) {
     return {
         stage: stageName,
         moves: validMoves(board).filter((mv) => {
@@ -135,29 +135,28 @@ export function goldenMoves(board) {
 
     // develop center pawns
     let moves = (isWhite ? ['d2', 'e2'] : ['d7', 'e7']).filter(p => isPawn(board.get(p)));
-    let o = _gmAux('1.pawns', moves);
+    let o = _gmAux(board, '1.pawns', moves);
     if (o.moves.length > 0) return o;
 
     // develop knights
     moves = knightStartPositions(isWhite).filter(p => isKnight(board.get(p)));
-    o = _gmAux('2.knights', moves, (mv) => ['6', '3'].includes(mv[3])); // avoid occluding bishops
+    o = _gmAux(board, '2.knights', moves, (mv) => ['6', '3'].includes(mv[3])); // avoid occluding bishops
     if (o.moves.length > 0) return o;
 
     // develop bishops
     moves = bishopStartPositions(isWhite).filter(p => isBishop(board.get(p)));
-    o = _gmAux('3.bishops', moves);
+    o = _gmAux(board, '3.bishops', moves);
     if (o.moves.length > 0) return o;
 
     // move queen?
     moves = [queenStartPosition(isWhite)].filter(p => isQueen(board.get(p)));
-    o = _gmAux('4.queen', moves, (mv) => !(['1', '8'].includes(mv[3]))); // don't move to the side
+    o = _gmAux(board, '4.queen', moves, (mv) => !(['1', '8'].includes(mv[3]))); // don't move to the side
     if (o.moves.length > 0) return o;
 
     // castle
     moves = [kingStartPosition(isWhite)].filter(p => isKing(board.get(p)));
-    return _gmAux('5.castle', moves, (mv) => CASTLING_MOVES.includes(mv));
+    return _gmAux(board, '5.castle', moves, (mv) => CASTLING_MOVES.includes(mv));
 }
-
 
 // TODO checks, captures and threats
 export function checksCapturesAndThreats(board) {
@@ -206,7 +205,8 @@ export function pawnStructure(board) {
     const doubled = nonIsolated;
 
     const backward = doubled.map(arr => {
-        //const 
+        const i = isWhite ? 0 : arr.length - 1;
+        return arr[i];
     });
 
     const o = {
@@ -217,8 +217,8 @@ export function pawnStructure(board) {
         backward,
         passed,
     };
-    console.log('pawnStructure', JSON.stringify(o));
-    return o
+    //console.log('pawnStructure', JSON.stringify(o));
+    return o;
 }
 
 function boardSpace(board) {
@@ -282,6 +282,28 @@ export function canPinSkewer(board, mySide) {
     return { result, attackedPiecePacks };
 }
 
+function _boardOfColor(board, isWhite) {
+    if (board.isWhiteNext() === isWhite) return board;
+    return board.getInvertedBoard();
+}
+
+export function pressure(board, pos) {
+    const v = board.get(pos);
+    const isPieceWhite = v === EMPTY ? board.isWhiteNext() : isWhitePiece(v);
+
+    const board_ = board.clone();
+    board_.set(pos, isPieceWhite ? PAWN_B : PAWN_W);
+    const myMoves = validMoves(_boardOfColor(board_, isPieceWhite)).filter((mv) => mv.substring(2, 4) === pos);
+
+    const board__ = board.clone();
+    board__.set(pos, isPieceWhite ? PAWN_W : PAWN_B);
+    const oppMoves = validMoves(_boardOfColor(board__, !isPieceWhite)).filter((mv) => mv.substring(2, 4) === pos);
+
+    const a = myMoves.length;
+    const b = oppMoves.length;
+    return [a, b];
+}
+
 //export function ratePinSkewer(attackedPiecePacks) {}
 
 export function computeOutcomes(board) {
@@ -311,6 +333,11 @@ export function computeOutcomes(board) {
     const attackedPositions  = new Set();
     const viewedPositions    = [new Set(), new Set()];
     const defendedPositions  = new Set();
+    const pressurePositions  = new Map();
+
+    for (const pos of POSITIONS) {
+        pressurePositions.set(pos, pressure(board, pos));
+    }
 
     const initialMaterial = getBoardMaterial(board, isWhite);
 
@@ -438,6 +465,7 @@ export function computeOutcomes(board) {
         moveAttributesMap,
         attackedPositions,
         defendedPositions,
+        pressurePositions,
         viewedPositions,
         amIBeingChecked,
     };
