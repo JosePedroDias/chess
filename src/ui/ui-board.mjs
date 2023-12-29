@@ -91,7 +91,7 @@ export function UiBoard(
         const isOppo = isPieceOfColor(!board.isWhiteNext());
         const lastTo = board._moves[board._moves.length - 1]?.substring(2, 4);
         for (const to of Array.from(validDestinations)) {
-            const [a, b] = out?.pressurePositions.get(to);
+            const [a, b, va, vb] = out?.pressurePositions.get(to);
             if (to === lastTo) continue;
             else if (isOppo(board.get(to))) {
                 // CAPTURES
@@ -99,7 +99,7 @@ export function UiBoard(
                     Ring({ id: `ring-${to}` }, {
                         center: toBoardCoords(to),
                         radius: CW * 0.44,
-                        title: `${a}/${b}`,
+                        title: `${a}/${b} (${va}/${vb})`,
                         strokeWidth: CW * 0.06,
                         color: b > a ? '#181' : '#222',
                         alpha: 0.3,
@@ -121,13 +121,13 @@ export function UiBoard(
 
     if (drawAnnotations) {
         for (const pos of Array.from(out?.attackedPositions || [])) {
-            const [a, b] = out?.pressurePositions.get(pos);
+            const [a, b, va, vb] = out?.pressurePositions.get(pos);
             // THREATS
             annotations.push(
                 Ring({ id: `ring-${pos}` }, {
                     center: toBoardCoords(pos),
 
-                    title: `${a}/${b}`,
+                    title: `${a}/${b} (${va}/${vb})`,
 
                     radius: CW * 0.44,
                     strokeWidth: CW * 0.06,

@@ -299,9 +299,6 @@ export function pressure(board, pos) {
     board__.set(pos, isPieceWhite ? PAWN_W : PAWN_B);
     const oppMoves = validMoves(board__).filter((mv) => mv.substring(2, 4) === pos);
 
-    let a = myMoves.length;
-    let b = oppMoves.length;
-
     const k1 = isPieceWhite ? 'K' : 'k';
     const k2 = isPieceWhite ? 'k' : 'K';
 
@@ -311,10 +308,21 @@ export function pressure(board, pos) {
     const myKingMoves = kingMoves(kp1, kp2);
     const oppKingMoves = kingMoves(kp2, kp1);
 
-    if (myKingMoves.includes(pos)) a++;
-    if (oppKingMoves.includes(pos)) b++;
+    //if (myKingMoves.includes(pos)) a++;
+    //if (oppKingMoves.includes(pos)) b++;
+    if (myKingMoves.includes(pos)) myMoves.push(kp1);
+    if (oppKingMoves.includes(pos)) oppMoves.push(kp2);
     
-    return [a, b];
+    return [
+        myMoves.length,
+        oppMoves.length,
+
+        myMoves.map((mv) => getPieceMaterial(board_.get(mv.substring(0, 2)))).reduce((a, b) => a + b, 0),
+        oppMoves.map((mv) => getPieceMaterial(board__.get(mv.substring(0, 2)))).reduce((a, b) => a + b, 0),
+
+        //myMoves, // if you want to check the actual moves
+        //oppMoves,
+    ];
 }
 
 //export function ratePinSkewer(attackedPiecePacks) {}

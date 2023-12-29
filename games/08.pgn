@@ -1,0 +1,6 @@
+[White "ZpBot"]
+[Black "zp"]
+[Site "https://josepedrodias.github.io/chess/"]
+[Date "2023.12.29"]
+[FEN "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"]
+1. d5 e3 2. Nf6 Nh3 3. Nc6 Nc3 4. e5 Ba6 5. bxa6 Bd2 6. exd4 Qe2 7. Ne5 O-O-O 8. Bf5 Qxa6 9. Bd6 exd4 10. Nc4 Nxd5 11. Nb6 Nxf6+ 12. gxf6 Ng1 13. Rg8 b4 14. Rxg2 Nf3 15. Rxf2 Kb2 16. Rxf3 Rb1 17. Be6 a3 18. Nc4+ Ka2 19. Nxd2+ Kb2 20. Bc4 Qxc4 21. Nxc4+ Ka2 22. Rxa3#
