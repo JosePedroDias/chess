@@ -93,13 +93,14 @@ export function moveFromPgn(pgnMove, board) {
     {
         from:               [a-h][1-8]
         to                  [a-h][1-8]
-        piece               [PNBRQK]
         from2?              [a-h][1-8]
         to2?                [a-h][1-8]
+        piece               'P'|'N'|'B'|'R'|'Q'|'K'
+        promoPiece?         'P'|'N'|'B'|'R'|'Q'|'K'
+        capturePiece?       'P'|'N'|'B'|'R'|'Q'|'K'
         isCapture           boolean
         isEnPassantCapture  boolean
         isCheck             boolean
-        promoPiece?         [a-h][1-8]
     }
 */
 export function moveToObject(move, board) {
@@ -109,7 +110,8 @@ export function moveToObject(move, board) {
     const pieceChar = board.get(from);
     const piece = pieceChar.toUpperCase();
     const isCapture = board.get(to) !== EMPTY;
-    const o = { piece, pieceChar, from, to, isCapture, promoPiece };
+    let capturePiece = isCapture && board.get(to).toUpperCase();
+    const o = { piece, pieceChar, from, to, isCapture, promoPiece, capturePiece };
 
     // castle
     if (isKing(piece) && Math.abs(deltaMovesXY(from, to)[0]) > 1) {
@@ -124,6 +126,7 @@ export function moveToObject(move, board) {
     if (isPawn(piece) && board._params.enPassant === o.to) {
         o.isCapture = true;
         o.isEnPassantCapture = true;
+        o.capturePiece = board.get(to).toUpperCase();
     }
 
     // detect check

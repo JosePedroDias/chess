@@ -4,13 +4,13 @@ import { Board } from '../board.mjs';
 import { computeOutcomes } from '../evaluate.mjs';
 import { playRandomBot } from '../randomBot.mjs';
 import { playZpBot } from '../zpBot.mjs';
-import { playSfBot } from '../sfBot.mjs'; // TODO import function (requires bootstrap to be async)
+import { playSfBot } from '../sfBot.mjs';
 import { UiBoard } from './ui-board.mjs';
 import { Evaluation } from './evaluation.mjs';
 import { MARGIN, CW } from './constants.mjs';
 import { promptDialog } from './prompt-dialog.mjs';
 import { Material } from './material.mjs';
-import { Moves } from './moves.mjs';
+//import { Moves } from './moves.mjs';
 import { moveToObject } from '../move.mjs';
 import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { sleep } from '../utils.mjs';
@@ -174,12 +174,12 @@ export function ui(
             redraw();
         } catch (err) {
             if (typeof err === 'string' && (err.includes('mate') || err.includes('draw'))) {
-                /*await */say(err);
+                redraw();
+                await say(err);
                 console.log(board.getPgn({
                     White: players[0],
                     Black: players[1],
                 }));
-                redraw();
                 await sleep(550);
                 return window.alert(err); // checkmate or draw
             }
@@ -196,7 +196,13 @@ export function ui(
 
         const moveAttrs = out.moveAttributesMap.get(move);
         console.log(`\nfmn: ${board._params.fullMoveNumber} ${board._params.next} hmc: ${board._params.halfMoveClock} move: ${moveAttrs?.pgn || '???'} (${move})\n`);
-        if (tts) await say(narrateMove(move, board));
+        redraw();
+        
+        const pastBoard = board;
+        board = board.applyMove(move, moveAttrs?.pgn);
+        sfx && playAppropriateSound(move, board);
+
+        if (tts) await say(narrateMove(move, pastBoard, true));
 
         const dt2 = Date.now() - t0;
         const remainingMs = playTimeMs - dt2;
@@ -205,12 +211,9 @@ export function ui(
             await sleep(remainingMs);
         }
 
-        board = board.applyMove(move, moveAttrs?.pgn);
-        sfx && playAppropriateSound(move, board);
-        
         window.board = board; // TODO TEMP
 
-        updateEval();
+        await updateEval();
         redraw();
         doNextMove();
     }

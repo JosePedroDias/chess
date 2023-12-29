@@ -10,6 +10,8 @@ const WHITE = '#FFF';
 const MAX = 5;
 
 export function Evaluation({ fromBlacks }, { value }) {
+    //value = value * -1;
+
     const x = CW * 8.05;
     const y = CW * 4;
 
