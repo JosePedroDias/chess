@@ -1,6 +1,6 @@
 import m from '../../vendor/mithril.mjs';
 
-import { times, randomColor } from '../utils.mjs';
+import { times } from '../utils.mjs';
 import { EMPTY, POSITIONS_TO_XY } from '../board.mjs';
 import { moveToObject } from '../move.mjs';
 import { isBishop, isKing, isKnight, isPieceOfColor, isQueen, isRook, isWhitePiece } from '../pieces.mjs';
@@ -27,10 +27,24 @@ import { Ring } from './ring.mjs';
 import { Arrow } from './arrow.mjs';
 import { add, mulScalar } from './geometry.mjs';
 
+let HIDE_IT = false;
+
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === ' ') {
+        ev.preventDefault();
+        ev.stopPropagation();
+        HIDE_IT = !HIDE_IT;
+        m.redraw();
+    }
+});
+
 export function UiBoard(
     { fromBlacks, drawAnnotations, dest },
     { board, out },
 ) {
+    drawAnnotations = drawAnnotations && !HIDE_IT;
+    dest            = dest            && !HIDE_IT;
+
     const posToXY = (pos) => {
         const posXY = Array.from(POSITIONS_TO_XY.get(pos));
         if (fromBlacks) {
