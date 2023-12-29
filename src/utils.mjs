@@ -86,6 +86,8 @@ export function histogram(arr) {
 
 export const identity = (a) => a;
 
+export const alwaysTrue = () => true;
+
 export const memoFactory = (fn, map, keyFn = identity) => (a, b) => {
     let k = keyFn(a, b);
     if (map.has(k)) return map.get(k);

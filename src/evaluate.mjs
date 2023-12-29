@@ -1,6 +1,10 @@
-import { PAWN_B, PAWN_W, isBishop, isRook, isQueen, isKing, isWhitePiece, isBlackPiece } from './pieces.mjs';
-import { EMPTY } from './board.mjs';
-import { histogram } from './utils.mjs';
+import {
+    PAWN_B, PAWN_W,
+    isBishop, isRook, isQueen, isKing, isKnight , isPawn, isWhitePiece, isBlackPiece,
+    knightStartPositions, bishopStartPositions, queenStartPosition, kingStartPosition,
+} from './pieces.mjs';
+import { EMPTY, CASTLING_MOVES } from './board.mjs';
+import { alwaysTrue, histogram } from './utils.mjs';
 import { isChecking, moveToPgn, rookMoves, bishopMoves, queenMoves } from './move.mjs';
 import { validMoves } from './valid-moves.mjs';
 
@@ -109,6 +113,55 @@ export function isTie(board) {
     return findMaterialDraws(board);
 }
 
+function _gmAux(stageName, froms, filterFn = alwaysTrue) {
+    return {
+        stage: stageName,
+        moves: validMoves(board).filter((mv) => {
+            const from = mv.substring(0, 2);
+            return froms.includes(from);
+        }).filter(filterFn),
+    };
+}
+
+// returns an array of moves
+function goldenMoves(board) {
+    const isWhite = board.isWhiteNext();
+
+    if (board._moves.length > 20) // 10 moves
+        return {
+            stage: 'ended',
+            moves: [],
+        };
+
+    // develop center pawns
+    let moves = (isWhite ? ['d2', 'e2'] : ['d7', 'e7']).filter(p => isPawn(board.get(p)));
+    let o = _gmAux('1.pawns', moves);
+    if (o.moves.length > 0) return o;
+
+    // develop knights
+    moves = knightStartPositions(isWhite).filter(p => isKnight(board.get(p)));
+    o = _gmAux('2.knights', moves, (mv) => ['6', '3'].includes(mv[3])); // avoid occluding bishops
+    if (o.moves.length > 0) return o;
+
+    // develop bishops
+    moves = bishopStartPositions(isWhite).filter(p => isBishop(board.get(p)));
+    o = _gmAux('3.bishops', moves);
+    if (o.moves.length > 0) return o;
+
+    // move queen?
+    moves = [queenStartPosition(isWhite)].filter(p => isQueen(board.get(p)));
+    o = _gmAux('4.queen', moves, (mv) => !(['1', '8'].includes(mv[3]))); // don't move to the side
+    if (o.moves.length > 0) return o;
+
+    // castle
+    moves = [kingStartPosition(isWhite)].filter(p => isKing(board.get(p)));
+    return _gmAux('5.castle', moves, (mv) => CASTLING_MOVES.includes(mv));
+}
+
+function boardSpace(board) {
+    return validMoves(board).length;
+}
+
 // who played is attacking more than 1 enemy piece
 export function canFork(board, mySide) {
     const vMoves = validMoves(board, mySide);
@@ -214,9 +267,6 @@ export function computeOutcomes(board) {
         }
     }
 
-    // TODO CASTLING MOVES
-    // TODO DEVELOPMENT MOVES
-
     for (const mv of moves) {
         const to = mv.substring(2, 4);
         const prom = mv[4];
@@ -309,6 +359,13 @@ export function computeOutcomes(board) {
         });
     }
 
+    const { stage, moves: gmMoves } = goldenMoves(board);
+    //console.log(stage);
+    for (const mv of gmMoves) {
+        const o = moveAttributesMap.get(mv);
+        o.isGoldenMove = true;
+    }
+    
     return {
         moves,
         pinSkewerMoves,

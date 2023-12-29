@@ -253,7 +253,7 @@ export function ui(
                     ]),
                     UiBoard({ fromBlacks, drawAnnotations: hints, dest }, { board, out }),
                     Evaluation({ fromBlacks }, evalO),
-                    //Material({}, { board }),
+                    Material({}, { board }),
                     //Moves({}, { board }),
                 ]
             );

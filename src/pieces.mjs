@@ -1,4 +1,4 @@
-import { EMPTY } from "./board.mjs";
+import { EMPTY, FILES } from "./board.mjs";
 
 export const KING_W = 'K';
 export const KING_B = 'k';
@@ -62,4 +62,28 @@ export function isKnight(piece) {
 
 export function isPawn(piece) {
     return PAWNS.includes(piece);
+}
+
+export function pawnStartPositions(isWhite) {
+    return FILES.map((f) => `${f}${isWhite ? 2 : 7}`);
+}
+
+export function rookStartPositions(isWhite) {
+    return ['a', 'h'].map((f) => `${f}${isWhite ? 1 : 8}`);
+}
+
+export function knightStartPositions(isWhite) {
+    return ['b', 'g'].map((f) => `${f}${isWhite ? 1 : 8}`);
+}
+
+export function bishopStartPositions(isWhite) {
+    return ['c', 'f'].map((f) => `${f}${isWhite ? 1 : 8}`);
+}
+
+export function queenStartPosition(isWhite) {
+    return isWhite ? 'd1' : 'd8';
+}
+
+export function kingStartPosition(isWhite) {
+    return isWhite ? 'e1' : 'e8';
 }
