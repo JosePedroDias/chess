@@ -16,6 +16,7 @@ import { initSfx, playSample } from '../sfx/sfx.mjs';
 import { sleep } from '../utils.mjs';
 import { narrateMove } from '../narrate-move.mjs';
 import { say } from '../tts.mjs';
+import { puzzle } from '../puzzle.mjs';
 
 let evalBoard;
 let evalO = {};
@@ -272,6 +273,11 @@ export function ui(
     if (location.hash) {
         const hash = decodeURIComponent(location.hash.substring(1));
         startBoard = Board.fromFen(hash);
+    } else if (search.get('puzzle-pieces')) {
+        const tmpBoard = await puzzle(search.get('puzzle-pieces'));
+        startBoard = Board.fromFen(tmpBoard.getFen());
+    } else {
+        startBoard = Board.default();
     }
     window.board = startBoard;
 

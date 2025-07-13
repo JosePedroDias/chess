@@ -111,8 +111,6 @@
             <button>play</button>
         </form>
         <script type="module">
-            import { puzzle } from './src/puzzle.mjs';
-
             const playBtnEl           = document.querySelector('button');
 
             const sfxInputEl          = document.getElementById('sfx');
@@ -157,7 +155,8 @@
 
                 u.set('p1', p1);
                 u.set('p2', p2);
-
+                
+                puzzlePieces                         && u.set('puzzle-pieces', puzzlePieces);
                 sfx                                  && u.set('sfx',          '1');
                 tts                                  && u.set('tts',          '1');
                 fromBlacks                           && u.set('from-blacks',  '1');
@@ -165,11 +164,6 @@
                 sfEval                               && u.set('eval',         '1');
                 dest                                 && u.set('dest',         '1');
                 hints                                && u.set('hints',        '1');
-
-                if (puzzlePieces) {
-                    const board = await puzzle(puzzlePieces);
-                    fen = board.getFen();
-                }
 
                 window.location.href = `./play.html?${u.toString()}${fen ? `#${fen}` : ''}`;
             });
